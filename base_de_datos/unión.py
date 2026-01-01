@@ -48,7 +48,7 @@ def unir_archivo_MAG(
   os.makedirs(ruta_merge, exist_ok=True)                                            # Creo las carpetas de destino correspondientes,
   ruta_final = os.path.join(ruta_merge, archivo_pc.replace('pc1s', 'merge1s'))      # y la ruta final del archivo unión (con nombre incluído)
   if os.path.exists(ruta_final):                                                    # Si dicha ruta (con el nombre) ya existe,
-    print(f"El archivo {archivo_pc.replace('pc1s', 'merge1s')} ya existe.")       # => el archivo ya fue unido.
+    print(f"El archivo {archivo_pc.replace('pc1s', 'merge1s')} ya existe.")         # => el archivo ya fue unido.
     return                                                                          # => no hago nada.
   try:                                                                              # Si no, tratamos de unir los archivos PC y SS
     PC = pd.read_csv(ruta_pc, sep=r'\s+', header=None, engine='python')             # Leo el contenido de las rutas correspondientes de los
