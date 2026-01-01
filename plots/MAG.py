@@ -1,8 +1,8 @@
 
-# Terminado (comentar el SWEA)
+# Terminado
 
 #============================================================================================================================================
-# Tesis de Licenciatura | Archivo para graficar las magnitudes físicas medidas por MAVEN (MAG, SWEA en 2D, 3D y más)
+# Tesis de Licenciatura | Archivo para graficar las magnitudes físicas medidas por MAVEN MAG en 2D, 3D y más.
 #============================================================================================================================================
 
 import os
@@ -28,7 +28,7 @@ R_m: float = 3396.3 # Radio marciano máximo (km)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Instrumento MAG (Magnetometer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/MAG)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def MAG(
+def graficador(
     directorio: str,                                                               # Carpeta de los archivos que se desean plotear
     tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
     B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,      # Campo magnético
@@ -42,7 +42,7 @@ def MAG(
     coord: str = 'pc'                                                              # Sistema de coordenadas a graficar ('pc' ó 'ss')
 ) -> None:
   """
-  La función MAG recibe en formato string tres elementos:
+  La función graficador recibe en formato string tres elementos:
     - Un directorio que representa la ruta donde se encuentran los archivos que se desean graficar.
     - Un tiempo_inicial en formato 'DD/MM/YYYY-HH:MM:SS'.
     - Un tiempo_final   en formato 'DD/MM/YYYY-HH:MM:SS'.
@@ -75,12 +75,12 @@ def MAG(
       plot_xy(t, B_modulo, r'$\left|\mathbf{B}\right|$', scatter, tamaño_puntos)   # Uso el graficador 2D: plot_xy.
       p.ylabel('Campo Magnético [nT]')                                             # y nombro al eje y para el campo B (en nanoTesla => [nT])
     graficar_componentes(                                                          # Si alguna componente de B_i = True, la grafico,
-      t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                     # con su correspondiente etiqueta y nombre del eje y.
-      'Campo Magnético [nT]', scatter, tamaño_puntos)
+      t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                     # con su correspondiente etiqueta,
+      'Campo Magnético [nT]', scatter, tamaño_puntos)                              # y nombre del eje y, scatter y tamaño de puntos.
     graficar_componentes(                                                          # Ídem, grafico las posiciones con respecto al tiempo
       t, [Xpc,Ypc,Zpc, Xss,Yss,Zss], [x_pc,y_pc,z_pc, x_ss,y_ss,z_ss],             # tanto para coordenadas PC como SS,
-      [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                   # colocando las etiquetas correspondientes.
-       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$'],
+      [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                   # colocando las etiquetas correspondientes: PC,
+       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$'],                  # y SS.
       'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)          # Normalizo por el radio marciano.
     formatear_ejes_y_titulo(                                                       # Adapto el eje temporal x con el formato que corresponda,
       pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                  # convirtiendo t_inicial y t_final a objeto datetime
@@ -120,8 +120,7 @@ def leer_archivos_MAG(
         ruta_base: str = os.path.join(directorio, str(año), str(int(mes)))       # Ruta base donde deberían estar los archivos de ese día.
         nombres: list[str] = [                                                   # Creo una lista de dos strings que contiene los posibles
           f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r01_recortado.sts', # nombres que puede tener el archivo correspondiente a ese
-          f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r02_recortado.sts'  # dia. Con terminación 'r01' ó 'r02' (r=revisión).
-        ]
+          f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r02_recortado.sts'] # dia. Con terminación 'r01' ó 'r02' (r=revisión).
         if 'hemisferio_N' in directorio:                                         # Si se desea graficar el hemisferio norte,
           nombres = [x.replace('.sts', '_hemisferio_N.sts') for x in nombres]    # reemplazo el nombre por la terminación correpondiente.
         elif 'hemisferio_ND' in directorio:                                      # Y si se desea graficar solo el hemisferio norte diurno,
@@ -170,7 +169,13 @@ def guardar_figura() -> None:
     print('Figura no guardada.')                                                 # no se guarda.
 
 #———————————————————————————————————————————————————————————————————————————————————————
-def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = False, tamaño_puntos: int = 2) -> None:
+def plot_xy(
+    x: np.ndarray,                                   # Array de puntos para la coordenada x (eje de abscisas).
+    y: np.ndarray,                                   # Array de puntos para la coordenada y (eje de ordenadas).
+    etiqueta: str = None,                            # Nombre de las mediciones.
+    scatter: bool = False,                           # Graficar por puntos y no por interpolación.
+    tamaño_puntos: int = 2                           # Tamaño de los puntos.
+) -> None:
   """
   La función plot_xy realiza el gráfico 2D de x contra y de dos np.ndarrays pasados por parámetro. Coloca las etiquetas (str)
   correspondientes, y si el parámetro booleano scatter es True, realiza un plot de scatter (por puntos) y permite ajustar el tamaño de
@@ -205,7 +210,7 @@ def graficar_trayectoria(
       p.xlabel(r'$x_{\text{ss}}$ [$R_M$]')                                        # coloco labels tipo SS en x
       p.ylabel(r'$\sqrt{y_{\text{ss}}^2+z_{\text{ss}}^2}$ [$R_M$]')               # y en y.
   elif x and y and z:                                                             # Si x=y=z=True, entonces se realiza un plot 3D.
-    fig   = p.figure()
+    fig   = p.figure()                                                            # Creo la figura.
     ax    = fig.add_subplot(111, projection='3d')                                 # Genero un plot 3D.
     u,v,w = esfera_3D(resolución=100)                                             # Grafico Marte como una esfera perfecta de referencia,
     ax.plot_surface(u,v,w, color='red', alpha=0.5)                                # de color rojo, y con cierta transparencia (alpha).
@@ -215,11 +220,11 @@ def graficar_trayectoria(
     ax.set_zlim([-tamaño_ejes, tamaño_ejes])                                      # y en z en igual proporción.
     ax.set_box_aspect([1,1,1])                                                    # Aspecto cúbico para el plot.
     if coord=='pc':                                                               # Etiquetas de los ejes, tipo PC
-      ax.set(xlabel=r'$x_{\text{pc}}$ [$R_M$]',
-             ylabel=r'$y_{\text{pc}}$ [$R_M$]',zlabel=r'$z_{\text{pc}}$ [$R_M$]')
+      ax.set(xlabel=r'$x_{\text{pc}}$ [$R_M$]',                                   # normalizadas por R_M (Radio Marciano)
+             ylabel=r'$y_{\text{pc}}$ [$R_M$]',zlabel=r'$z_{\text{pc}}$ [$R_M$]') # en x,y,z.
     elif coord=='ss':                                                             # Etiquetas de los ejes, tipo SS
-      ax.set(xlabel=r'$x_{\text{ss}}$ [$R_M$]',
-             ylabel=r'$y_{\text{ss}}$ [$R_M$]',zlabel=r'$z_{\text{ss}}$ [$R_M$]')
+      ax.set(xlabel=r'$x_{\text{ss}}$ [$R_M$]',                                   # normalizadas por R_M,
+             ylabel=r'$y_{\text{ss}}$ [$R_M$]',zlabel=r'$z_{\text{ss}}$ [$R_M$]') # en x,y,z.
     ax.set_title('Posición de MAVEN')                                             # y título del plot.
   else:                                                                           # Si los 3 booleanos no son True,
     pares = [(x,y,X,Y,'$x$','$y$'), (x,z,X,Z,'$x$','$z$'), (y,z,Y,Z,'$y$','$z$')] # Creo los pares ordenados (x,y); (x,z); (y,z) con labels
@@ -277,222 +282,11 @@ def esfera_3D(
   """
   phi          = np.linspace(0, 2*pi, resolución)        # Creo un vector phi en el intervalo [0,2pi] con la resolución pasada por parámetro
   theta        = np.linspace(0,   pi, resolución)        # y un vector theta en el intervalo [0,pi].
-  superficie_x = np.outer(cos(phi), sin(theta))          # Conversión a coordenadas cartesianas para x,
-  superficie_y = np.outer(sin(phi), sin(theta))          # y,
-  superficie_z = np.outer(np.ones_like(phi), cos(theta)) # y z mediante esféricas.
+  superficie_x = np.outer(cos(phi), sin(theta))          # Conversión a coordenadas cartesianas para la posición en x,
+  superficie_y = np.outer(sin(phi), sin(theta))          # para la posición en y,
+  superficie_z = np.outer(np.ones_like(phi), cos(theta)) # y para la posición en z mediante coordenadas esféricas.
   return (superficie_x, superficie_y, superficie_z)      # Devuelvo una tripla que representa a la esfera 3D.
 #———————————————————————————————————————————————————————————————————————————————————————
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# Instrumento SWEA (Solar Wind Electron Analizer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWEA)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-# Electron Pitch Angle Distribution (Survey / Archive)
-#—————————————————————————————————————————————————————
-def SWEA_pitch_angle_distribution(
-    directorio: str,
-    archivo: str,
-    tiempo_inicial: str,
-    tiempo_final: str,
-    mínimo: float = 1e5,
-    promedio: bool = False
-) -> None:
-  """
-  La función SWEA_pitch_angle_distribution permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía.
-
-  Procedimiento:
-    1. Ir al Link: https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.svy_pad (Survey) (15 Hz) (mediciones cada 4s)
-                ó  https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.arc_pad (Archive) (30 Hz) (mediciones cada 2s)
-    Survey: Tiene baja resolución temporal.
-    Archive: Tiene alta resolución temporal.
-    2. Seleccionar:
-      - Start Time: Fecha de inicio.
-      - Stop Time: Fecha de final.
-    3. Aparecerá un único archivo (a lo sumo otro del día siguiente). Hacer click.
-    4. Seleccionar el 2° ícono: Download product and data files.
-    5. Extraer el archivo .zip
-    6. El archivo deseado es el .cdf que será de la forma:
-      'mvn_swe_l2_svypad_20141225_v05_r01.cdf'
-    ó  'mvn_swe_l2_arcpad_20141225_v05_r01.cdf'
-    7. Colocar en la carpeta '1.Códigos/MAVEN/SWEA'
-  """
-  cdf          = cdflib.CDF(directorio + 'swea/' + archivo)                      # Abrir el archivo
-  energía      = cdf.varget('energy')                                            # Cargo bins de energía de tamaño: (E,)
-  dt           = cdfepoch.to_datetime(cdf.varget('epoch'))                       # Tiempos de tamaño: (T,)
-  flujo        = cdf.varget('diff_en_fluxes')                                    # Matriz de flujo de tamaño: (T, P, E)
-  t0_seg       = tiempo_UTC_en_segundos(tiempo_inicial)                          #
-  tf_seg       = tiempo_UTC_en_segundos(tiempo_final)                            #
-  dt_seg       = (                                                               #
-    (dt-np.array(dt,dtype='datetime64[D]')).astype('timedelta64[s]').astype(int) #
-  )
-  condicion    = (dt_seg >= t0_seg) & (dt_seg <= tf_seg)                         # Condición de filtrado de datos
-  t_filtro     = dt[condicion]                                                   #
-  flujo_filtro = np.mean(flujo[condicion], axis=1)                               # Promedio por distribución de ángulo de incl: eje=1 dim=(T,E)
-  mapa_flujo   = flujo_filtro.T                                                  # Transpongo (dim = (E, T))
-  t_array      = mdates.date2num(t_filtro)                                       #
-  if promedio:                                                                   #
-    promediar(mapa_flujo)                                                        # Promediado de los elementos x con sus vecinos
-  fig, ax = p.subplots()                                                         # Mapa de calor en escala logarítmica
-  pcm     = ax.pcolormesh(                                                       #
-    t_array, energía, mapa_flujo,                                                #
-    norm=colors.LogNorm(vmin=mínimo), cmap='viridis', shading='auto'             #
-  )
-  ax.set_yscale('log')                                                           # La escala y será logarítmica
-  ax.invert_yaxis()                                                              # Invierto el eje y
-  ax.set_ylim(energía[-1], energía[0])                                           # Invierto el orden
-  ax.xaxis_date()                                                                # Eje x en formato de tiempos
-  ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))                    #
-  ax.set_xlabel('Tiempo UTC (HH:MM:SS)')                                         #
-  ax.set_ylabel(r'$E_{\text{e}}$ [eV]')                                          #
-  ax.set_title('Instrumento SWEA')                                               #
-  cbar = fig.colorbar(pcm, ax=ax, label='Flujo de Energía (DEF)')                # Barra de colores del mapa de calor
-  cbar.ax.text(                                                                  #
-    -1.5, 0.5, r'$log_{10}(DEF)$ [m$^{-2}$sr$^{-1}$s$^{-1}$]',                   #
-    va='center', ha='center', rotation=90, transform=cbar.ax.transAxes           #
-  )
-  fig.tight_layout()                                                             #
-  p.show()                                                                       # (block=False) permite usar la terminal mientras veo el plot
-
-#———————————————————————————————————————————————————————————————————————————————————————
-# Funciones Auxiliares
-#———————————————————————————————————————————————————————————————————————————————————————
-def tiempo_UTC_en_segundos(t):   # Función auxiliar para convertir tiempo UTC en segundos
-  """
-  Documentación
-  """
-  h,m,s = map(int, t.split(':')) #
-  return h*3600 + m*60 + s       #
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def promediar(mapa) -> None:
-  """
-  Documentación
-  """
-  def valido(estado):                                                 #
-      return (not np.isnan(estado)) or (np.round(estado) != 0.0)      #
-  def invalido(estado):                                               #
-      return np.isnan(estado) or (np.round(estado) == 0.0)            #
-  filas, columnas = mapa.shape                                        #
-  for i in range(filas):                                              #
-    for j in range(columnas-3):                                       #
-      x0,x1,x2,x3 = mapa[i][j],mapa[i][j+1],mapa[i][j+2],mapa[i][j+3] #
-      if valido(x0) and invalido(x1) and valido(x2):                  #
-        mapa[i][j+1] = (x0+x2)/2                                      # Si los vecinos por izq y der de j+1 (inválido) son !=0, tomo promedio
-      if valido(x0) and invalido(x1) and invalido(x2) and valido(x3): #
-        mapa[i][j+1] = (x0+x3)/2                                      # Si los vecinos izq y der de j+1/j+2 (inválidos) son !=0, tomo promedio
-        mapa[i][j+2] = (x0+x3)/2                                      #
-      if valido(x0) and invalido(x1):                                 #
-        mapa[i][j+1] = x0                                             # Si hay muchos inválidos, extrapolo j a j+1
-#———————————————————————————————————————————————————————————————————————————————————————
-
-# Omni-Directional Electron Energy Spectra
-#—————————————————————————————————————————
-""" La función SWEA_pitch_angle_distr permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía. Pasos:
-
-    1. Ir al Link: https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.svy_pad (Survey)
-                ó  https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.arc_pad (Archive)
-    Archive: Tiene baja resolución temporal. (Datos revisados)
-    Survey: Tiene alta resolución temporal. (Datos crudos)
-    2. Seleccionar:
-        - Start Time: Fecha de inicio.
-        - Stop Time: Fecha de final.
-    3. Aparecerá un único archivo (a lo sumo otro del día siguiente). Hacer click.
-    4. Seleccionar el 2° ícono: Download product and data files.
-    5. Extraer el archivo .zip
-    6. El archivo deseado es el .cdf que será de la forma:
-        'mvn_swe_l2_arcpad_20141225_v05_r01.cdf'
-     ó  'mvn_swe_l2_svypad_20141225_v05_r01.cdf'
-    7. Colocar en la carpeta '1.Códigos/MAVEN/SWEA'
-"""
-
-
-""" ESTE CÓDIGO FUNCIONA
-# Load and parse the XML
-with open(directorio + 'SWEA/' + file, 'r') as file:
-  soup = BeautifulSoup(file, 'xml')
-
-rows = soup.find_all('TR')
-
-timestamps = []
-columns = []
-for row in rows[3550:4000]:
-  cells = row.find_all('TD')
-  if len(cells) >= 6: # X value (time from index 2)
-    try:
-      timestamp = float(cells[2].text.strip())
-    except ValueError:
-      continue  # skip if timestamp is missing or invalid
-
-    raw_array = cells[5].text.strip('[]') # Y array (from index 5)
-    if raw_array:
-      try:
-        y_values = list(map(float, raw_array.split()))
-        timestamps.append(timestamp)
-        columns.append(y_values)
-      except ValueError:
-        continue  # skip malformed entries
-
-# Convert to 2D array and transpose to get shape (len(y), len(x))
-data = np.array(columns).T  # shape: (y_points, x_points)
-
-times = [datetime.utcfromtimestamp(ts) for ts in timestamps]
-extent = [mdates.date2num(times[0]), mdates.date2num(times[-1]), 1, data.shape[0]]
-
-# Plot the heatmap
-#extent = [min(timestamps), max(timestamps), 0, data.shape[0]]  # x = time, y = index
-p.imshow(data, aspect='auto', extent=extent, cmap='viridis')
-#p.yscale('log')
-p.gca().xaxis_date()
-p.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-p.gca().xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=6))
-#p.gcf().autofmt_xdate()
-p.xlabel('tiempo (UNIX)')
-p.ylabel('$E_e$ [eV]')
-p.title('Mapa de calor 2D')
-p.tight_layout()
-p.show()
-"""
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# Instrumento SWIA (Solar Wind Ion Analizer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWIA)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-# SWIA
-# Para viento solar usar fine survey (ángulo más pequeño)
-# Para magnetofunda usar coarse survey (en toda la dirección)
-# survey es baja resolución temporal, el archive es mejor
-# Los primeros 4 son los espectros, dsp está el de momentos y el onboard significa el espectro/momento calculado automáticamente y promediado
-
-"""def SWIA_pitch_angle_distribution(archivo: str, tiempo_inicial: str, tiempo_final: str, mínimo: float = 1e5, promedio: bool = False) -> None:
-  Documentación
-  
-  cdf            = cdflib.CDF(directorio + 'SWEA/' + archivo) # Abrir el archivo
-  energía        = cdf.varget('energy')                       # Cargo bins de energía de tamaño: (E,)
-  dt             = cdfepoch.to_datetime(cdf.varget('epoch'))  # Tiempos de tamaño: (T,)
-  flujo          = cdf.varget('diff_en_fluxes')               # Matriz de flujo de tamaño: (T, P, E)
-  t0_seg, tf_seg = tiempo_UTC_en_segundos(tiempo_inicial), tiempo_UTC_en_segundos(tiempo_final)
-  dt_seg         = ((dt - np.array(dt, dtype='datetime64[D]')).astype('timedelta64[s]').astype(int))
-  condicion      = (dt_seg >= t0_seg) & (dt_seg <= tf_seg)    # Condición de filtrado de datos
-  t_filtro       = dt[condicion]
-  flujo_filtro   = np.mean(flujo[condicion], axis=1)          # Promedio por distribución de ángulo de eje inclinación (eje=1) (la dimensión = (T, E))
-  mapa_flujo     = flujo_filtro.T                             # Transpongo (dimensión = (E, T))
-  t_array        = mdates.date2num(t_filtro)
-  if promedio:
-      promediar(mapa_flujo)                                   # Promediado de los elementos x con sus vecinos
-  fig, ax = p.subplots(figsize=(12,3))                        # Mapa de calor en escala logarítmica
-  pcm = ax.pcolormesh(t_array, energía, mapa_flujo, norm=colors.LogNorm(vmin=mínimo), cmap='viridis', shading='auto')
-  ax.set_yscale('log')                                        # La escala y será logarítmica
-  ax.invert_yaxis()                                           # Invierto el eje y
-  ax.set_ylim(energía[-1], energía[0])                        # Invierto el orden
-  ax.xaxis_date()                                             # Eje x en formato de tiempos
-  ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-  ax.set_xlabel('Tiempo UTC (HH:MM:SS)')
-  ax.set_ylabel(r'$E_{\text{e}}$ [eV]')
-  ax.set_title('Instrumento SWEA')
-  cbar = fig.colorbar(pcm, ax=ax, label='Flujo de Energía (DEF)')   # Barra de colores del mapa de calor
-  cbar.ax.text(-1.5, 0.5, r'$log_{10}(DEF)$ [m$^{-2}$sr$^{-1}$s$^{-1}$]', va='center', ha='center', rotation=90, transform=cbar.ax.transAxes)
-  fig.tight_layout()
-  p.show() # (block=False) permite usar la terminal mientras veo el plot"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

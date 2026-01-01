@@ -10,7 +10,9 @@ import base_de_datos.recorte      as edit       # Recorta los datos
 import base_de_datos.unión        as merge      # Une los datos
 import base_de_datos.conversiones as convert    # Conversiones entre magnitudes
 
-import plots.instrumentos as plot               # Funciones para graficar 2D y 3D
+import plots.MAG          as MAG                # Funciones para graficar 2D y 3D
+import plots.SWEA         as SWEA               # Funciones para graficar 2D y 3D
+import plots.SWIA         as SWIA               # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani                # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 
@@ -28,7 +30,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""plot.MAG(
+"""MAG.graficador(
   directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
   tiempo_inicial='10/10/2018-00:00:00', tiempo_final='10/10/2018-23:45:00',
@@ -49,19 +51,18 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
   tamaño_puntos=1
 )"""
 
-"""
-plot.SWEA_pitch_angle_distribution(directorio=ruta,
-                                   archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
-                                   tiempo_inicial='09:40:00', tiempo_final='10:05:00',
-                                   promedio=True) # CORREGIR RUTA
-"""
-
 
 ani.MAG_trajectory_animation_3D(directorio=ruta+'datos_recortados_merge',
                                 tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00',
                                 paso=200,
                                 coord='ss'
 )
+
+"""SWEA.SWEA_pitch_angle_distribution(directorio=ruta,
+                                   archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
+                                   tiempo_inicial='09:40:00', tiempo_final='10:05:00',
+                                   promedio=True) # CORREGIR RUTA
+"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CLASIFICADOR
