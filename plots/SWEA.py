@@ -16,7 +16,8 @@ from cdflib   import cdfepoch
 from bs4      import BeautifulSoup
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWEA (Solar Wind Electron Analizer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWEA (Solar Wind Electron Analizer)
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_distribución_angular(
     directorio: str,
     archivo: str,

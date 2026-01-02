@@ -21,7 +21,8 @@ from base_de_datos.descarga import dia_del_año
 R_m: float = 3396.3 # Radio marciano máximo (km)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer)
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador(
     directorio: str,                                                               # Carpeta de los archivos que se desean plotear
     tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'

@@ -16,7 +16,8 @@ from cdflib     import cdfepoch
 from plots.SWEA import promediar, tiempo_UTC_en_segundos
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWIA (Solar Wind Ion Analizer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWIA (Solar Wind Ion Analizer)
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_distribución_angular(
     archivo: str,
     tiempo_inicial: str, tiempo_final: str,
