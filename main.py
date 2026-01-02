@@ -61,7 +61,8 @@ MAG.graficador(
 """SWEA.graficador_distribución_angular(directorio=ruta,
                                      archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
                                      tiempo_inicial='09:40:00', tiempo_final='10:05:00',
-                                     promedio=True)"""
+                                     promedio=True
+)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CLASIFICADOR
