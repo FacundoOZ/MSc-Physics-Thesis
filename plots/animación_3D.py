@@ -17,9 +17,9 @@ from matplotlib.animation        import FuncAnimation
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# MAG_trajectory_animation_3D: función para graficar la trayectoria de MAVEN en animación PC ó SS
+# trayectoria_3D_MAVEN_MAG: función para graficar la trayectoria animada 3D de la sonda MAVEN alrededor de Marte en coordenadas PC ó SS.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def MAG_trajectory_animation_3D(
+def trayectoria_3D_MAVEN_MAG(
     directorio: str,                                                                      # Carpeta donde se encuentran los archivos a animar.
     tiempo_inicial: str, tiempo_final: str,                                               # t_0,t_f a animar (en formato DD/MM/YYYY-HH:MM:SS).
     tamaño_ejes: float = 2.5,                                                             # Ajusta el tamaño máx. de ejes x,y,z a la vez.
@@ -28,12 +28,14 @@ def MAG_trajectory_animation_3D(
     coord: str = 'pc'                                                                     # Coordenadas a graficar.
 ) -> None:
   """
-  La función MAG_trajectory_animation recibe en formato string un directorio, y un tiempo inicial y final que representan la ruta donde se
-  encuentran los archivos que se desean graficar en el intervalo de tiempo indicado, siendo éstos últimos dos en formato DD/MM/YYYY-HH:MM:SS.
+  La función trayectoria_3D_MAVEN_MAG recibe en formato string un directorio, un tiempo inicial y un tiempo final que representan la ruta
+  donde se encuentran los archivos MAG que se desean graficar en el intervalo de tiempo indicado, siendo éstos últimos dos en formato string
+  'DD/MM/YYYY-HH:MM:SS', y los lee mediante la función 'leer_archivos_MAG' del módulo plots.MAG.
   Mediante tamaño_ejes (float) puede ajustarse el tamaño máximo del plot 3D cúbico, y los enteros 'paso' y 'delay' permiten ajustar la
   cantidad de puntos que se recorreran por frame y con qué velocidad, respectivamente. Esta función permite graficar tanto coordenadas PC ó
   SS.
-  La función realiza una animación 3D de la trayectoria de MAVEN medida por el instrumento MAG en el sistema de coordenadas indicado.
+  La función realiza un gráfico 3D que muestra en forma animada la curva de trayectoria que traza la posición de MAVEN en el espacio (x,y,z)
+  medida por el instrumento MAG, ya sea en coordenadas Planetocéntricas (PC) ó Sun-State (SS).
   """
   data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)        # Leo los archivos en el intervalo (t0,tf) en 'data'.
   t, _,_,_, Xpc,Ypc,Zpc, Xss,Yss,Zss = [data[j].to_numpy() for j in range(0, 10)]         # Extraigo solo el tiempo y las coordenadas PC y SS.

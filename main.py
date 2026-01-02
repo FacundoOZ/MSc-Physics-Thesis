@@ -52,7 +52,7 @@ MAG.graficador(
 )
 
 
-"""ani.MAG_trajectory_animation_3D(directorio=ruta+'datos_recortados_merge',
+"""ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
                                 tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00',
                                 paso=200,
                                 coord='ss'
