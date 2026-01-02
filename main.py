@@ -17,7 +17,7 @@ import plots.animación_3D as ani                # Animación 3D de la trayector
 import plots.estilo_plots
 
 import machine_learning.redes_neuronales as ML  # Redes Neuronales
-import machine_learning.clasificador_KNN as KNN # Algoritmo de k-vecinos más cercanos (KNN)
+#import machine_learning.clasificador_KNN as KNN # Algoritmo de k-vecinos más cercanos (KNN)
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
@@ -30,7 +30,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""MAG.graficador(
+MAG.graficador(
   directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
   tiempo_inicial='10/10/2018-00:00:00', tiempo_final='10/10/2018-23:45:00',
@@ -39,9 +39,9 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # Magnitudes a graficar:
   B=True,
   #B_x=True, B_y=True, B_z=True,
-  # Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
+# Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
   z_pc=True, #x_pc=True, #y_pc=True,
-  # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
+# Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
   x_ss=True, #y_ss=True, z_ss=True
   #R=True,
 # Curvas paramétricas:
@@ -49,20 +49,19 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # Scatter:
   scatter=True,
   tamaño_puntos=1
-)"""
+)
 
 
-ani.MAG_trajectory_animation_3D(directorio=ruta+'datos_recortados_merge',
+"""ani.MAG_trajectory_animation_3D(directorio=ruta+'datos_recortados_merge',
                                 tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00',
                                 paso=200,
                                 coord='ss'
-)
+)"""
 
-"""SWEA.SWEA_pitch_angle_distribution(directorio=ruta,
-                                   archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
-                                   tiempo_inicial='09:40:00', tiempo_final='10:05:00',
-                                   promedio=True) # CORREGIR RUTA
-"""
+"""SWEA.graficador_distribución_angular(directorio=ruta,
+                                     archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
+                                     tiempo_inicial='09:40:00', tiempo_final='10:05:00',
+                                     promedio=True)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CLASIFICADOR

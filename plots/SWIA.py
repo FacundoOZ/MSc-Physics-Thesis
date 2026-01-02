@@ -2,36 +2,29 @@
 # EDITAR
 
 #============================================================================================================================================
-# Tesis de Licenciatura | Archivo para graficar las magnitudes físicas medidas por MAVEN MAG en 2D, 3D y más.
+# Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por SWIA: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWIA
 #============================================================================================================================================
 
-import os
 import numpy             as np
-import pandas            as pd
 import matplotlib.pyplot as p
 import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 import cdflib                      # para poder leer archivos .cdf, Common Data Frame (NASA)
 
-from numpy                  import sqrt,pi,cos,sin,shape
-from mpl_toolkits.mplot3d   import Axes3D
-from datetime               import datetime, timedelta
-from tqdm                   import tqdm
-from cdflib                 import cdfepoch
-#from bs4                   import BeautifulSoup
-#from scipy.interpolate     import interp1d
+from cdflib     import cdfepoch
 
-from SWEA                   import promediar
-from base_de_datos.descarga import dia_del_año
-
-R_m: float = 3396.3 # Radio marciano máximo (km)
+from plots.SWEA import promediar, tiempo_UTC_en_segundos
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# Instrumento SWIA (Solar Wind Ion Analizer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWIA)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def SWIA_pitch_angle_distribution(archivo: str, tiempo_inicial: str, tiempo_final: str, mínimo: float = 1e5, promedio: bool = False) -> None:
+# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWIA (Solar Wind Ion Analizer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def graficador_distribución_angular(
+    archivo: str,
+    tiempo_inicial: str, tiempo_final: str,
+    mínimo: float = 1e5,
+    promedio: bool = False
+) -> None:
   """
-  Docstring para SWIA_pitch_angle_distribution
+  Docstring para graficador_distribución_angular
   
   :param archivo: Descripción
   :type archivo: str

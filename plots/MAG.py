@@ -2,7 +2,7 @@
 # Terminado
 
 #============================================================================================================================================
-# Tesis de Licenciatura | Archivo para graficar las magnitudes físicas medidas por MAVEN MAG en 2D, 3D y más.
+# Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por MAG: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/MAG
 #============================================================================================================================================
 
 import os
@@ -12,18 +12,16 @@ import matplotlib.pyplot as p
 import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 
-from numpy                  import sqrt,pi,cos,sin,shape
-from mpl_toolkits.mplot3d   import Axes3D
-from datetime               import datetime, timedelta
-from tqdm                   import tqdm
+from numpy    import pi, sqrt, cos, sin
+from datetime import datetime, timedelta
+from tqdm     import tqdm
 
 from base_de_datos.descarga import dia_del_año
 
 R_m: float = 3396.3 # Radio marciano máximo (km)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# Instrumento MAG (Magnetometer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/MAG)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador(
     directorio: str,                                                               # Carpeta de los archivos que se desean plotear
     tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'

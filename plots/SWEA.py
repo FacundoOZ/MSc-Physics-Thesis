@@ -2,42 +2,30 @@
 # EDITAR
 
 #============================================================================================================================================
-# Tesis de Licenciatura | Archivo para graficar las magnitudes físicas medidas por MAVEN MAG en 2D, 3D y más.
+# Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por SWEA: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWEA
 #============================================================================================================================================
 
-import os
 import numpy             as np
-import pandas            as pd
 import matplotlib.pyplot as p
 import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 import cdflib                      # para poder leer archivos .cdf, Common Data Frame (NASA)
 
-from numpy                  import sqrt,pi,cos,sin,shape
-from mpl_toolkits.mplot3d   import Axes3D
-from datetime               import datetime, timedelta
-from tqdm                   import tqdm
-from cdflib                 import cdfepoch
-#from bs4                   import BeautifulSoup
-#from scipy.interpolate     import interp1d
-
-from base_de_datos.descarga import dia_del_año
-
-R_m: float = 3396.3 # Radio marciano máximo (km)
+from datetime import datetime
+from cdflib   import cdfepoch
+from bs4      import BeautifulSoup
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# Instrumento SWEA (Solar Wind Electron Analizer) # (https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWEA)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def SWEA_pitch_angle_distribution(
+# graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWEA (Solar Wind Electron Analizer) #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def graficador_distribución_angular(
     directorio: str,
     archivo: str,
-    tiempo_inicial: str,
-    tiempo_final: str,
+    tiempo_inicial: str, tiempo_final: str,
     mínimo: float = 1e5,
     promedio: bool = False
 ) -> None:
   """
-  La función SWEA_pitch_angle_distribution permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía.
+  La función graficador_distribución_angular permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía.
 
   Procedimiento:
     1. Ir al Link: https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.svy_pad (Survey) (15 Hz) (mediciones cada 4s)
@@ -124,72 +112,52 @@ def promediar(mapa) -> None:
         mapa[i][j+1] = x0                                             # Si hay muchos inválidos, extrapolo j a j+1
 #———————————————————————————————————————————————————————————————————————————————————————
 
-# Omni-Directional Electron Energy Spectra
-#—————————————————————————————————————————
-""" La función SWEA_pitch_angle_distr permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía. Pasos:
-
-    1. Ir al Link: https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.svy_pad (Survey)
-                ó  https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.arc_pad (Archive)
-    Archive: Tiene baja resolución temporal. (Datos revisados)
-    Survey: Tiene alta resolución temporal. (Datos crudos)
-    2. Seleccionar:
-        - Start Time: Fecha de inicio.
-        - Stop Time: Fecha de final.
-    3. Aparecerá un único archivo (a lo sumo otro del día siguiente). Hacer click.
-    4. Seleccionar el 2° ícono: Download product and data files.
-    5. Extraer el archivo .zip
-    6. El archivo deseado es el .cdf que será de la forma:
-        'mvn_swe_l2_arcpad_20141225_v05_r01.cdf'
-     ó  'mvn_swe_l2_svypad_20141225_v05_r01.cdf'
-    7. Colocar en la carpeta '1.Códigos/MAVEN/SWEA'
-"""
-
-
-""" ESTE CÓDIGO FUNCIONA
-# Load and parse the XML
-with open(directorio + 'SWEA/' + file, 'r') as file:
-  soup = BeautifulSoup(file, 'xml')
-
-rows = soup.find_all('TR')
-
-timestamps = []
-columns = []
-for row in rows[3550:4000]:
-  cells = row.find_all('TD')
-  if len(cells) >= 6: # X value (time from index 2)
-    try:
-      timestamp = float(cells[2].text.strip())
-    except ValueError:
-      continue  # skip if timestamp is missing or invalid
-
-    raw_array = cells[5].text.strip('[]') # Y array (from index 5)
-    if raw_array:
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador_omni_direccional: grafica la distribución omni-direccional del paso de electrones del instrumento SWEA
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def graficador_omni_direccional(directorio: str) -> None:
+  """
+  Documentación
+  """
+  # Load and parse the XML
+  with open(directorio + 'SWEA/' + file, 'r') as file:
+    soup = BeautifulSoup(file, 'xml')
+  rows = soup.find_all('TR')
+  timestamps = []
+  columns = []
+  for row in rows[3550:4000]:
+    cells = row.find_all('TD')
+    if len(cells) >= 6: # X value (time from index 2)
       try:
-        y_values = list(map(float, raw_array.split()))
-        timestamps.append(timestamp)
-        columns.append(y_values)
+        timestamp = float(cells[2].text.strip())
       except ValueError:
-        continue  # skip malformed entries
+        continue  # skip if timestamp is missing or invalid
 
-# Convert to 2D array and transpose to get shape (len(y), len(x))
-data = np.array(columns).T  # shape: (y_points, x_points)
+      raw_array = cells[5].text.strip('[]') # Y array (from index 5)
+      if raw_array:
+        try:
+          y_values = list(map(float, raw_array.split()))
+          timestamps.append(timestamp)
+          columns.append(y_values)
+        except ValueError:
+          continue  # skip malformed entries
+  # Convert to 2D array and transpose to get shape (len(y), len(x))
+  data = np.array(columns).T  # shape: (y_points, x_points)
+  times = [datetime.utcfromtimestamp(ts) for ts in timestamps]
+  extent = [mdates.date2num(times[0]), mdates.date2num(times[-1]), 1, data.shape[0]]
+  # Plot the heatmap
+  #extent = [min(timestamps), max(timestamps), 0, data.shape[0]]  # x = time, y = index
+  p.imshow(data, aspect='auto', extent=extent, cmap='viridis')
+  #p.yscale('log')
+  p.gca().xaxis_date()
+  p.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+  p.gca().xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=6))
+  #p.gcf().autofmt_xdate()
+  p.xlabel('tiempo (UNIX)')
+  p.ylabel('$E_e$ [eV]')
+  p.title('Mapa de calor 2D')
+  p.tight_layout()
+  p.show()
 
-times = [datetime.utcfromtimestamp(ts) for ts in timestamps]
-extent = [mdates.date2num(times[0]), mdates.date2num(times[-1]), 1, data.shape[0]]
-
-# Plot the heatmap
-#extent = [min(timestamps), max(timestamps), 0, data.shape[0]]  # x = time, y = index
-p.imshow(data, aspect='auto', extent=extent, cmap='viridis')
-#p.yscale('log')
-p.gca().xaxis_date()
-p.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
-p.gca().xaxis.set_major_locator(mdates.AutoDateLocator(maxticks=6))
-#p.gcf().autofmt_xdate()
-p.xlabel('tiempo (UNIX)')
-p.ylabel('$E_e$ [eV]')
-p.title('Mapa de calor 2D')
-p.tight_layout()
-p.show()
-"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
