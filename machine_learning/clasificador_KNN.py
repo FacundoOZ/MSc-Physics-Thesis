@@ -1,18 +1,26 @@
 
-import numpy as np
-import pandas as pd
-from numpy import sqrt
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
-from sklearn.metrics import classification_report, confusion_matrix
+# Editar
 
-#ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
+#============================================================================================================================================
+# Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
+#============================================================================================================================================
+
+import numpy             as np
+import pandas            as pd
+import matplotlib.pyplot as plt
+
+from numpy                   import sqrt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing   import StandardScaler
+from sklearn.neighbors       import KNeighborsClassifier
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.metrics         import classification_report, confusion_matrix
+from plots.MAG               import leer_archivos_MAG
+
+ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 # Extraigo los datos en el intervalo de tiempo deseado, con la función reciclada de plots:
-data = plot.leer_archivos_MAG(directorio=ruta+'datos_recortados', año=2016, tiempo_inicial='1/3-00:00:00', tiempo_final='30/3-23:59:00')
+data = leer_archivos_MAG(directorio=ruta+'datos_recortados', año=2016, tiempo_inicial='1/3-00:00:00', tiempo_final='30/3-23:59:00')
 tiempo, Bx,By,Bz, X,Y,Z = [data[i].to_numpy() for i in range(7)]            #   Extraigo toda la información del .sts de ese intervalo
 
 # Creo un DataFrame con los datos del intervalo (t0,tf) deseado, para poder calcular cosas:
