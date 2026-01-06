@@ -31,19 +31,21 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 MAG.graficador(
-  directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
+  directorio=ruta+'hemisferio_N', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='10/10/2018-00:00:00', tiempo_final='10/10/2018-23:45:00',
+  tiempo_inicial='10/12/2018-00:00:00', tiempo_final='10/12/2018-23:45:00',
 # Sistema de Referencia: 'ss' ó 'pc'
-  coord='pc',
+  #coord='ss',
 # Magnitudes a graficar:
   B=True,
   #B_x=True, B_y=True, B_z=True,
 # Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
-  z_pc=True, #x_pc=True, #y_pc=True,
+  #z_pc=True, #x_pc=True, #y_pc=True,
 # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
-  x_ss=True, #y_ss=True, z_ss=True
-  #R=True,
+  #x_ss=True, y_ss=True, z_ss=True,
+  #cil=True, # Usar solamente con coord='ss' y trayectoria=True
+# Distancia de MAVEN a Marte:
+  R=True,
 # Curvas paramétricas:
   #trayectoria=True,
 # Scatter:

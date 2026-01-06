@@ -26,10 +26,11 @@ R_m: float = 3396.3 # Radio marciano máximo (km)
 def graficador(
     directorio: str,                                                               # Carpeta de los archivos que se desean plotear
     tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
-    B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,      # Campo magnético
+    B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,      # Campo magnético B=sqrt(Bx**2+By**2+Bz**2) y componentes
     x_pc: bool = False, y_pc: bool = False, z_pc: bool = False,                    # Posición en coordenadas PC
     x_ss: bool = False, y_ss: bool = False, z_ss: bool = False,                    # Posición en coordenadas SS
-    R: bool = False,                                                               # R = sqrt(y**2 + z**2)
+    R: bool = False,                                                               # R = sqrt(Xpc**2+Ypc**2+Zpc**2) (contra t)
+    cil: bool = False,                                                             # cil = sqrt(y**2 + z**2) (contra x) (trayectoria)
     trayectoria: bool = False,                                                     # Gráfico 2D (x,y) ó 3D (x,y,z, junto a Marte)
     tamaño_ejes: float = 2.5,                                                      # Ajusta el tamaño máx. de ejes x,y,z a la vez
     scatter: bool = False,                                                         # Si scatter=True -> grafico sin interpolar (puntos), con
@@ -59,10 +60,10 @@ def graficador(
   t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]   # Extraigo la información del .sts en ese intervalo
   if trayectoria:                                                                  # Si trayectoria = True, entonces:
     if coord=='pc':                                                                # 1) si quiero coordenadas PC,
-      graficar_trayectoria(Xpc,Ypc,Zpc, x_pc,y_pc,z_pc, R,                         # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
+      graficar_trayectoria(Xpc,Ypc,Zpc, x_pc,y_pc,z_pc, cil,                       # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
                            tamaño_ejes, scatter, tamaño_puntos, coord)             # colocando los parámetros que correspondan
     elif coord=='ss':                                                              # 2) si quiero coordenadas SS,
-      graficar_trayectoria(Xss,Yss,Zss, x_ss,y_ss,z_ss, R,                         # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
+      graficar_trayectoria(Xss,Yss,Zss, x_ss,y_ss,z_ss, cil,                       # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
                            tamaño_ejes, scatter, tamaño_puntos, coord)             # colocando los parámetros correspondientes.
   else:                                                                            # Si no,
     if B:                                                                          # Si B = True,
@@ -72,11 +73,12 @@ def graficador(
     graficar_componentes(                                                          # Si alguna componente de B_i = True, la grafico,
       t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                     # con su correspondiente etiqueta,
       'Campo Magnético [nT]', scatter, tamaño_puntos)                              # y nombre del eje y, scatter y tamaño de puntos.
+    r_modulo = sqrt(Xpc**2 + Ypc**2 + Zpc**2)                                      # Defino la distancia de MAVEN a Marte (el radio) 
     graficar_componentes(                                                          # Ídem, grafico las posiciones con respecto al tiempo
-      t, [Xpc,Ypc,Zpc, Xss,Yss,Zss], [x_pc,y_pc,z_pc, x_ss,y_ss,z_ss],             # tanto para coordenadas PC como SS,
+      t, [Xpc,Ypc,Zpc, Xss,Yss,Zss, r_modulo],[x_pc,y_pc,z_pc, x_ss,y_ss,z_ss, R], # tanto para coordenadas PC como SS,
       [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                   # colocando las etiquetas correspondientes: PC,
-       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$'],                  # y SS.
-      'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)          # Normalizo por el radio marciano.
+       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$',r'$|\mathbf{r}|$'],# y SS.
+      'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)          # Normalizo por el radio marciano (ESCALA X10).
     formatear_ejes_y_titulo(                                                       # Adapto el eje temporal x con el formato que corresponda,
       pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                  # convirtiendo t_inicial y t_final a objeto datetime
       pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                  # en formato 'DD/MM/YYYY-HH:MM:SS'.
@@ -185,7 +187,7 @@ def plot_xy(
 def graficar_trayectoria(
     X: np.ndarray, Y: np.ndarray, Z: np.ndarray,                                  # Posiciones de la sonda en formato np.ndarray en x, y, z
     x: bool, y: bool, z: bool,                                                    # Valor booleano que determina las componentes a graficar
-    R: bool,                                                                      # Valor booleano de la componente cilíndrica sqrt(y**2+z**2)
+    cil: bool,                                                                    # Valor booleano de la componente cilíndrica sqrt(y**2+z**2)
     tamaño_ejes: float,                                                           # Permite ajustar el tamaño de los ejes del plot 3D.
     scatter: bool = False,                                                        # Si scatter=True se grafica sin interpolar (puntos), donde
     tamaño_puntos: int = 2,                                                       # tamaño_puntos representa el diámetro de los puntos.
@@ -196,7 +198,7 @@ def graficar_trayectoria(
   según corresponda. Cuando una ó dos variables x, y, ó z son True, grafica el contenido de los arrays correspondientes X, Y ó Z en
   coordenadas polares 2D. Si todas son True, realiza un plot 3D con el contenido de los arrays X, Y y Z.
   """
-  if R:                                                                           # Si R=True, entonces
+  if cil:                                                                         # Si cil=True, entonces
     plot_xy(X/R_m, sqrt((Y/R_m)**2+(Z/R_m)**2), 'Posición de MAVEN', scatter, tamaño_puntos) # Hago plot 2D sqrt(y^2+z^2) vs x normalizado.
     if coord=='pc':                                                               # Si las coordenadas son PC,
       p.xlabel(r'$x_{\text{pc}}$ [$R_M$]')                                        # entonces coloco labels tipo PC en x
