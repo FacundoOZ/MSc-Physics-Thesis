@@ -43,7 +43,7 @@ def graficador(
     - Un tiempo_inicial en formato 'DD/MM/YYYY-HH:MM:SS'.
     - Un tiempo_final   en formato 'DD/MM/YYYY-HH:MM:SS'.
   y dependiendo de los valores booleanos B (módulo de campo magnético), B_x, B_y, B_z (las componentes de campo magnético), x, y, z (las 
-  posiciones de la sonda en varios sistemas de coordenadas) y el parámetro 'trayectoria', permite realizar los siguientes gráficos:
+  posiciones de la sonda en varios sistemas de coordenadas), cil y R, y el parámetro 'trayectoria', permite realizar los siguientes gráficos:
     - El módulo de campo magnético (|B|) o sus componentes B_x, B_y, y B_z (en [nT]) detectado por el instrumento MAG de MAVEN con respecto
     al tiempo de interés seleccionado.
     - La posición de la sonda x, y, y/ó z con respecto al intervalo de tiempo de interés seleccionado.
@@ -73,7 +73,7 @@ def graficador(
     graficar_componentes(                                                          # Si alguna componente de B_i = True, la grafico,
       t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                     # con su correspondiente etiqueta,
       'Campo Magnético [nT]', scatter, tamaño_puntos)                              # y nombre del eje y, scatter y tamaño de puntos.
-    r_modulo = sqrt(Xpc**2 + Ypc**2 + Zpc**2)                                      # Defino la distancia de MAVEN a Marte (el radio) 
+    r_modulo = sqrt(Xpc**2 + Ypc**2 + Zpc**2)                                      # Defino la distancia de MAVEN a Marte (da igual SS=PC) 
     graficar_componentes(                                                          # Ídem, grafico las posiciones con respecto al tiempo
       t, [Xpc,Ypc,Zpc, Xss,Yss,Zss, r_modulo],[x_pc,y_pc,z_pc, x_ss,y_ss,z_ss, R], # tanto para coordenadas PC como SS,
       [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                   # colocando las etiquetas correspondientes: PC,
@@ -245,7 +245,7 @@ def graficar_componentes(
 ) -> None:
   """
   Grafica las componentes de MAVEN con respecto al tiempo, ya sean las componentes del campo magnético B_x, B_y, B_z ó las componentes de la
-  posición de MAVEN x, y, z, del instrumento MAG según corresponda.
+  posición de MAVEN x, y, z, (ó |r| = sqrt(x**2 + y**2 + z**2)) del instrumento MAG según corresponda.
   """
   for activo, datos, etiqueta in zip(activos, componentes, etiquetas): # Para cada componente de la lista de activos,
     if activo:                                                         # Si el activo correspondiente = True, entonces se graficará contra t.
