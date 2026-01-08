@@ -18,14 +18,10 @@ En ésta década, el mínimo solar se produjo en el año 2019 con su mínimo má
 Entonces, puedo ajustar los datos de 2019 de fruchtman y ver si son parecidos a los de Vignes, con esos tengo una curva del mínimo para todo el bow shock.
 
 Por otra parte, el máximo de ésta década fue el último mes de 2013, y a lo largo de los primeros 6 meses de 2014 aproximadamente. De fruchtman se tienen mediciones de los últimos 45 días del año 2014, por lo que podemos ajustar esos para tener el bow shock del máximo.
-Aún así, cabe aclarar que el máximo de esta década fue pequeño, prácticamente la mitad del del año 2000, y menor que el ocurrido a fines del 2024.
-"""
-
-
-
+Aún así, cabe aclarar que el máximo de esta década fue pequeño, prácticamente la mitad del del año 2000, y menor que el ocurrido a fines del 2024."""
 
 # Parámetros del ajuste de Vignes para el Bow Shock:
-X0     = 0.64 # ± 0.02 [R_m]
+X0      = 0.64 # ± 0.02 [R_m]
 epsilon = 1.03 # ± 0.01       # Excentricidad
 L       = 2.04 # ± 0.02 [R_m] # Semi-latus rectum
 
