@@ -7,7 +7,8 @@
 
 import os
 import pandas as pd
-from tqdm import tqdm
+from tqdm                       import tqdm
+from base_de_datos.conversiones import fecha_UTC_a_dia_decimal
 
 columnas = [
   6,         # Tiempo: en formato día decimal
@@ -134,6 +135,32 @@ def recortar_hemisferios_paquete_MAG(
       recortar_hemisferios_MAG(directorio, os.path.basename(j), hemisferio='norte')                # le paso hemisferio='norte' a la función.
     elif hemisferio == 'norte_diurno':                                                             # Si no,
       recortar_hemisferios_MAG(directorio, os.path.basename(j), hemisferio='norte_diurno')         # le paso hemisferio='norte_diurno'
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# recortar_datos_fruchtman: función para unir 2 archivos en 1 (que contenga las coordenadas PC y SS)
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def recortar_datos_fruchtman(
+    directorio: str,                                                            # Directorio del archivo, y donde se guardarán los recortes.
+    archivo: str,                                                               # Nombre del archivo.
+    año: int                                                                    # Año que se desea recortar.
+) -> None:
+  """
+  Lee el catálogo Fruchtman, filtra por año, conserva solo la columna temporal, convierte a día decimal y guarda un archivo por año.
+  """
+  ruta_i = os.path.join(directorio, archivo)                                    # Obtengo la ruta inicial como directorio + archivo.
+  data   = pd.read_csv(ruta_i, comment=';', header=None, skipinitialspace=True) # Leo y guardo el contenido omitiendo la primera línea.
+  años   = data[0].str.slice(0,4).astype(int)                                   # Obtengo los años del archivo .txt.
+  data_años = data[años == año]                                                 # Obtengo los datos del año pasado por parámetro.
+  if data_años.empty:                                                           # Si no hay nada en el año ingresado,
+    print(f"No hay datos para el año {año}")                                    # devuelvo un mensaje,
+    return                                                                      # y salgo.
+  días_decimales = data_años[0].apply(                                          # En días_decimales guardo dichos datos de la columna 0:
+    fecha_UTC_a_dia_decimal,                                                    # convierto los valores de fecha y hora a día decimal usando
+    formato='%Y-%m-%d/%H:%M:%S'                                                 # la función de conversiones, pero con el formato fruchtman.
+  )
+  nombre_f = f'fruchtman_{año}_recortado.txt'                                   # Creo el nombre del archivo final (de salida).
+  ruta_f   = os.path.join(directorio, nombre_f)                                 # Creo su ruta como directorio + nombre,
+  días_decimales.to_csv(ruta_f, index=False, header=False, float_format='%.6f') # y lo guardo (exporto) como csv.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

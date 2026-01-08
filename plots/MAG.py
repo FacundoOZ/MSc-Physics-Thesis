@@ -199,7 +199,8 @@ def graficar_trayectoria(
   coordenadas polares 2D. Si todas son True, realiza un plot 3D con el contenido de los arrays X, Y y Z.
   """
   if cil:                                                                         # Si cil=True, entonces
-    plot_xy(X/R_m, sqrt((Y/R_m)**2+(Z/R_m)**2), 'Posición de MAVEN', scatter, tamaño_puntos) # Hago plot 2D sqrt(y^2+z^2) vs x normalizado.
+    proy_yz = sqrt(Y**2 + Z**2)                                                   # Grafico la proyección del plano y,z.
+    plot_xy(X/R_m, proy_yz/R_m, 'Posición de MAVEN', scatter, tamaño_puntos)      # Hago plot 2D sqrt(y^2+z^2) vs x normalizado por R_m.
     if coord=='pc':                                                               # Si las coordenadas son PC,
       p.xlabel(r'$x_{\text{pc}}$ [$R_M$]')                                        # entonces coloco labels tipo PC en x
       p.ylabel(r'$\sqrt{y_{\text{pc}}^2+z_{\text{pc}}^2}$ [$R_M$]')               # y en y.

@@ -5,7 +5,6 @@
 # Tesis de Licenciatura | Archivo para convertir magnitudes físicas entre sí
 #============================================================================================================================================
 
-import pandas as pd
 from datetime import datetime, timedelta
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -27,12 +26,13 @@ def dia_decimal_a_fecha_UTC(
   return res.strftime('%d/%m/%Y-%H:%M:%S')            # Devuelvo res en formato datetime.
 
 def fecha_UTC_a_dia_decimal(
-    fecha_UTC: str
+    fecha_UTC: str,
+    formato: str = '%d/%m/%Y-%H:%M:%S'
 ) -> float:
   """
-  Recibe un string en formato de fecha 'DD/MM/YYYY-HH:MM:SS' y devuelve el día decimal del año correspondiente.
+  Recibe un string en formato de fecha string 'DD/MM/YYYY-HH:MM:SS' (predeterminado) y devuelve el día decimal del año correspondiente.
   """
-  fecha      = datetime.strptime(fecha_UTC, "%d/%m/%Y-%H:%M:%S")  # Convierto el string a objeto datetime con el formato pasado por parámetro
+  fecha      = datetime.strptime(fecha_UTC, formato)              # Convierto el string a objeto datetime con el formato pasado por parámetro
   inicio_año = datetime(fecha.year, 1, 1)                         # Inicio el contador datetime mediante 'inicio_año' (el 1 de enero) 
   dias       = (fecha - inicio_año).days + 1                      # Días completos transcurridos desde el 1 de enero
   segundos   = (3600*fecha.hour + 60*fecha.minute + fecha.second) # Parte fraccionaria del día.

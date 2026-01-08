@@ -25,39 +25,39 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # CONVERSIÓN día decimal <==> fecha UTC:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #print(convert.dia_decimal_a_fecha_UTC(dia_decimal=218, año=2022)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='12/12/2019-18:00:00')) # Devuelve la fecha UTC en día decimal en formato float
+#print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-MAG.graficador(
-  directorio=ruta+'hemisferio_N', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
+"""MAG.graficador(
+  directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='10/12/2018-00:00:00', tiempo_final='10/12/2018-23:45:00',
+  tiempo_inicial='17/6/2015-15:00:00', tiempo_final='23/6/2015-22:00:00',
 # Sistema de Referencia: 'ss' ó 'pc'
-  #coord='ss',
+  coord='pc',
 # Magnitudes a graficar:
   B=True,
   #B_x=True, B_y=True, B_z=True,
 # Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
-  #z_pc=True, #x_pc=True, #y_pc=True,
+  z_pc=True, x_pc=True, y_pc=True,
 # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
   #x_ss=True, y_ss=True, z_ss=True,
   #cil=True, # Usar solamente con coord='ss' y trayectoria=True
 # Distancia de MAVEN a Marte:
-  R=True,
+  #R=True,
 # Curvas paramétricas:
   #trayectoria=True,
 # Scatter:
   scatter=True,
   tamaño_puntos=1
-)
+)"""
 
 
 """ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
                                 tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00',
                                 paso=200,
-                                coord='ss'
+                                coord='pc'
 )"""
 
 """SWEA.graficador_distribución_angular(directorio=ruta,
@@ -83,6 +83,7 @@ MAG.graficador(
 #merge.unir_paquete_MAG(directorio=ruta, año='2024')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
 #edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
+#edit.recortar_datos_fruchtman(directorio=ruta, archivo='Catálogo_Fruchtman.txt', año=2020)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
