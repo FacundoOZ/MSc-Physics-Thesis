@@ -7,7 +7,8 @@
 
 import os
 import pandas as pd
-from tqdm                       import tqdm
+from tqdm import tqdm
+
 from base_de_datos.conversiones import fecha_UTC_a_dia_decimal
 
 columnas = [

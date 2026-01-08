@@ -16,6 +16,8 @@ import plots.SWIA         as SWIA               # Funciones para graficar 2D y 3
 import plots.animación_3D as ani                # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 
+import ajustes.Vignes as fit
+
 import machine_learning.redes_neuronales as ML  # Redes Neuronales
 #import machine_learning.clasificador_KNN as KNN # Algoritmo de k-vecinos más cercanos (KNN)
 
