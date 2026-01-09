@@ -11,9 +11,10 @@ import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 import cdflib                      # para poder leer archivos .cdf, Common Data Frame (NASA)
 
-from cdflib     import cdfepoch
+from cdflib import cdfepoch
 
-from plots.SWEA import promediar, tiempo_UTC_en_segundos
+from base_de_datos.conversiones import tiempo_UTC_en_segundos
+from plots.SWEA                 import promediar
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWIA (Solar Wind Ion Analizer)
@@ -38,7 +39,7 @@ def graficador_distribución_angular(
   :param promedio: Descripción
   :type promedio: bool
   """
-  cdf            = cdflib.CDF(directorio + 'SWEA/' + archivo) # Abrir el archivo
+  cdf            = cdflib.CDF(archivo) # Abrir el archivo
   energía        = cdf.varget('energy')                       # Cargo bins de energía de tamaño: (E,)
   dt             = cdfepoch.to_datetime(cdf.varget('epoch'))  # Tiempos de tamaño: (T,)
   flujo          = cdf.varget('diff_en_fluxes')               # Matriz de flujo de tamaño: (T, P, E)

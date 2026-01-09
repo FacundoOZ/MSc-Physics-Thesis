@@ -1,5 +1,5 @@
 
-# Terminado
+# EDITAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para unir los archivos de MAVEN MAG PlanetoCentric y Sun-State Coordinates recortados con recorte.py
@@ -9,6 +9,8 @@ import os
 import numpy  as np
 import pandas as pd
 from tqdm import tqdm
+
+from base_de_datos.conversiones import dias_decimales_a_datetime
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # unir_archivo_MAG: función para unir 2 archivos en 1 (que contenga las coordenadas PC y SS)
@@ -84,6 +86,57 @@ def unir_paquete_MAG(
         lista.append(os.path.join(ruta_actual, archivo))                                         # -> lo agrego a la lista
   for elem in tqdm(lista, desc=f'Uniendo año {año}', unit='archivo'):                            # -> tqdm usará la longitud de la lista
     unir_archivo_MAG(directorio, os.path.basename(elem))                                         # -> obtengo el nombre y uno los archivos
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# unir_datos_fruchtman_MAG: 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def unir_datos_fruchtman_MAG(
+    directorio: str,                                                                             # Carpeta de archivos que se desea unir
+    año: str                                                                                     # Año en formato string que se desea unir
+) -> None:
+  """
+  La función unir_datos_fruchtman_MAG recibe 
+  """
+  fruchtman_path = os.path.join(directorio, f"fruchtman_{año}_recortado.txt")
+  fruchtman_days = np.loadtxt(fruchtman_path)
+  output_rows = []
+  current_doy = None
+  mag_data = None
+  for dec_day in fruchtman_days:
+    dt = dias_decimales_a_datetime(np.array([dec_day]), año)[0]
+    doy   = dt.timetuple().tm_yday
+    month = dt.month
+    day   = dt.day
+    if doy != current_doy:
+      mag_filename = (f"mvn_mag_l2_{año}{doy:03d}merge1s_{año}{month:02d}{day:02d}_v01_r01_recortado.sts")
+      mag_path = os.path.join(directorio, "datos_recortados_merge", str(año), str(month), mag_filename)
+      mag_data = np.loadtxt(mag_path)
+      mag_decimal_days = mag_data[:, 0]
+      current_doy = doy
+    idx = find_nearest_index(mag_decimal_days, dec_day)
+    merged_row = np.concatenate(([dec_day], mag_data[idx, 1:]))
+    output_rows.append(merged_row)
+  output = np.array(output_rows)
+  output_path = os.path.join(directorio, f"fruchtman_{año}_recortado_merge.txt")
+  np.savetxt(output_path, output, fmt="%.6f")
+
+#———————————————————————————————————————————————————————————————————————————————————————
+# Funciones Auxiliares
+#———————————————————————————————————————————————————————————————————————————————————————
+def find_nearest_index(arr: np.ndarray, value: float) -> int:
+  """
+  Documentación
+  """
+  idx = np.searchsorted(arr, value)
+  if idx == 0:
+    return 0
+  if idx == len(arr):
+    return len(arr) - 1
+  before = arr[idx - 1]
+  after  = arr[idx]
+  return idx if abs(after - value) < abs(value - before) else idx - 1
+
+
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

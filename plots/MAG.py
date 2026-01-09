@@ -9,18 +9,14 @@ import os
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
-import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 
-from numpy             import pi, sqrt, cos, sin
+from numpy             import sqrt
 from datetime          import datetime, timedelta
 from tqdm              import tqdm
-from matplotlib.colors import LinearSegmentedColormap
 
-from base_de_datos.descarga import dia_del_año
-
-shade_m    = LinearSegmentedColormap.from_list('shade_m', [(0,0,0), (1.0,0.5,0.0)]) # Color negro (0,0,0) a naranja (1,.5,0) para Marte.
-R_m: float = 3396.3 # Radio marciano máximo (km)
+from base_de_datos.conversiones import R_m, fecha_UTC_a_DOY, dias_decimales_a_datetime
+from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera_3D
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer)
@@ -115,7 +111,7 @@ def leer_archivos_MAG(
       j = inicio                                                                 # Creo otro iterador j que representará la fecha.
       while j <= fin:                                                            # El j irá desde fecha_inicial a fecha_final.
         dia, mes = j.strftime('%d'), j.strftime('%m')                            # Extraigo día y mes del iterador (strings) con 2 dígitos.
-        DOY: str = dia_del_año(dia, mes, str(año))                               # Calculo el Day Of Year (DOY) de la fecha actual.
+        DOY: str = fecha_UTC_a_DOY(dia, mes, str(año))                           # Calculo el Day Of Year (DOY) de la fecha actual.
         ruta_base: str = os.path.join(directorio, str(año), str(int(mes)))       # Ruta base donde deberían estar los archivos de ese día.
         nombres: list[str] = [                                                   # Creo una lista de dos strings que contiene los posibles
           f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r01_recortado.sts', # nombres que puede tener el archivo correspondiente a ese
@@ -129,7 +125,7 @@ def leer_archivos_MAG(
           ruta_archivo: str = os.path.join(ruta_base, archivo)                   # guardo su ubicación en la variable ruta_archivo.
           if os.path.exists(ruta_archivo):                                       # Si el archivo existe,
             df = pd.read_csv(ruta_archivo, sep=' ', header=None)                 # lo leo completamente,
-            df[0] = dia_decimal_a_datetime(df[0].to_numpy(), año)                # convierto la col 0 a datetime CON EL AÑO CORRESPONDIENTE,
+            df[0] = dias_decimales_a_datetime(df[0].to_numpy(), año)             # convierto la col 0 a datetime CON EL AÑO CORRESPONDIENTE,
             lista_sts.append(df)                                                 # EN lista_sts CREO UN EJE t ABSOLUTO con todos los años
             encontrado = True                                                    # y actualizo la variable encontrado (se encontró)
             break                                                                # Ya no itero más el for.
@@ -142,48 +138,6 @@ def leer_archivos_MAG(
   datos: pd.DataFrame = pd.concat(lista_sts, ignore_index=True)                  # Concateno todos los dataframes de lista_sts en uno solo.
   datos = datos[(datos[0] >= t0) & (datos[0] <= tf)]                             # Recorto los datos exactos del intervalo (t_i,t_f) ingresado,
   return datos.reset_index(drop=True)                                            # y devuelvo el dataframe final con índices limpios.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def dia_decimal_a_datetime(
-    dia_decimal: np.ndarray,                                               # Lista de días en formato np.ndarray
-    año: int                                                               # Año de los días de la lista
-) -> pd.DatetimeIndex:
-  """
-  Recibe una lista de días decimales en formato float (por ejemplo [123.75, 361.98]) y un año (por ejemplo 2019), y devuelve un DatetimeIndex
-  que contiene una lista de objetos datetime con los días decimales del año correspondiente convertidos a formato 'AÑO-MES-DÍA HH:MM:SS'.
-  """
-  base = datetime(año, 1, 1)                                               # Agrego la variable tiempo (de tipo datetime) a res.
-  return pd.to_datetime([base + timedelta(days=d-1) for d in dia_decimal]) # Devuelvo res en formato datetime.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def guardar_figura() -> None:
-  """
-  La función guardar_figura no recibe ningún parámetro. Permite guardar la imagen graficada con la mejor resolución posible (formato PDF).
-  """
-  respuesta = input('Presione ENTER para guardar .PDF (escriba para omitir): ')  # Con input, pregunto al usuario si desea guardar el plot.
-  if respuesta == '':                                                            # Si presiona ENTER,
-    p.savefig('plot_MAG.pdf', format='pdf', bbox_inches='tight')                 # se guarda en formato .PDF (mejor calidad)
-    print(f'Se ha guardado correctamente.')                                      # y devuelve un mensaje.
-  else:                                                                          # Si escribe algo y presiona ENTER,
-    print('Figura no guardada.')                                                 # no se guarda.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def plot_xy(
-    x: np.ndarray,                                   # Array de puntos para la coordenada x (eje de abscisas).
-    y: np.ndarray,                                   # Array de puntos para la coordenada y (eje de ordenadas).
-    etiqueta: str = None,                            # Nombre de las mediciones.
-    scatter: bool = False,                           # Graficar por puntos y no por interpolación.
-    tamaño_puntos: int = 2                           # Tamaño de los puntos.
-) -> None:
-  """
-  La función plot_xy realiza el gráfico 2D de x contra y de dos np.ndarrays pasados por parámetro. Coloca las etiquetas (str)
-  correspondientes, y si el parámetro booleano scatter es True, realiza un plot de scatter (por puntos) y permite ajustar el tamaño de
-  esos puntos. Si scatter=False, realiza un plot común por interpolación. No devuelve nada. 
-  """
-  if scatter:                                        # Si scatter=True,
-    p.scatter(x, y, s=tamaño_puntos, label=etiqueta) # => realizo gráfico por puntos sin interpolación, con tamaño de puntos y label.
-  else:                                              # Si no,
-    p.plot(x, y, label=etiqueta)                     # realizo un plot común por interpolación y coloco el label.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def graficar_trayectoria(
@@ -271,35 +225,6 @@ def formatear_ejes_y_titulo(
     ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (resolución 1 Hz)") # modifico el título,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))                  # y el eje en formato 'DD/MM'.
     p.xlabel('Fecha UTC (DD/MM/YYYY)')                                              # Título del eje x.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def disco_2D(
-    resolución_r: int = 100, resolución_theta: int = 200   # Resolución radial (del (0,0) al borde) y angular (alrededor del disco)
-) -> None:
-  """
-  Genera las coordenadas (x,y) de un disco unitario mediante coordenadas polares.
-  """
-  ax = p.figure().add_subplot(111)                         # Creo la figura y los ejes.
-  r        = np.linspace(0,    1, resolución_r)            # Radio en el intervalo [0, 1].
-  theta    = np.linspace(0, 2*pi, resolución_theta)        # Ángulo polar en [0, 2pi].
-  Theta, R = np.meshgrid(theta, r)                         # Malla polar.
-  u, v     = R*cos(Theta), R*sin(Theta)                    # Conversión a coordenadas cartesianas x e y.
-  ax.pcolormesh(u,v,(u+1)/2, cmap=shade_m, shading='auto') # Agrego el shade de color para el lado diurno x>0 y nocturno x<0.
-  ax.set_aspect('equal', adjustable='box')                 # Tomo proporciones de los ejes iguales.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def esfera_3D(
-    resolución: float = 50                               # Resolución permite ajustar la definición de la esfera (predeterminado en 50)
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-  """
-  Genera las coordenadas (x,y,z) de una esfera unitaria mediante coordenadas esféricas.
-  """
-  phi          = np.linspace(0, 2*pi, resolución)        # Creo un vector phi en el intervalo [0,2pi] con la resolución pasada por parámetro
-  theta        = np.linspace(0,   pi, resolución)        # y un vector theta en el intervalo [0,pi].
-  superficie_x = np.outer(cos(phi), sin(theta))          # Conversión a coordenadas cartesianas para la posición en x,
-  superficie_y = np.outer(sin(phi), sin(theta))          # para la posición en y,
-  superficie_z = np.outer(np.ones_like(phi), cos(theta)) # y para la posición en z mediante coordenadas esféricas.
-  return (superficie_x, superficie_y, superficie_z)      # Devuelvo una tripla que representa a la esfera 3D.
 #———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -70,7 +70,7 @@ def recortar_paquete_MAG(
     recortar_archivo_MAG(directorio, os.path.basename(elem), coord)        # Extraigo solo el nombre del archivo, para pasarle a la funcion.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# recortar_hemisferios_MAG
+# recortar_hemisferios_MAG: función para recortar, en principio, los datos del hemisferio norte de las mediciones MAG.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def recortar_hemisferios_MAG(
     directorio: str,                                                                       # Carpeta donde se encuentra el archivo a recortar.
@@ -138,9 +138,9 @@ def recortar_hemisferios_paquete_MAG(
       recortar_hemisferios_MAG(directorio, os.path.basename(j), hemisferio='norte_diurno')         # le paso hemisferio='norte_diurno'
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# recortar_datos_fruchtman: función para unir 2 archivos en 1 (que contenga las coordenadas PC y SS)
+# recortar_datos_fruchtman_MAG: función para recortar el catálogo de bow shocks de fruchtman y quedarme solo con los días decimales (col[0])
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def recortar_datos_fruchtman(
+def recortar_datos_fruchtman_MAG(
     directorio: str,                                                            # Directorio del archivo, y donde se guardarán los recortes.
     archivo: str,                                                               # Nombre del archivo.
     año: int                                                                    # Año que se desea recortar.

@@ -1,19 +1,52 @@
 
-# Terminado
+# EDITAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para convertir magnitudes físicas entre sí
 #============================================================================================================================================
 
+import numpy  as np
+import pandas as pd
 from datetime import datetime, timedelta
+
+R_m: float = 3396.3 # Radio marciano máximo (km)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# fecha_UTC_a_DOY : 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def fecha_UTC_a_DOY(dia: str, mes: str, año: str) -> str:
+  """
+  La función fecha_UTC_a_DOY recibe en formato string un día, un mes y un año, y lo convierte a formato DOY (day of year), es decir, 
+  devuelve un string que representa un número entero entre 001 y 365 (ó 366 para los años bisiestos).
+  """
+  fecha = datetime(int(año), int(mes), int(dia)) # Convierto los strings a enteros y creo una variable llamada fecha con la fecha asociada.
+  return f'{fecha.timetuple().tm_yday:03d}'      # Devuelvo dicha fecha en formato día del año, y con formato de dos ceros (por ej.: 005).
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# dias_decimales_a_datetime : 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def dias_decimales_a_datetime(dia_decimal: np.ndarray, año: int) -> pd.DatetimeIndex:
+  """
+  Recibe una lista de días decimales en formato float (por ejemplo [123.75, 361.98]) y un año (por ejemplo 2019), y devuelve un DatetimeIndex
+  que contiene una lista de objetos datetime con los días decimales del año correspondiente convertidos a formato 'AÑO-MES-DÍA HH:MM:SS'.
+  """
+  base = datetime(año, 1, 1)                                               # Agrego la variable tiempo (de tipo datetime) a res.
+  return pd.to_datetime([base + timedelta(days=d-1) for d in dia_decimal]) # Devuelvo res en formato datetime.
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# tiempo_UTC_en_segundos : 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def tiempo_UTC_en_segundos(t):   # Función auxiliar para convertir tiempo UTC en segundos
+  """
+  Documentación
+  """
+  h,m,s = map(int, t.split(':')) #
+  return h*3600 + m*60 + s       #
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # dia_decimal_a_fecha_UTC / fecha_UTC_a_dia_decimal : permiten convertir una fecha específica a día decimal o viceversa
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def dia_decimal_a_fecha_UTC(
-    dia_decimal: float,
-    año: int
-) -> str:
+def dia_decimal_a_fecha_UTC(dia_decimal: float, año: int) -> str:
   """
   Recibe un día decimal en formato float y un año en formato int, y devuelve un string en formato 'DD/MM/YYYY-HH:MM:SS' que representa la
   fecha UTC correspondiente al día, mes, hora, minutos y segundos del año que ha sido pasado por parámetro.
@@ -24,11 +57,8 @@ def dia_decimal_a_fecha_UTC(
     timedelta(days = dia_decimal - int(dia_decimal))  # Sumo la parte fraccionaria, que corresponde a las horas, minutos y segundos.
   )
   return res.strftime('%d/%m/%Y-%H:%M:%S')            # Devuelvo res en formato datetime.
-
-def fecha_UTC_a_dia_decimal(
-    fecha_UTC: str,
-    formato: str = '%d/%m/%Y-%H:%M:%S'
-) -> float:
+#———————————————————————————————————————————————————————————————————————————————————————
+def fecha_UTC_a_dia_decimal(fecha_UTC: str, formato: str = '%d/%m/%Y-%H:%M:%S') -> float:
   """
   Recibe un string en formato de fecha string 'DD/MM/YYYY-HH:MM:SS' (predeterminado) y devuelve el día decimal del año correspondiente.
   """

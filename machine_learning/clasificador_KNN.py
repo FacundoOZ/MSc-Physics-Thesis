@@ -15,6 +15,7 @@ from sklearn.preprocessing   import StandardScaler
 from sklearn.neighbors       import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.metrics         import classification_report, confusion_matrix
+
 from plots.MAG               import leer_archivos_MAG
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'

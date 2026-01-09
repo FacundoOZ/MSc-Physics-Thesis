@@ -12,6 +12,8 @@ import random
 from tqdm     import tqdm                # Para mostrar barras de progreso de descarga
 from datetime import datetime, timedelta # Contiene correctamente los días de cada año
 
+from base_de_datos.conversiones import fecha_UTC_a_DOY
+
 link = 'https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/'                                 # Link de la base de datos de MAVEN
 ID   = {'User-Agent': 'Mozilla/5.0 (compatible; FacundoDownloader/1.0; +https://lasp.colorado.edu)'} # Identificación como usuario para LASP
 
@@ -33,7 +35,7 @@ def descargar_archivo_MAG(
   """
   dia_con_cero: str = f'{int(dia):02d}'                          # PRECAUCIÓN: los links de LASP llevan 0 delante en los días
   mes_con_cero: str = f'{int(mes):02d}'                          # y en los meses
-  DOY: str           = dia_del_año(dia, mes, año)                # Obtengo el DOY, que determina la fecha en formato "día del año"
+  DOY: str           = fecha_UTC_a_DOY(dia, mes, año)            # Obtengo el DOY, que determina la fecha en formato 'día del año'
   carpeta_destino = os.path.join(directorio, año, str(int(mes))) # Creo las carpetas (path) de la forma: directorio/año/mes
   os.makedirs(carpeta_destino, exist_ok=True)                    # Creo el path establecido si es que no existe aún (si existe -> OK)
   for j in ('01', '02'):
@@ -88,22 +90,6 @@ def descargar_paquete_MAG(
       j += timedelta(days=1)                                                 # El iterador suma 1 día al loop
       #time.sleep(random.uniform(1, 2))                                      # Intervalo de tiempo de espera para no sobrecargar el server.
   print("Resultado final:", contador)                                        # Resultado de la descarga
-
-#———————————————————————————————————————————————————————————————————————————————————————
-# Funciones Auxiliares
-#———————————————————————————————————————————————————————————————————————————————————————
-def dia_del_año(
-    dia: str,
-    mes: str,
-    año: str
-) -> str:
-  """
-  La función dia_del_año recibe en formato string un día, un mes y un año, y lo convierte a formato DOY (day of year), es decir, 
-  devuelve un string que representa un número entero entre 001 y 365 (ó 366 para los años bisiestos).
-  """
-  fecha = datetime(int(año), int(mes), int(dia)) # Convierto los strings a enteros y creo una variable llamada fecha con la fecha asociada.
-  return f'{fecha.timetuple().tm_yday:03d}'      # Devuelvo dicha fecha en formato día del año, y con formato de dos ceros (por ej.: 005).
-#———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

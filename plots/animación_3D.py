@@ -9,12 +9,15 @@ import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
 
-from plots.MAG                   import leer_archivos_MAG, esfera_3D, R_m
 from matplotlib.figure           import Figure
 from matplotlib.lines            import Line2D
 from matplotlib.widgets          import Button
 from matplotlib.animation        import FuncAnimation
 from mpl_toolkits.mplot3d.axes3d import Axes3D
+
+from base_de_datos.conversiones import R_m
+from plots.estilo_plots         import esfera_3D
+from plots.MAG                  import leer_archivos_MAG
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # trayectoria_3D_MAVEN_MAG: función para graficar la trayectoria animada 3D de la sonda MAVEN alrededor de Marte en coordenadas PC ó SS.
@@ -132,8 +135,7 @@ def crear_botones(
       update,                                 # uso el nuevo update (i=1)
       frames   = range(1, len(x), paso),      # utilizo la misma cantidad de frames de paso dado,
       interval = delay,                       # con delay entre frames,
-      blit     = False                        # y sin redibujado.
-    )
+      blit     = False)                       # y sin redibujado.
     p.draw()                                  # Dibujo la curva de trayectoria.
   btn_start.on_clicked(start)                 # Asocia las funciones llamadoras a los botones iniciar,
   btn_stop.on_clicked(stop)                   # detener,

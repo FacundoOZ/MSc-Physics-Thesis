@@ -16,7 +16,7 @@ import plots.SWIA         as SWIA               # Funciones para graficar 2D y 3
 import plots.animación_3D as ani                # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 
-import ajustes.Vignes as fit
+import ajustes.bow_shock as fit
 
 import machine_learning.redes_neuronales as ML  # Redes Neuronales
 #import machine_learning.clasificador_KNN as KNN # Algoritmo de k-vecinos más cercanos (KNN)
@@ -24,15 +24,14 @@ import machine_learning.redes_neuronales as ML  # Redes Neuronales
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# CONVERSIÓN día decimal <==> fecha UTC:
+# AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=218, año=2022)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
+fit.ajuste_Vignes_MGS()
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-MAG.graficador(
+"""MAG.graficador(
   directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
   tiempo_inicial='25/12/2014-09:00:00', tiempo_final='25/12/2014-12:45:00',
@@ -53,7 +52,7 @@ MAG.graficador(
 # Scatter:
   scatter=True,
   tamaño_puntos=1
-)
+)"""
 
 
 """ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
@@ -85,7 +84,13 @@ MAG.graficador(
 #merge.unir_paquete_MAG(directorio=ruta, año='2024')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
 #edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
-#edit.recortar_datos_fruchtman(directorio=ruta, archivo='Catálogo_Fruchtman.txt', año=2020)
+#edit.recortar_datos_fruchtman_MAG(directorio=ruta, archivo='Catálogo_Fruchtman_ss.txt', año=2020)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# CONVERSIÓN: día decimal <==> fecha UTC:
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=218, año=2022)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

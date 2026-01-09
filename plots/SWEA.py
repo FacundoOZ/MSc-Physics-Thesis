@@ -15,6 +15,8 @@ from datetime import datetime
 from cdflib   import cdfepoch
 from bs4      import BeautifulSoup
 
+from base_de_datos.conversiones import tiempo_UTC_en_segundos
+
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWEA (Solar Wind Electron Analizer)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -84,14 +86,6 @@ def graficador_distribución_angular(
 #———————————————————————————————————————————————————————————————————————————————————————
 # Funciones Auxiliares
 #———————————————————————————————————————————————————————————————————————————————————————
-def tiempo_UTC_en_segundos(t):   # Función auxiliar para convertir tiempo UTC en segundos
-  """
-  Documentación
-  """
-  h,m,s = map(int, t.split(':')) #
-  return h*3600 + m*60 + s       #
-
-#———————————————————————————————————————————————————————————————————————————————————————
 def promediar(mapa) -> None:
   """
   Documentación
@@ -120,8 +114,7 @@ def graficador_omni_direccional(directorio: str) -> None:
   """
   Documentación
   """
-  # Load and parse the XML
-  with open(directorio + 'SWEA/' + file, 'r') as file:
+  with open(directorio + 'SWEA/' + file, 'r') as file:                      # Load and parse the XML
     soup = BeautifulSoup(file, 'xml')
   rows = soup.find_all('TR')
   timestamps = []
@@ -142,12 +135,10 @@ def graficador_omni_direccional(directorio: str) -> None:
           columns.append(y_values)
         except ValueError:
           continue  # skip malformed entries
-  # Convert to 2D array and transpose to get shape (len(y), len(x))
-  data = np.array(columns).T  # shape: (y_points, x_points)
+  data = np.array(columns).T  # shape: (y_points, x_points)                 # Convert to 2D array and transpose to get shape (len(y), len(x))
   times = [datetime.utcfromtimestamp(ts) for ts in timestamps]
   extent = [mdates.date2num(times[0]), mdates.date2num(times[-1]), 1, data.shape[0]]
-  # Plot the heatmap
-  #extent = [min(timestamps), max(timestamps), 0, data.shape[0]]  # x = time, y = index
+  #extent = [min(timestamps), max(timestamps), 0, data.shape[0]]            # x = time, y = index (Plot the heatmap)
   p.imshow(data, aspect='auto', extent=extent, cmap='viridis')
   #p.yscale('log')
   p.gca().xaxis_date()
