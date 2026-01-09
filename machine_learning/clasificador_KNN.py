@@ -7,8 +7,7 @@
 
 import numpy             as np
 import pandas            as pd
-import matplotlib.pyplot as plt
-
+import matplotlib.pyplot as p
 from numpy                   import sqrt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing   import StandardScaler
@@ -16,7 +15,8 @@ from sklearn.neighbors       import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 from sklearn.metrics         import classification_report, confusion_matrix
 
-from plots.MAG               import leer_archivos_MAG
+# Módulos Propios:
+from plots.MAG import leer_archivos_MAG
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
@@ -80,7 +80,7 @@ print(f"Ventanas de {tamaño}s: {len(df_feat)} muestras generadas")
 mean_times = [ (v[0] + v[1])/2 for v in ventanas ]  # midpoint of each window
 
 # Create figure with 4 subplots
-fig, axs = plt.subplots(4, 1, figsize=(14, 10), sharex=True)
+fig, axs = p.subplots(4, 1, figsize=(14, 10), sharex=True)
 
 # 1️⃣ Original |B| vs time
 axs[0].plot(df['t'], df['B'], label='|B| original', color='blue')
@@ -111,8 +111,8 @@ axs[3].set_xlabel('Decimal day of year')
 axs[3].grid(True)
 axs[3].legend()
 
-plt.tight_layout()
-plt.show()
+p.tight_layout()
+p.show()
 
 # Elijo 20 nanoTeslas como límite para distinguir la región de viento solar de la región de MPB
 threshold_B = 20.0  # nT, adjust based on your plots
@@ -151,17 +151,17 @@ df_feat['predicted'] = best_knn.predict(scaler.transform(X))
 
 mean_times = [ (v[0] + v[1])/2 for v in ventanas ]  # midpoint of each 5-min window
 
-plt.figure(figsize=(14,5))
-plt.plot(df['t'], df['B'], label='|B| original', color='blue')
+p.figure(figsize=(14,5))
+p.plot(df['t'], df['B'], label='|B| original', color='blue')
 for i, t_center in enumerate(mean_times):
   if df_feat['predicted'].iloc[i] == 1:
-    plt.axvspan(t_center-2.5/1440, t_center+2.5/1440, color='red', alpha=0.2)  # 2.5 min = half window in days
-plt.xlabel('Decimal day of year')
-plt.ylabel('|B| [nT]')
-plt.title('Predicted MPB regions over original |B|')
-plt.grid(True)
-plt.legend()
-plt.show()
+    p.axvspan(t_center-2.5/1440, t_center+2.5/1440, color='red', alpha=0.2)  # 2.5 min = half window in days
+p.xlabel('Decimal day of year')
+p.ylabel('|B| [nT]')
+p.title('Predicted MPB regions over original |B|')
+p.grid(True)
+p.legend()
+p.show()
 
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

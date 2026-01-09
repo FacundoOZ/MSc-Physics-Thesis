@@ -10,6 +10,7 @@ import numpy  as np
 import pandas as pd
 from tqdm import tqdm
 
+# Módulos Propios:
 from base_de_datos.conversiones import dias_decimales_a_datetime
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -125,7 +126,7 @@ def unir_datos_fruchtman_MAG(
 #———————————————————————————————————————————————————————————————————————————————————————
 def find_nearest_index(arr: np.ndarray, value: float) -> int:
   """
-  Documentación
+  O(LOG N)
   """
   idx = np.searchsorted(arr, value)
   if idx == 0:

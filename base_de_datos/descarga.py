@@ -12,6 +12,7 @@ import random
 from tqdm     import tqdm                # Para mostrar barras de progreso de descarga
 from datetime import datetime, timedelta # Contiene correctamente los días de cada año
 
+# Módulos Propios:
 from base_de_datos.conversiones import fecha_UTC_a_DOY
 
 link = 'https://lasp.colorado.edu/maven/sdc/public/data/sci/mag/l2/'                                 # Link de la base de datos de MAVEN
@@ -89,7 +90,7 @@ def descargar_paquete_MAG(
       pbar.update(1)                                                         # y la barra de progreso
       j += timedelta(days=1)                                                 # El iterador suma 1 día al loop
       #time.sleep(random.uniform(1, 2))                                      # Intervalo de tiempo de espera para no sobrecargar el server.
-  print("Resultado final:", contador)                                        # Resultado de la descarga
+  print('Resultado final:', contador)                                        # Resultado de la descarga
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

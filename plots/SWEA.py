@@ -10,11 +10,11 @@ import matplotlib.pyplot as p
 import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 import cdflib                      # para poder leer archivos .cdf, Common Data Frame (NASA)
-
 from datetime import datetime
 from cdflib   import cdfepoch
 from bs4      import BeautifulSoup
 
+# Módulos Propios:
 from base_de_datos.conversiones import tiempo_UTC_en_segundos
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

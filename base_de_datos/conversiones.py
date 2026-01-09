@@ -1,5 +1,5 @@
 
-# EDITAR
+# Terminado
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para convertir magnitudes físicas entre sí
@@ -36,12 +36,14 @@ def dias_decimales_a_datetime(dia_decimal: np.ndarray, año: int) -> pd.Datetime
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # tiempo_UTC_en_segundos : 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def tiempo_UTC_en_segundos(t):   # Función auxiliar para convertir tiempo UTC en segundos
+def tiempo_UTC_en_segundos(t: str) -> int:   # Función auxiliar para convertir tiempo UTC en segundos
   """
-  Documentación
+  Recibe un tiempo en formato string 'HH:MM:SS' y devuelve un entero que representa la cantidad de segundos que transcurrieron en ese día
+  desde las '00:00:00' hasta el tiempo pasado por parámetro.
   """
-  h,m,s = map(int, t.split(':')) #
-  return h*3600 + m*60 + s       #
+  h,m,s = map(int, t.split(':')) # Separa la cadena por ':' y convierte h, m, s a enteros.
+  res: int = 3600*h + 60*m + s   # Convierte todos los enteros en segundos y los guarda en la variable res.
+  return res                     # Devuelvo res.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # dia_decimal_a_fecha_UTC / fecha_UTC_a_dia_decimal : permiten convertir una fecha específica a día decimal o viceversa

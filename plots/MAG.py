@@ -10,11 +10,11 @@ import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
+from numpy    import sqrt
+from datetime import datetime, timedelta
+from tqdm     import tqdm
 
-from numpy             import sqrt
-from datetime          import datetime, timedelta
-from tqdm              import tqdm
-
+# Módulos Propios:
 from base_de_datos.conversiones import R_m, fecha_UTC_a_DOY, dias_decimales_a_datetime
 from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera_3D
 

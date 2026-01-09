@@ -1,5 +1,5 @@
 
-# Editar
+# EDITAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para estudiar modelos de regresión lineal
@@ -8,18 +8,10 @@
 import numpy             as np
 import matplotlib.pyplot as p
 from scipy.optimize import curve_fit
-from numpy import cos, sin
+from numpy          import cos, sin
 
+# Módulos Propios:
 from plots.estilo_plots import disco_2D
-
-"""Mars Global Surveyor se lanzó el 7 de noviembre de 1996, pero comenzó a colectar datos desde 1997 hasta 2006. Entonces cuando Vignes dice que analizó los datos del primer año de la misión supongo 1997.
-El mínimo solar de esa década del Sol se encontró en Mayo y Agosto del 1996, luego, a lo largo de 1997 comenzó a subir levemente.
-Podemos aproximar el ajuste de Vignes como el de un mínimo solar.
-En ésta década, el mínimo solar se produjo en el año 2019 con su mínimo más pronunciado en la segunda mitad del año.
-Entonces, puedo ajustar los datos de 2019 de fruchtman y ver si son parecidos a los de Vignes, con esos tengo una curva del mínimo para todo el bow shock.
-
-Por otra parte, el máximo de ésta década fue el último mes de 2013, y a lo largo de los primeros 6 meses de 2014 aproximadamente. De fruchtman se tienen mediciones de los últimos 45 días del año 2014, por lo que podemos ajustar esos para tener el bow shock del máximo.
-Aún así, cabe aclarar que el máximo de esta década fue pequeño, prácticamente la mitad del del año 2000, y menor que el ocurrido a fines del 2024."""
 
 # Parámetros del ajuste de Vignes para el Bow Shock:
 X0      = 0.64 # ± 0.02 [R_m]
@@ -27,12 +19,10 @@ epsilon = 1.03 # ± 0.01       # Excentricidad
 L       = 2.04 # ± 0.02 [R_m] # Semi-latus rectum
 N_b     = 450  #
 alfa    = np.deg2rad(4) #° (grados)    # Ángulo de aberración con respecto al sistema MSO (SS) donde X' es opuesto al flujo medio de viento solar.
-
-#X0 = 0.78*R_m # DE DÓNDE SALE ESTO QUE USA CAMILA? NO LO ENCUENTRO EN EL PAPER DE VIGNES.
-
 # Otros:
 R_SD    = 1.64 # ± 0.08 [R_m] # Éstos dos se pueden obtener (distancia sub-solar: desde el planeta al punto de la cónica en el eje X'_ss).
 R_TD    = 2.62 # ± 0.09 [R_m] # distancia sub-solar: desde el planeta al punto de la cónica en el eje Y'_ss.
+#X0 = 0.78*R_m # DE DÓNDE SALE ESTO QUE USA CAMILA? NO LO ENCUENTRO EN EL PAPER DE VIGNES.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # ajustar_Vignes_MAG: función para ajustar 1 único archivo basado en una medición

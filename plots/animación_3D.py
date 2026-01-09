@@ -8,13 +8,13 @@
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
-
 from matplotlib.figure           import Figure
 from matplotlib.lines            import Line2D
 from matplotlib.widgets          import Button
 from matplotlib.animation        import FuncAnimation
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
+# Módulos Propios:
 from base_de_datos.conversiones import R_m
 from plots.estilo_plots         import esfera_3D
 from plots.MAG                  import leer_archivos_MAG

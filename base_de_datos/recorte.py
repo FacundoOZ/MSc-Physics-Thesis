@@ -9,13 +9,10 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
+# Módulos Propios:
 from base_de_datos.conversiones import fecha_UTC_a_dia_decimal
 
-columnas = [
-  6,         # Tiempo: en formato día decimal
-  7, 8, 9,   # Componentes B_x, B_y, B_z del campo magnético (en coordenadas Sun-State): en unidades de nano Teslas (nT)
-  11, 12, 13 # Posición de la sonda x, y, z (en coordenadas Sun-State): en kilómetros (km)
-]
+columnas = [6,7,8,9,11,12,13] # 6 => día_decimal #          # [7,8,9] => B_x,B_y,B_z [nT] #          # [11,12,13] => x,y,z [km] #
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # recortar_archivo_MAG: función para recortar 1 único archivo
