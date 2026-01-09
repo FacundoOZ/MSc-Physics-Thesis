@@ -32,28 +32,28 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""MAG.graficador(
+MAG.graficador(
   directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='17/6/2015-15:00:00', tiempo_final='23/6/2015-22:00:00',
+  tiempo_inicial='25/12/2014-09:00:00', tiempo_final='25/12/2014-12:45:00',
 # Sistema de Referencia: 'ss' ó 'pc'
-  coord='pc',
+  coord='ss',
 # Magnitudes a graficar:
   B=True,
   #B_x=True, B_y=True, B_z=True,
 # Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
-  z_pc=True, x_pc=True, y_pc=True,
+  #z_pc=True, x_pc=True, y_pc=True,
 # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
   #x_ss=True, y_ss=True, z_ss=True,
-  #cil=True, # Usar solamente con coord='ss' y trayectoria=True
+  cil=True, # Usar solamente con coord='ss' y trayectoria=True
 # Distancia de MAVEN a Marte:
   #R=True,
 # Curvas paramétricas:
-  #trayectoria=True,
+  trayectoria=True,
 # Scatter:
   scatter=True,
   tamaño_puntos=1
-)"""
+)
 
 
 """ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',

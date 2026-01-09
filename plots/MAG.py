@@ -12,12 +12,14 @@ import matplotlib.pyplot as p
 import matplotlib.colors as colors
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
 
-from numpy    import pi, sqrt, cos, sin
-from datetime import datetime, timedelta
-from tqdm     import tqdm
+from numpy             import pi, sqrt, cos, sin
+from datetime          import datetime, timedelta
+from tqdm              import tqdm
+from matplotlib.colors import LinearSegmentedColormap
 
 from base_de_datos.descarga import dia_del_año
 
+shade_m    = LinearSegmentedColormap.from_list('shade_m', [(0,0,0), (1.0,0.5,0.0)]) # Color negro (0,0,0) a naranja (1,.5,0) para Marte.
 R_m: float = 3396.3 # Radio marciano máximo (km)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -199,6 +201,7 @@ def graficar_trayectoria(
   coordenadas polares 2D. Si todas son True, realiza un plot 3D con el contenido de los arrays X, Y y Z.
   """
   if cil:                                                                         # Si cil=True, entonces
+    disco_2D(resolución_r=200, resolución_theta=200)                              # Grafico la circunferencia rellena (Marte) con shade.
     proy_yz = sqrt(Y**2 + Z**2)                                                   # Grafico la proyección del plano y,z.
     plot_xy(X/R_m, proy_yz/R_m, 'Posición de MAVEN', scatter, tamaño_puntos)      # Hago plot 2D sqrt(y^2+z^2) vs x normalizado por R_m.
     if coord=='pc':                                                               # Si las coordenadas son PC,
@@ -208,11 +211,10 @@ def graficar_trayectoria(
       p.xlabel(r'$x_{\text{ss}}$ [$R_M$]')                                        # coloco labels tipo SS en x
       p.ylabel(r'$\sqrt{y_{\text{ss}}^2+z_{\text{ss}}^2}$ [$R_M$]')               # y en y.
   elif x and y and z:                                                             # Si x=y=z=True, entonces se realiza un plot 3D.
-    fig   = p.figure()                                                            # Creo la figura.
-    ax    = fig.add_subplot(111, projection='3d')                                 # Genero un plot 3D.
+    ax    = p.figure().add_subplot(111, projection='3d')                          # Genero un plot 3D.
     u,v,w = esfera_3D(resolución=100)                                             # Grafico Marte como una esfera perfecta de referencia,
     ax.plot_surface(u,v,w, color='red', alpha=0.5)                                # de color rojo, y con cierta transparencia (alpha).
-    ax.plot3D(X/R_m, Y/R_m, Z/R_m, label='MAVEN')                                 # Grafico la posición de MAVEN, y normalizo por R_m.
+    ax.plot3D(X/R_m, Y/R_m, Z/R_m, label='Posición de MAVEN')                     # Grafico la posición de MAVEN, y normalizo por R_m.
     ax.set_xlim([-tamaño_ejes, tamaño_ejes])                                      # Ajusto el tamaño de los ejes del plot 3D en x,
     ax.set_ylim([-tamaño_ejes, tamaño_ejes])                                      # en y,
     ax.set_zlim([-tamaño_ejes, tamaño_ejes])                                      # y en z en igual proporción.
@@ -223,7 +225,6 @@ def graficar_trayectoria(
     elif coord=='ss':                                                             # Etiquetas de los ejes, tipo SS
       ax.set(xlabel=r'$x_{\text{ss}}$ [$R_M$]',                                   # normalizadas por R_M,
              ylabel=r'$y_{\text{ss}}$ [$R_M$]',zlabel=r'$z_{\text{ss}}$ [$R_M$]') # en x,y,z.
-    ax.set_title('Posición de MAVEN')                                             # y título del plot.
   else:                                                                           # Si los 3 booleanos no son True,
     pares = [(x,y,X,Y,'$x$','$y$'), (x,z,X,Z,'$x$','$z$'), (y,z,Y,Z,'$y$','$z$')] # Creo los pares ordenados (x,y); (x,z); (y,z) con labels
     for cond1, cond2, e1, e2, lx, ly in pares:                                    # Para cada combinación posible,
@@ -270,6 +271,21 @@ def formatear_ejes_y_titulo(
     ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (resolución 1 Hz)") # modifico el título,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))                  # y el eje en formato 'DD/MM'.
     p.xlabel('Fecha UTC (DD/MM/YYYY)')                                              # Título del eje x.
+
+#———————————————————————————————————————————————————————————————————————————————————————
+def disco_2D(
+    resolución_r: int = 100, resolución_theta: int = 200   # Resolución radial (del (0,0) al borde) y angular (alrededor del disco)
+) -> None:
+  """
+  Genera las coordenadas (x,y) de un disco unitario mediante coordenadas polares.
+  """
+  ax = p.figure().add_subplot(111)                         # Creo la figura y los ejes.
+  r        = np.linspace(0,    1, resolución_r)            # Radio en el intervalo [0, 1].
+  theta    = np.linspace(0, 2*pi, resolución_theta)        # Ángulo polar en [0, 2pi].
+  Theta, R = np.meshgrid(theta, r)                         # Malla polar.
+  u, v     = R*cos(Theta), R*sin(Theta)                    # Conversión a coordenadas cartesianas x e y.
+  ax.pcolormesh(u,v,(u+1)/2, cmap=shade_m, shading='auto') # Agrego el shade de color para el lado diurno x>0 y nocturno x<0.
+  ax.set_aspect('equal', adjustable='box')                 # Tomo proporciones de los ejes iguales.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def esfera_3D(
