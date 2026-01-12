@@ -36,8 +36,8 @@ def ajuste_Vignes_MGS() -> None:
   R = L / (1 + epsilon*cos(theta))
   x = (R*cos(theta) + X0) * cos(alfa) - (R*sin(theta)) * sin(alfa)
   y = (R*cos(theta) + X0) * sin(alfa) + (R*sin(theta)) * cos(alfa)
-  p.plot(x,y, label='Ajuste del BS (1997)')
-  p.title('Ajuste de Vignes del año 1997 (coordenadas ss aberradas) de la MGS')
+  p.plot(x,y, label='Ajuste Vignes (MGS, 1997) en SS aberrado')
+  p.title('Ajustes para curvas del Bow Shock de Vignes (MGS) y Fruchtman (MAVEN)')
   p.xlabel(r"$x'_{\text{ss}}$ [$R_M$]")                                        # coloco labels tipo SS en x
   p.ylabel(r"$\sqrt{y'_{\text{ss}}^2+z'_{\text{ss}}^2}$ [$R_M$]")               # y en y.
   p.grid(True, which='minor', linestyle=':', linewidth=0.5)                        # Pongo doble grilla, fina y con formato ':'

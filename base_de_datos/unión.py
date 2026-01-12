@@ -1,5 +1,5 @@
 
-# EDITAR
+# Terminado
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para unir los archivos de MAVEN MAG PlanetoCentric y Sun-State Coordinates recortados con recorte.py
@@ -11,7 +11,7 @@ import pandas as pd
 from tqdm import tqdm
 
 # Módulos Propios:
-from base_de_datos.conversiones import dias_decimales_a_datetime
+from base_de_datos.conversiones import dias_decimales_a_datetime, fecha_UTC_a_DOY
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # unir_archivo_MAG: función para unir 2 archivos en 1 (que contenga las coordenadas PC y SS)
@@ -92,52 +92,82 @@ def unir_paquete_MAG(
 # unir_datos_fruchtman_MAG: 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def unir_datos_fruchtman_MAG(
-    directorio: str,                                                                             # Carpeta de archivos que se desea unir
-    año: str                                                                                     # Año en formato string que se desea unir
+    directorio: str,                                                                            # Carpeta de archivos que se desea unir.
+    año: str                                                                                    # Año en formato string que se desea unir.
 ) -> None:
   """
-  La función unir_datos_fruchtman_MAG recibe 
+  La función unir_datos_fruchtman_MAG recibe en formato string un directorio, que representa la ruta donde se encuentran los archivos
+  'fruchtman_{año}_recortado.txt', y un año, que representa el archivo que se desea unir del año correspondiente.
+  Dado el archivo fruchtman, la función hace lo siguiente: para cada fila (cada día decimal), convierte el día a fecha UTC => va a buscar el
+  archivo 'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r01_recortado.sts' a las carpetas correspondientes que representa el archivo de
+  la misma fecha, y selecciona el día decimal del MAG que más se acerque al de Fruchtman (no coinciden). Finalmente, guarda en el archivo
+  'fruchtman_{año}_merge.txt' toda la fila del archivo MAG correspondiente (usa el día decimal de MAG) que contiene las componentes del campo
+  B (en PC) y las posiciones de la sonda en los sistemas de coordenadas PC y SS.
+  
+  Archivo 'fruchtman_{año}_recortado.txt':
+    dia_decimal
+    ....
+  Archivo_merge:
+    día_decimal    Bx    By    Bz    x_pc    y_pc    z_pc    x_ss    y_ss    z_ss               # REEMPLAZA DÍA FRUCHTMAN => DÍA MERGE.
+    ....           ...   ...   ...   ...     ...     ...     ...     ...     ...
   """
-  fruchtman_path = os.path.join(directorio, f"fruchtman_{año}_recortado.txt")
-  fruchtman_days = np.loadtxt(fruchtman_path)
-  output_rows = []
-  current_doy = None
-  mag_data = None
-  for dec_day in fruchtman_days:
-    dt = dias_decimales_a_datetime(np.array([dec_day]), año)[0]
-    doy   = dt.timetuple().tm_yday
-    month = dt.month
-    day   = dt.day
-    if doy != current_doy:
-      mag_filename = (f"mvn_mag_l2_{año}{doy:03d}merge1s_{año}{month:02d}{day:02d}_v01_r01_recortado.sts")
-      mag_path = os.path.join(directorio, "datos_recortados_merge", str(año), str(month), mag_filename)
-      mag_data = np.loadtxt(mag_path)
-      mag_decimal_days = mag_data[:, 0]
-      current_doy = doy
-    idx = find_nearest_index(mag_decimal_days, dec_day)
-    merged_row = np.concatenate(([dec_day], mag_data[idx, 1:]))
-    output_rows.append(merged_row)
-  output = np.array(output_rows)
-  output_path = os.path.join(directorio, f"fruchtman_{año}_recortado_merge.txt")
-  np.savetxt(output_path, output, fmt="%.6f")
+  ruta_fruch: str = os.path.join(directorio, 'fruchtman', f'fruchtman_{año}_recortado.txt')     # Creo la ruta Fruchtman del año solicitado.
+  archivo_fruch: np.ndarray = np.loadtxt(ruta_fruch)                                            # Cargo el archivo Fruchtman.
+  filas: list[np.ndarray] = []                                                                  # En la lista filas, colocaré el resultado.
+  DOY_actual: str | None            = None                                                      # No recargo el archivo varias veces => uso
+  data_mag: np.ndarray | None       = None                                                      # variables aux para el DOY, el archivo actual,
+  dias_decimales: np.ndarray | None = None                                                      # y la columna días decimales del archivo MAG.
+  for elem in archivo_fruch:                                                                    # Recorro cada día decimal del Fruchtman.
+    dt       = dias_decimales_a_datetime(np.array([elem]), int(año))[0]                         # Día decimal a objeto datetime del año.
+    dia: str = dt.strftime('%d')                                                                # Extraigo en formato str de dos dígitos el día
+    mes: str = dt.strftime('%m')                                                                # y el mes del archivo Fruchtman.
+    DOY: str = fecha_UTC_a_DOY(dia, mes, año)                                                   # Calculo el DOY de la fecha actual.
+    if DOY != DOY_actual:                                                                       # Si éste cambió => cargo nuevo archivo MAG.
+      nombre   = (f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r01_recortado.sts')        # Construyo el nombre MAG correspondiente
+      ruta_mag = os.path.join(directorio, 'datos_recortados_merge', año, str(int(mes)), nombre) # y su ruta completa.
+      if not os.path.exists(ruta_mag):                                                          # Si el archivo no existe,
+        nombre   = nombre.replace('_r01_', '_r02_')                                             # me fijo si se trataba de uno de versión 2
+        ruta_mag = os.path.join(directorio,'datos_recortados_merge',año, str(int(mes)), nombre) # y construyo su ruta correspondiente.
+        if not os.path.exists(ruta_mag):                                                        # Si no existe ninguno de los dos,
+          print(f'No se encontró el archivo MAG del {dia}/{mes}/{año}.')                        # => no se encontró => devuelvo un aviso,
+          data_mag       = None                                                                 # Como el archivo no existe => evito chequear
+          dias_decimales = None                                                                 # bowshocks con ese mismo DOY.
+          continue                                                                              # Finalmente, continuo el for (sig. iteración).
+      data_mag       = np.loadtxt(ruta_mag)                                                     # Cargo el archivo MAG del día actual.
+      dias_decimales = data_mag[:,0]                                                            # Extraigo la col días decimales del MAG.
+      DOY_actual     = DOY                                                                      # Actualizo el DOY actual.
+    j: int = hallar_índice_más_cercano(dias_decimales, elem)                                    # Busco el j del día decimal más cercano a MAG.
+    filas.append(data_mag[j])                                                                   # REEMPLAZO EL DÍA FRUCHTMAN POR EL DIA MAG.
+  archivo_merge: np.ndarray = np.array(filas)                                                   # Convierto la lista de filas a np.array.
+  ruta_merge: str = os.path.join(directorio, f'fruchtman_{año}_merge.sts')                      # Construyo la ruta del archivo de salida.
+  np.savetxt(ruta_merge, archivo_merge, fmt='%.6f')                                             # Guardo el archivo final en formato texto.
 
 #———————————————————————————————————————————————————————————————————————————————————————
-# Funciones Auxiliares
+# Funciones Auxiliares # O(log n)
 #———————————————————————————————————————————————————————————————————————————————————————
-def find_nearest_index(arr: np.ndarray, value: float) -> int:
+def hallar_índice_más_cercano(
+    dias_MAG: np.ndarray,                                    # Array ordenado de valores numéricos (creciente)
+    dia_fruch: float                                         # Valor para el cual se desea encontrar el elemento más cercano
+) -> int:
   """
-  O(LOG N)
+  La función hallar_índice_más_cercano recibe una lista 'dias_MAG' en formato np.ndarray (array de numpy) que corresponde a los días
+  decimales del archivo MAG (que se encuentran en orden estrictamente creciente), y un float 'dia_fruch' que corresponde a un día decimal del
+  archivo Fruchtman. Mediante el algoritmo de búsqueda binaria (search sort), encuentra en tiempo O(log n) el índice del array 'dias_MAG' en
+  el que debería ir el 'día_fruch' para preservar el orden creciente. Finalmente chequea que la distancia con los elementos más cercanos (el
+  de arriba y el de abajo) sea la mínima, y acomoda el índice si es necesario. Además, contempla casos borde j=0 ó j=len(dias_MAG)-1. Devuelve
+  un entero que representa el índice del elemento del array 'dias_MAG' que es el más cercano a 'dia_fruch'.
   """
-  idx = np.searchsorted(arr, value)
-  if idx == 0:
-    return 0
-  if idx == len(arr):
-    return len(arr) - 1
-  before = arr[idx - 1]
-  after  = arr[idx]
-  return idx if abs(after - value) < abs(value - before) else idx - 1
-
-
+  j: int = np.searchsorted(dias_MAG, dia_fruch)              # j es el índice donde debe estar dia_fruch en dias_MAG para mantener el orden.
+  if j == 0:                                                 # Si 'dia_fruch' es menor o igual que todos los elementos de dias_MAG,
+    return 0                                                 # => el índice más cercano es el primer elemento (el cero).
+  if j == len(dias_MAG):                                     # Si no, si 'dia_fruch' es mayor que todos los elementos de dias_MAG,
+    return len(dias_MAG) - 1                                 # => el índice más cercano es el último.
+  anterior: float   = dias_MAG[j-1]                          # Si no, en la var float 'anterior' me guardo el dia_fruch inmediatamente menor,
+  posterior:  float = dias_MAG[j]                            # y en la variable float 'posterior' el dia_fruch inmediatamente mayor.
+  if abs(posterior - dia_fruch) < abs(dia_fruch - anterior): # Comparo las distancias absolutas del dia_fruch con dichos valores,
+    return j                                                 # y si el más cercano era el que venía después => el j es correcto.
+  else:                                                      # En cambio, si el más cercano es el que estaba antes,
+    return j - 1                                             # => debo devolver el j menos una posición.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

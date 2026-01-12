@@ -26,7 +26,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-fit.ajuste_Vignes_MGS()
+#fit.ajuste_Vignes_MGS()
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
@@ -84,7 +84,8 @@ fit.ajuste_Vignes_MGS()
 #merge.unir_paquete_MAG(directorio=ruta, año='2024')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
 #edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
-#edit.recortar_datos_fruchtman_MAG(directorio=ruta, archivo='Catálogo_Fruchtman_ss.txt', año=2020)
+#edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
+#merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
