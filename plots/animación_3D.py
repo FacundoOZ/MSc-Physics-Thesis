@@ -16,8 +16,8 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 # Módulos Propios:
 from base_de_datos.conversiones import R_m
+from base_de_datos.lectura      import leer_archivos_MAG
 from plots.estilo_plots         import esfera_3D
-from plots.MAG                  import leer_archivos_MAG
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # trayectoria_3D_MAVEN_MAG: función para graficar la trayectoria animada 3D de la sonda MAVEN alrededor de Marte en coordenadas PC ó SS.
