@@ -2,7 +2,7 @@
 # Terminado
 
 #============================================================================================================================================
-# Tesis de Licenciatura | Archivo para leer los datos de MAVEN MAG y los archivos de fruchtman unidos por unión.py
+# Tesis de Licenciatura | Archivo para leer los datos de MAVEN MAG y los archivos de Fruchtman unidos por unión.py
 #============================================================================================================================================
 
 import os                                # Para archivos
@@ -68,14 +68,14 @@ def leer_archivos_MAG(
   return datos.reset_index(drop=True)                                            # y devuelvo el dataframe final con índices limpios.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# leer_archivo_fruchtman: lee el archivo fruchtman de un año correspondiente.
+# leer_archivo_Fruchtman: lee el archivo Fruchtman de un año correspondiente.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def leer_archivo_fruchtman(
+def leer_archivo_Fruchtman(
     directorio: str,                                           # Directorio donde se encuentra la carpeta 'merge'.
     año: str                                                   # Año del archivo a leer.
 ) -> np.ndarray:
   """
-  La función leer_archivo_fruchtman recibe en formato string un directorio y un año, que representan la carpeta donde se encuentra el archivo
+  La función leer_archivo_Fruchtman recibe en formato string un directorio y un año, que representan la carpeta donde se encuentra el archivo
   a leer de tipo 'fruchtman_{año}_merge.sts', ubicado dentro de la carpeta 'merge' correspondiente, y el año cuyo archivo se desea leer, respectivamente y devuelve un np.ndarray con los datos cargados.
   """
   nombre: str      = f'fruchtman_{año}_merge.sts'              # Nombre del archivo.
