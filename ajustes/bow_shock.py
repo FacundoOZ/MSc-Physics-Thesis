@@ -25,9 +25,9 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_ajustes(
-    directorio: str,
-    tiempo_inicial: str, tiempo_final: str
-    #año: str
+    #directorio: str,
+    #tiempo_inicial: str, tiempo_final: str
+    ##año: str
 ) -> None:
 
   #——————————————————————————————————————————————————————————————————————————————
@@ -73,11 +73,11 @@ def graficador_ajustes(
   p.fill(x_polígono, y_polígono, color='green', alpha=0.3, linewidth=0)
   #——————————————————————————————————————————————————————————————————————————————
 
-  data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
+  """data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
   Xss,Yss,Zss = [data[j].to_numpy() for j in [7,8,9]]
   A = Xss/R_m
   B = sqrt(Yss**2+Zss**2)/R_m
-  p.scatter(A,B, s=1)
+  p.scatter(A,B, s=1)"""
 
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————

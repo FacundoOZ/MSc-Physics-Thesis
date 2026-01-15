@@ -23,7 +23,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/10/2015-00:00:00', tiempo_final='1/10/2015-23:59:00')#directorio=ruta+'fruchtman')
+#fit.graficador_ajustes()#directorio=ruta+'recorte_Vignes', tiempo_inicial='1/10/2015-00:00:00', tiempo_final='1/10/2015-23:59:00')#directorio=ruta+'fruchtman')
 #fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -85,6 +85,7 @@ fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/10/20
 #edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
 #merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
 #edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts', región=edit.preparar_región_Vignes())
+edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2016')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
