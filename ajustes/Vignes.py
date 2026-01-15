@@ -82,7 +82,7 @@ def hipérbola_mínima() -> tuple[np.ndarray, np.ndarray]:
   _, _, x_a_min, y_a_min = hipérbola_Vignes(θ0=-0.39, θf=1.9, X0=0.13, α= np.deg2rad(20))
   return x_a_min, y_a_min
 
-def segmento_izquierdo() -> tuple[Callable[[np.ndarray], np.ndarray], float, float]:
+def segmento_izquierdo() -> Callable[[np.ndarray], np.ndarray]:
   """
   Segmento que conecta el punto terminal de la hipérbola mínima con el punto terminal de la hipérbola máxima.
   """
@@ -92,7 +92,7 @@ def segmento_izquierdo() -> tuple[Callable[[np.ndarray], np.ndarray], float, flo
   def recta(y: np.ndarray) -> np.ndarray:                     # Utilizo la ecuación de la recta que pasa por dos puntos.
     m = (y-y_A)/(y_B-y_A)                                     # Definición de la pendiente
     return m*(x_B-x_A) + x_A
-  return recta, y_A, y_B
+  return recta
 
 def mínimo_2019() -> tuple[float, float]:
   """

@@ -13,7 +13,7 @@ from typing            import Any
 from scipy.interpolate import interp1d
 
 # Módulos Propios:
-from base_de_datos.conversiones import fecha_UTC_a_dia_decimal
+from base_de_datos.conversiones import R_m, fecha_UTC_a_dia_decimal
 from ajustes.Vignes             import hipérbola_mínima, hipérbola_máxima, segmento_izquierdo
 
 columnas = [6,7,8,9,11,12,13] # 6 => día_decimal #          # [7,8,9] => B_x,B_y,B_z [nT] #          # [11,12,13] => x,y,z [km] #
@@ -218,48 +218,50 @@ def preparar_región_Vignes() -> dict[str, Any]:
   Precomputa la geometría de Vignes y devuelve todo lo necesario
   para aplicar el recorte miles de veces sin recomputar.
   """
-  Xmax, Ymax = hipérbola_máxima()  # Hipérbola derecha (máxima)
-  Xmin, Ymin = hipérbola_mínima()  # Hipérbola izquierda (mínima)
-  f_min = interp1d(Xmin, Ymin, bounds_error=False, fill_value=np.nan)           # Interpoladores
-  f_max = interp1d(Xmax, Ymax, bounds_error=False, fill_value=np.nan)           # 
-  recta = segmento_izquierdo()
+  Xmax, Ymax = hipérbola_máxima()                                                           # Hipérbola derecha (máxima)
+  Xmin, Ymin = hipérbola_mínima()                                                           # Hipérbola izquierda (mínima)
+  j_min, j_max = np.argsort(Ymin), np.argsort(Ymax)                                         #
+  f_min = interp1d(Ymin[j_min], Xmin[j_min], bounds_error=False, fill_value=np.nan)         # Interpoladores
+  f_max = interp1d(Ymax[j_max], Xmax[j_max], bounds_error=False, fill_value=np.nan)         # 
+  recta = segmento_izquierdo()                                                              # 
   return {"y_A": Ymin[-1], "y_B": Ymax[-1], "f_min": f_min, "f_max": f_max, "recta": recta} # 
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def región_Vignes(
-    Xss: np.ndarray, Yss: np.ndarray, Zss: np.ndarray,
-    y_A: float, y_B: float,
-    f_min, f_max, recta
+    Xss: np.ndarray, Yss: np.ndarray, Zss: np.ndarray,                      #
+    y_A: float, y_B: float,                                                 #
+    f_min, f_max, recta                                                     #
 ) -> np.ndarray:
   """
   Devuelve una máscara booleana con los puntos dentro de la región de Vignes.
   """
-  Y = np.sqrt(Yss**2 + Zss**2)
-  r_min_h = f_min(Xss)
-  r_max_h = f_max(Xss)
-  máscara_inf = ((Y>0)   & (Y<=y_A) & (Y>=r_min_h)    & (Y<=r_max_h))
-  máscara_sup = ((Y>y_A) & (Y<=y_B) & (Xss>=recta(Y)) & (Y<=r_max_h))
-  return máscara_inf | máscara_sup
+  X = Xss/R_m                                                               #
+  Y = np.sqrt(Yss**2 + Zss**2)/R_m                                          #
+  x_min_h = f_min(Y)                                                        #
+  x_max_h = f_max(Y)                                                        #
+  máscara_inf = ((Y <= y_A) & (X >= x_min_h) & (X <= x_max_h))              #
+  máscara_sup = ((Y > y_A) & (Y <= y_B) & (X >= recta(Y)) & (X <= x_max_h)) #
+  return máscara_inf | máscara_sup                                          #
 #———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # recortar_Vignes_paquete_MAG: función para recortar todos los archivos MAG de un año entero usando Vignes
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def recortar_Vignes_paquete_MAG(
-    directorio: str,                                                       # Carpeta base donde están los datos MAG.
-    año: str                                                               # Año en formato string a recortar.
+    directorio: str,                                                                      # Carpeta base donde están los datos MAG.
+    año: str                                                                              # Año en formato string a recortar.
 ) -> None:
   """
   Recorre todos los archivos .sts del año indicado y llama a recortar_Vignes_MAG
   para cada uno. La región de Vignes se calcula una sola vez.
   """
-  lista: list[str] = []                                                    # Lista de archivos a recortar
+  lista: list[str] = []                                                                   # Lista de archivos a recortar
   for ruta_actual, _, archivos in os.walk(os.path.join(directorio, 'hemisferio_N', año)): # Recorro todos los archivos .sts del año
-    for archivo in archivos:
-      if archivo.endswith('.sts'):
-        lista.append(os.path.join(ruta_actual, archivo))
+    for archivo in archivos:                                                              # 
+      if archivo.endswith('.sts'):                                                        # 
+        lista.append(os.path.join(ruta_actual, archivo))                                  # 
   for elem in tqdm(lista, desc=f'Recortando año {año}', unit='archivo'):                  # Barra de progreso
-    recortar_Vignes_MAG(directorio, os.path.basename(elem), preparar_región_Vignes())
+    recortar_Vignes_MAG(directorio, os.path.basename(elem), preparar_región_Vignes())     # 
 
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

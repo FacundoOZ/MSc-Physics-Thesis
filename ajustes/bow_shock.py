@@ -13,28 +13,31 @@ from scipy.optimize    import curve_fit
 
 # Módulos Propios:
 from base_de_datos.conversiones import R_m
-from base_de_datos.lectura      import leer_archivo_Fruchtman
+from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG
 from plots.estilo_plots         import disco_2D
-from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima, segmento_izquierdo,
+from base_de_datos.recorte      import preparar_región_Vignes
+from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima,
                                         máximo_2015, mínimo_2019, mínimo_2015)
 
+ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_ajustes(
     directorio: str,
+    tiempo_inicial: str, tiempo_final: str
     #año: str
 ) -> None:
 
   #——————————————————————————————————————————————————————————————————————————————
   # MARTE
-  disco_2D(resolución_r=200, resolución_theta=200)
+  """disco_2D(resolución_r=200, resolución_theta=200)
   #——————————————————————————————————————————————————————————————————————————————
   # HIPÉRBOLA VIGNES
   x,y,x_a,y_a = hipérbola_Vignes()
   #p.plot(x,y, label=r'Vignes (1997) ss', color='black')
-  p.plot(x_a,y_a, label=r'Vignes (1997) ss ($\alpha = 4$°)', color='black')
+  p.plot(x_a,y_a, label=r'Vignes (1997) ss ($\alpha = 4$°)', color='black')"""
   #——————————————————————————————————————————————————————————————————————————————
   # HIPÉRBOLA IZQUIERDA
   x_a_min,y_a_min = hipérbola_mínima()
@@ -45,7 +48,10 @@ def graficador_ajustes(
   p.plot(x_a_max, y_a_max, label=r'Curva máx: ($X_0 = 1.4, \alpha=-10$°)', color='red')
   #——————————————————————————————————————————————————————————————————————————————
   # SEGMENTO IZQUIERDO
-  recta, y_A, y_B = segmento_izquierdo()
+  región = preparar_región_Vignes()
+  recta = región['recta']
+  y_A = región['y_A']
+  y_B = región['y_B']
   y_grilla = np.linspace(y_A, y_B, 300)
   p.plot(recta(y_grilla), y_grilla, color='green')
   #——————————————————————————————————————————————————————————————————————————————
@@ -67,9 +73,15 @@ def graficador_ajustes(
   p.fill(x_polígono, y_polígono, color='green', alpha=0.3, linewidth=0)
   #——————————————————————————————————————————————————————————————————————————————
 
+  data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
+  Xss,Yss,Zss = [data[j].to_numpy() for j in [7,8,9]]
+  A = Xss/R_m
+  B = sqrt(Yss**2+Zss**2)/R_m
+  p.scatter(A,B, s=1)
+
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————
-  for año in ['2014','2015','2016','2017','2018','2019']:
+  """for año in ['2014','2015','2016','2017','2018','2019']:
     data: np.ndarray = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
     Xss,Yss,Zss = [data[:,j] for j in [7,8,9]]
     A = Xss/R_m
@@ -90,7 +102,7 @@ def graficador_ajustes(
     p.plot(x_ajuste, y_ajuste, color='red', linewidth=2, label=f'Ajuste por Vignes (X0={popt[0]:.3f}) $R_M$')
     perr = np.sqrt(np.diag(pcov))
     print(f'Parámetros de ajuste: {popt}')
-    print(f'Desviación estándar: {perr}')
+    print(f'Desviación estándar: {perr}')"""
     #——————————————————————————————————————————————————————————————————————————————
 
   #p.scatter(mínimo_2015()[0], mínimo_2015()[1], s=10, color='black', label='mínimo 2015')
