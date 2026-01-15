@@ -15,8 +15,8 @@ p.rcParams.update({
   'axes.labelsize': 15,                                                                     # Tamaño de etiquetas de los ejes,
   'xtick.labelsize': 10,                                                                    # Coordenadas eje x,
   'ytick.labelsize': 10,                                                                    # Coordenadas eje y,
-  'legend.fontsize': 12,                                                                    # Leyenda
-  'axes.prop_cycle': p.cycler('color', ['blue','red','green','orange','purple','yellow']),  # Colores
+  'legend.fontsize': 9,                                                                     # Leyenda
+  'axes.prop_cycle': p.cycler('color', ['blue','red','green','orange','yellow','purple']),  # Colores
   'axes.grid': True,                                                                        # Cuadrícula
   'figure.figsize': (12,3),                                                                 # Tamaño de figura
   'xtick.minor.visible': True,                                                              # Sub-ejes en x
@@ -56,7 +56,7 @@ def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # disco_2D : 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def disco_2D(resolución_r: int = 100, resolución_theta: int = 200) -> None:
+def disco_2D(resolución_r: int = 200, resolución_theta: int = 200) -> None:
   """
   Genera las coordenadas (x,y) de un semi-disco unitario mediante coordenadas polares con y>0 (theta pertenece a [0,pi]). Los parámetros
   resolución_r y resolución_theta representan la resolución radial (desde (0,0) hasta el borde) y angular (alrededor del disco).

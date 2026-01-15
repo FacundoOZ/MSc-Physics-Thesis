@@ -89,8 +89,6 @@ def graficador(
 #———————————————————————————————————————————————————————————————————————————————————————
 # Funciones Auxiliares
 #———————————————————————————————————————————————————————————————————————————————————————
-
-#———————————————————————————————————————————————————————————————————————————————————————
 def graficar_trayectoria(
     X: np.ndarray, Y: np.ndarray, Z: np.ndarray,                                  # Posiciones de la sonda en formato np.ndarray en x, y, z
     x: bool, y: bool, z: bool,                                                    # Valor booleano que determina las componentes a graficar
