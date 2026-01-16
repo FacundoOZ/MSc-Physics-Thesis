@@ -1,1 +1,0 @@
-t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss

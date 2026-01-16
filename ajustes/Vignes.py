@@ -72,54 +72,54 @@ def hipérbola_máxima() -> tuple[np.ndarray, np.ndarray]:
   """
   Hipérbola del tipo Vignes construida como una hipérbola de la forma y tamaño adecuados que pasa por el punto máximo del 2015.
   """
-  _, _, x_a_max, y_a_max = hipérbola_Vignes(θ0= 0.41, θf=2.0, X0=1.40, α=-np.deg2rad(10))
-  return x_a_max, y_a_max
+  _, _, x_a_max, y_a_max = hipérbola_Vignes(θ0= 0.41, θf=2.0, X0=1.40, α=-np.deg2rad(10)) # Obtengo solo las coordenadas aberradas
+  return x_a_max, y_a_max                                                                 # y las devuelvo.
 
 def hipérbola_mínima() -> tuple[np.ndarray, np.ndarray]:
   """
   Hipérbola del tipo Vignes construida como una hipérbola de la forma y tamaño adecuados que pasa por el punto mínimo del 2019.
   """
-  _, _, x_a_min, y_a_min = hipérbola_Vignes(θ0=-0.39, θf=1.9, X0=0.13, α= np.deg2rad(20))
-  return x_a_min, y_a_min
+  _, _, x_a_min, y_a_min = hipérbola_Vignes(θ0=-0.39, θf=1.9, X0=0.13, α= np.deg2rad(20)) # Obtengo solo las coordenadas aberradas
+  return x_a_min, y_a_min                                                                 # y las devuelvo.
 
 def segmento_izquierdo() -> Callable[[np.ndarray], np.ndarray]:
   """
   Segmento que conecta el punto terminal de la hipérbola mínima con el punto terminal de la hipérbola máxima.
   """
-  Xmin, Ymin = hipérbola_mínima()
-  Xmax, Ymax = hipérbola_máxima()
-  x_A, y_A, x_B, y_B = Xmin[-1], Ymin[-1], Xmax[-1], Ymax[-1]
+  Xmin, Ymin = hipérbola_mínima()                             # Obtengo las coordenadas aberradas de las hipérbolas mínima
+  Xmax, Ymax = hipérbola_máxima()                             # y máxima.
+  x_A, y_A, x_B, y_B = Xmin[-1], Ymin[-1], Xmax[-1], Ymax[-1] # Obtengo las coordenadas (x,y) del último punto de la hipérbola mín y máx.
   def recta(y: np.ndarray) -> np.ndarray:                     # Utilizo la ecuación de la recta que pasa por dos puntos.
-    m = (y-y_A)/(y_B-y_A)                                     # Definición de la pendiente
-    return m*(x_B-x_A) + x_A
-  return recta
+    m = (y-y_A)/(y_B-y_A)                                     # Definición de la pendiente.
+    return m*(x_B-x_A) + x_A                                  # Devuelvo la recta que pasa por (x_A,y_A) (hipérbola mín) y (x_B,y_B) (máx.)
+  return recta                                                # Devuelvo la recta, que es un np.ndarray.
 
 def mínimo_2019() -> tuple[float, float]:
   """
   Mínimo bow shock del 2019 (17/01/2019-19:30:29):
   17.812841 0.880000 -2.100000 3.780000 1432.477000 765.354000 -5156.698000 266.488000 -706.178000 -5353.465000
   """
-  x   = 266.488000/R_m
-  cil = sqrt((-706.178000)**2 + (-5353.465000)**2)/R_m
-  return (x, cil)
+  Xss = 266.488000/R_m                                 # Obtengo la coordenada Xss normalizada por el radio marciano.
+  cil = sqrt((-706.178000)**2 + (-5353.465000)**2)/R_m # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
+  return (Xss, cil)                                    # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 
 def máximo_2015() -> tuple[float, float]:
   """
   Máximo bow shock del 2015 (10/01/2015-19:22:35):
   10.807355 -9.730000 -6.030000 5.380000 -2175.504000 -1628.225000 -8501.208000 4701.380000 2458.306000 -7176.923000
   """
-  x   = 4701.380000/R_m
-  cil = sqrt((2458.306000)**2 + (-7176.923000)**2)/R_m
-  return (x, cil)
+  Xss = 4701.380000/R_m                                # Obtengo la coordenada Xss normalizada por el radio marciano.
+  cil = sqrt((2458.306000)**2 + (-7176.923000)**2)/R_m # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
+  return (Xss, cil)                                    # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 
 def mínimo_2015() -> tuple[float, float]:
   """
   Mínimo bow shock del 2015 (23/07/2015-04:41:22):
   204.195399 0.570000 -2.980000 -0.580000 4935.614000 -1546.648000 2916.324000 -328.066000 -3450.585000 4821.119000
   """
-  x   = -328.066000/R_m
-  cil = sqrt((-3450.585000)**2 + (4821.119000)**2)/R_m
-  return (x, cil)
+  Xss = -328.066000/R_m                                # Obtengo la coordenada Xss normalizada por el radio marciano.
+  cil = sqrt((-3450.585000)**2 + (4821.119000)**2)/R_m # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
+  return (Xss, cil)                                    # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

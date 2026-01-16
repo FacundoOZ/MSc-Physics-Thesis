@@ -26,7 +26,7 @@ p.rcParams.update({
 shade_m = LinearSegmentedColormap.from_list('shade_m', [(0,0,0), (1.0,0.5,0.0)]) # Color negro (0,0,0) a naranja (1,.5,0) para Marte.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# guardar_figura : 
+# guardar_figura:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def guardar_figura() -> None:
   """
@@ -40,7 +40,7 @@ def guardar_figura() -> None:
     print('Figura no guardada.')                                                 # no se guarda.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# plot_xy : 
+# plot_xy:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = False, tamaño_puntos: int = 2) -> None:
   """
@@ -54,7 +54,7 @@ def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = 
     p.plot(x, y, label=etiqueta)                     # realizo un plot común por interpolación y coloco el label.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# disco_2D : 
+# disco_2D:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def disco_2D(resolución_r: int = 200, resolución_theta: int = 200) -> None:
   """
@@ -70,7 +70,7 @@ def disco_2D(resolución_r: int = 200, resolución_theta: int = 200) -> None:
   ax.set_aspect('equal', adjustable='box')                 # Tomo proporciones de los ejes iguales.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# esfera_3D : 
+# esfera_3D:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def esfera_3D(resolución: float = 50) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
   """

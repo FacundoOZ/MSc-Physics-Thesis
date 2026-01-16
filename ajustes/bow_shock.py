@@ -126,8 +126,8 @@ def función_ajuste(
   popt, pcov = curve_fit(funcion, x, y, p0=datos_iniciales) # Ajusto los datos a la función
   perr = np.sqrt(np.diag(pcov))
 
-  print(f"Parámetros de ajuste: {popt}")
-  print(f"Desviación estándar: {perr}")
+  print(f'Parámetros de ajuste: {popt}')
+  print(f'Desviación estándar: {perr}')
   
   #p.errorbar(x, y, yerr=perr[1], fmt='o', color='black', label=data)
   #p.plot(grilla_x, funcion(grilla_x, *popt), color='blue', label=fit)

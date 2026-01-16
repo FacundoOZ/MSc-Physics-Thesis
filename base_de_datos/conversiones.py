@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 R_m: float = 3396.3 # Radio marciano máximo (km)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# fecha_UTC_a_DOY : 
+# fecha_UTC_a_DOY: 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def fecha_UTC_a_DOY(dia: str, mes: str, año: str) -> str:
   """
@@ -23,7 +23,7 @@ def fecha_UTC_a_DOY(dia: str, mes: str, año: str) -> str:
   return f'{fecha.timetuple().tm_yday:03d}'      # Devuelvo dicha fecha en formato día del año, y con formato de dos ceros (por ej.: 005).
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# dias_decimales_a_datetime : 
+# dias_decimales_a_datetime: 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def dias_decimales_a_datetime(dia_decimal: np.ndarray, año: int) -> pd.DatetimeIndex:
   """
@@ -34,7 +34,7 @@ def dias_decimales_a_datetime(dia_decimal: np.ndarray, año: int) -> pd.Datetime
   return pd.to_datetime([base + timedelta(days=d-1) for d in dia_decimal]) # Devuelvo res en formato datetime.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# tiempo_UTC_en_segundos : 
+# tiempo_UTC_en_segundos:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def tiempo_UTC_en_segundos(t: str) -> int:   # Función auxiliar para convertir tiempo UTC en segundos
   """
@@ -46,7 +46,7 @@ def tiempo_UTC_en_segundos(t: str) -> int:   # Función auxiliar para convertir 
   return res                     # Devuelvo res.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# dia_decimal_a_fecha_UTC / fecha_UTC_a_dia_decimal : permiten convertir una fecha específica a día decimal o viceversa
+# dia_decimal_a_fecha_UTC / fecha_UTC_a_dia_decimal: permiten convertir una fecha específica a día decimal o viceversa
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def dia_decimal_a_fecha_UTC(dia_decimal: float, año: int) -> str:
   """
