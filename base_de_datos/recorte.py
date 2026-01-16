@@ -177,12 +177,12 @@ def recortar_Vignes_MAG(
   La función recortar_Vignes_MAG recibe en formato string un directorio y un archivo que representan la carpeta donde se encuentra el archivo
   a recortar, y el nombre del archivo, respectivamente. Extrae el año y mes del nombre del archivo y lo busca en las carpetas correspondientes
   y recibe un diccionario que conteine los parámetros necesarios para la región que se desea recortar. Utiliza como máscara para los datos
-  dicha región y devuelve el archivo recortado en el mismo directorio, pero en una carpeta llamada 'recorte_vignes'.
+  dicha región y devuelve el archivo recortado en el mismo directorio, pero en una carpeta llamada 'recorte_Vignes'.
   """
   año: str = archivo[11:15]                                                      # Extraigo del string archivo el año
   mes: str = str(int(archivo[30:32]))                                            # y el mes (remuevo los ceros delante del mes)
   ruta_i   = os.path.join(directorio, 'hemisferio_N', año, mes, archivo)         # Obtengo la ruta de origen del archivo
-  ruta_f   = os.path.join(directorio, 'recorte_vignes', año, mes)                # Obtengo la ruta del archivo recortado
+  ruta_f   = os.path.join(directorio, 'recorte_Vignes', año, mes)                # Obtengo la ruta del archivo recortado
   os.makedirs(ruta_f, exist_ok=True)                                             # Creo la carpeta de destino (si aún no existe)
   archivo_final = os.path.join(ruta_f, archivo.replace(                          # Establezco la ruta completa + nombre del archivo del
     '_recortado_hemisferio_N.sts', '_final.sts'))                                # archivo final, reemplazando _recortado... por _final.

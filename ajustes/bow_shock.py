@@ -25,19 +25,19 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_ajustes(
-    #directorio: str,
+    directorio: str,
     #tiempo_inicial: str, tiempo_final: str
-    ##año: str
+    #año: str
 ) -> None:
 
   #——————————————————————————————————————————————————————————————————————————————
   # MARTE
-  """disco_2D(resolución_r=200, resolución_theta=200)
+  disco_2D(resolución_r=200, resolución_theta=200)
   #——————————————————————————————————————————————————————————————————————————————
   # HIPÉRBOLA VIGNES
   x,y,x_a,y_a = hipérbola_Vignes()
   #p.plot(x,y, label=r'Vignes (1997) ss', color='black')
-  p.plot(x_a,y_a, label=r'Vignes (1997) ss ($\alpha = 4$°)', color='black')"""
+  p.plot(x_a,y_a, label=r'Vignes (1997) ss ($\alpha = 4$°)', color='black')
   #——————————————————————————————————————————————————————————————————————————————
   # HIPÉRBOLA IZQUIERDA
   x_a_min,y_a_min = hipérbola_mínima()
@@ -81,17 +81,17 @@ def graficador_ajustes(
 
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————
-  """for año in ['2014','2015','2016','2017','2018','2019']:
+  for año in ['2014','2015','2016','2017','2018','2019']:
     data: np.ndarray = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
     Xss,Yss,Zss = [data[:,j] for j in [7,8,9]]
     A = Xss/R_m
     B = sqrt(Yss**2+Zss**2)/R_m
-    p.scatter(A,B, s=10, label=f'Fruchtman ({año}) ss')
+    p.scatter(A,B, s=2, label=f'Fruchtman ({año}) ss')
   #——————————————————————————————————————————————————————————————————————————————
 
     #——————————————————————————————————————————————————————————————————————————————
     # AJUSTE NO LINEAL POR HIPÉRBOLA VIGNES (sobre datos Fruchtman)
-    popt, pcov = curve_fit(
+    """popt, pcov = curve_fit(
       lambda x, X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=450),
       Xss/R_m,
       sqrt(Yss**2+Zss**2)/R_m,

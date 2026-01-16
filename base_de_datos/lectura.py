@@ -46,12 +46,16 @@ def leer_archivos_MAG(
           f'mvn_mag_l2_{año}{DOY}merge1s_{año}{mes}{dia}_v01_r02_recortado.sts'] # dia. Con terminación 'r01' ó 'r02' (r=revisión).
         if 'hemisferio_N' in directorio:                                         # Si se desea graficar el hemisferio norte,
           nombres = [x.replace('.sts', '_hemisferio_N.sts') for x in nombres]    # reemplazo el nombre por la terminación correpondiente.
+        elif 'recorte_Vignes' in directorio:                                     # Si se desea graficar el recorte de Vignes,
+          nombres = [x.replace('_recortado.sts', '_final.sts') for x in nombres] # reemplazo '_recortado' por '_final'.
         elif 'hemisferio_ND' in directorio:                                      # Y si se desea graficar solo el hemisferio norte diurno,
           nombres = [x.replace('.sts', '_hemisferio_ND.sts') for x in nombres]   # también.
         encontrado: bool = False                                                 # Creo una variable que representa el estado del archivo
         for archivo in nombres:                                                  # Para cada archivo de la lista 'nombres',
           ruta_archivo: str = os.path.join(ruta_base, archivo)                   # guardo su ubicación en la variable ruta_archivo.
-          if os.path.exists(ruta_archivo):                                       # Si el archivo existe,
+          if os.path.exists(ruta_archivo):                                       # Si el archivo existe, hago lo siguiente:
+            if os.path.getsize(ruta_archivo) == 0:                               # Si no contiene nada, (puede pasar debido a algún recorte)
+              continue                                                           # paso a la siguiente iteración del for.
             df = pd.read_csv(ruta_archivo, sep=' ', header=None)                 # lo leo completamente,
             df[0] = dias_decimales_a_datetime(df[0].to_numpy(), año)             # convierto la col 0 a datetime CON EL AÑO CORRESPONDIENTE,
             lista_sts.append(df)                                                 # EN lista_sts CREO UN EJE t ABSOLUTO con todos los años
