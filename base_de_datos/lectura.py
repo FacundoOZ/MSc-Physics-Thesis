@@ -75,17 +75,18 @@ def leer_archivos_MAG(
 # leer_archivo_Fruchtman: lee el archivo Fruchtman de un año correspondiente.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def leer_archivo_Fruchtman(
-    directorio: str,                                           # Directorio donde se encuentra la carpeta 'merge'.
-    año: str                                                   # Año del archivo a leer.
-) -> np.ndarray:
+    directorio: str,                                                          # Directorio donde se encuentra la carpeta 'merge'.
+    año: str                                                                  # Año del archivo a leer.
+) -> pd.DataFrame:
   """
   La función leer_archivo_Fruchtman recibe en formato string un directorio y un año, que representan la carpeta donde se encuentra el archivo
-  a leer de tipo 'fruchtman_{año}_merge.sts', ubicado dentro de la carpeta 'merge' correspondiente, y el año cuyo archivo se desea leer, respectivamente y devuelve un np.ndarray con los datos cargados.
+  a leer de tipo 'fruchtman_{año}_merge_hemisferio_N.sts', ubicado dentro de la carpeta 'merge' correspondiente, y el año cuyo archivo se
+  desea leer, respectivamente y devuelve un pd.DataFrame con los datos cargados.
   """
-  nombre: str      = f'fruchtman_{año}_merge.sts'              # Nombre del archivo.
-  ruta: str        = os.path.join(directorio, 'merge', nombre) # Ruta completa.
-  data: np.ndarray = np.loadtxt(ruta)                          # Cargo el archivo.
-  return data                                                  # Devuelvo los datos.
+  nombre: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                     # Nombre del archivo.
+  ruta: str   = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # Ruta completa.
+  data = np.loadtxt(ruta)                                                     # Cargo el archivo.
+  return pd.DataFrame(data)                                                   # Devuelvo los datos.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

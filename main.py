@@ -15,20 +15,24 @@ import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
-#import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
 #import machine_learning.redes_neuronales as ML  # Redes Neuronales
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# CLASIFICADOR
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# De los 3766 originales quedaron 1921 (el 51.009028 %) BS de Fruchtman tras el recorte z_pc > 0.
 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# APRENDIZAJE
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#test = KNN.entrenar(directorio=ruta, años=['2014','2015','2016','2017','2018','2019'], ventana=1200, vecinos=10)
+#BS_2021 = KNN.predecir_bow_shocks(test, directorio=ruta, año='2021')
+#print(f'Bow shocks detectados en el año 2021: {len(BS_2021)}')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-fit.graficador_ajustes(directorio=ruta+'fruchtman')
+#fit.graficador_ajustes(directorio=ruta)
 #fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2025-00:00:00', tiempo_final='31/12/2025-23:59:00')
 #fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
 
@@ -48,11 +52,11 @@ fit.graficador_ajustes(directorio=ruta+'fruchtman')
   #z_pc=True, x_pc=True, y_pc=True,
 # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
   #x_ss=True, y_ss=True, z_ss=True,
-  cil=True, # Usar solamente con coord='ss' y trayectoria=True
+#  cil=True, # Usar solamente con coord='ss' y trayectoria=True
 # Distancia de MAVEN a Marte:
   #R=True,
 # Curvas paramétricas:
-  trayectoria=True,
+#  trayectoria=True,
 # Scatter:
   scatter=True,
   tamaño_puntos=1
