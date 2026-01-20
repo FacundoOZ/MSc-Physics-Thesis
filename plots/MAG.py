@@ -38,7 +38,8 @@ def graficador(
 ) -> None:
   """
   La función graficador recibe en formato string tres elementos:
-    - Un directorio que representa la ruta donde se encuentran los archivos que se desean graficar.
+    - Un directorio que representa la ruta donde se encuentran los archivos que se desean graficar y con el parámetro 'promedio' que determina
+    el promedio en segundos que se quiere tomar sobre los datos.
     - Un tiempo_inicial en formato 'DD/MM/YYYY-HH:MM:SS'.
     - Un tiempo_final   en formato 'DD/MM/YYYY-HH:MM:SS'.
   y dependiendo de los valores booleanos B (módulo de campo magnético), B_x, B_y, B_z (las componentes de campo magnético), x, y, z (las 

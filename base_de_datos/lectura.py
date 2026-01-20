@@ -20,12 +20,14 @@ from base_de_datos.conversiones import fecha_UTC_a_DOY, dias_decimales_a_datetim
 def leer_archivos_MAG(
     directorio: str,                                                             # Carpeta de la base de datos de los archivos a leer
     tiempo_inicial: str, tiempo_final: str,                                      # tiempo inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'
-    promedio: int = 1
+    promedio: int = 1                                                            # Promedio en segundos de la cantidad de muestras a leer.
 ) -> pd.DataFrame:
   """
   Lee y concatena ordenadamente todos los archivos .sts del año y en el directorio pasados por parámetro (tanto los de terminación 'r01' como
   'r02') que se encuentren entre el intervalo [t0, tf] (inclusive) determinado por las variables tiempo_inicial y final, en formato string
-  'DD/MM/YYYY-HH:MM:SS'.
+  'DD/MM/YYYY-HH:MM:SS'. Mediante el entero positivo 'promedio' se realiza un promedio de la cantidad de mediciones pasadas por parámetro
+  (por ejemplo: si promedio = 20, se leen 20 mediciones y se las promedia por un solo valor, luego se leen otras 20 y se las promedia, etc.),
+  y como las muestras son de 1 Hz, el promedio representa la cantidad de segundos de mediciones a promediar.
   """
   t0 = pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S')                # Convierto strings tiempo_inicial/final a objetos datetime
   tf = pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S')                # (le indico a pandas como extraer DD/MM/AA, HH:MM:SS).

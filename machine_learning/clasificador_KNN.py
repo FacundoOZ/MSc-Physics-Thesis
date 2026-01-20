@@ -1,5 +1,5 @@
 
-# Terminado
+# COMENTAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)

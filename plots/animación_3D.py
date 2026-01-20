@@ -34,7 +34,7 @@ def trayectoria_3D_MAVEN_MAG(
   """
   La función trayectoria_3D_MAVEN_MAG recibe en formato string un directorio, un tiempo inicial y un tiempo final que representan la ruta
   donde se encuentran los archivos MAG que se desean graficar en el intervalo de tiempo indicado, siendo éstos últimos dos en formato string
-  'DD/MM/YYYY-HH:MM:SS', y los lee mediante la función 'leer_archivos_MAG' del módulo plots.MAG.
+  'DD/MM/YYYY-HH:MM:SS', y los lee mediante la función 'leer_archivos_MAG' del módulo plots.MAG con el promedio en segundos ingresado.
   Mediante tamaño_ejes (float) puede ajustarse el tamaño máximo del plot 3D cúbico, y los enteros 'paso' y 'delay' permiten ajustar la
   cantidad de puntos que se recorreran por frame y con qué velocidad, respectivamente. Esta función permite graficar tanto coordenadas PC ó
   SS.

@@ -1,5 +1,5 @@
 
-# EDITAR
+# MODULARIZAR, DOCUMENTAR Y COMENTAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para estudiar modelos de regresión
