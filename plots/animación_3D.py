@@ -25,6 +25,7 @@ from plots.estilo_plots         import esfera_3D
 def trayectoria_3D_MAVEN_MAG(
     directorio: str,                                                                      # Carpeta donde se encuentran los archivos a animar.
     tiempo_inicial: str, tiempo_final: str,                                               # t_0,t_f a animar (en formato DD/MM/YYYY-HH:MM:SS).
+    promedio: int = 1,                                                                    # Promedio de lectura de archivos MAG.
     tamaño_ejes: float = 2.5,                                                             # Ajusta el tamaño máx. de ejes x,y,z a la vez.
     paso: int = 100,                                                                      # Ajusta el paso entre datos -> 'velocidad'.
     delay: int = 1,                                                                       # Delay entre frames (recomendado: >=1 ms).
@@ -40,7 +41,7 @@ def trayectoria_3D_MAVEN_MAG(
   La función realiza un gráfico 3D que muestra en forma animada la curva de trayectoria que traza la posición de MAVEN en el espacio (x,y,z)
   medida por el instrumento MAG, ya sea en coordenadas Planetocéntricas (PC) ó Sun-State (SS).
   """
-  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)        # Leo los archivos en el intervalo (t0,tf) en 'data'.
+  data: pd.DataFrame = leer_archivos_MAG(directorio,tiempo_inicial,tiempo_final,promedio) # Leo los archivos en el intervalo (t0,tf) en 'data'.
   t, _,_,_, Xpc,Ypc,Zpc, Xss,Yss,Zss = [data[j].to_numpy() for j in range(0, 10)]         # Extraigo solo el tiempo y las coordenadas PC y SS.
   fig, ax, line, point, x,y,z = crear_plot3D(Xpc,Ypc,Zpc,Xss,Yss,Zss, tamaño_ejes, coord) # Creo el plot 3D mediante la función 'crear_plot3D'.
   def update(i):                                                                          # Función de actualización llamada por FuncAnimation

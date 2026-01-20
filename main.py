@@ -42,7 +42,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 """MAG.graficador(
   directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='25/12/2014-09:00:00', tiempo_final='25/12/2014-12:45:00',
+  tiempo_inicial='25/12/2014-09:00:00', tiempo_final='25/12/2014-12:45:00', promedio=20,
 # Sistema de Referencia: 'ss' ó 'pc'
   coord='ss',
 # Magnitudes a graficar:
@@ -58,13 +58,13 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # Curvas paramétricas:
 #  trayectoria=True,
 # Scatter:
-  scatter=True,
-  tamaño_puntos=1
+  #scatter=True,
+  #tamaño_puntos=1
 )"""
 
 
 """ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
-                                tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00',
+                                tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00', promedio=1,
                                 paso=200,
                                 coord='pc'
 )"""

@@ -21,7 +21,7 @@ from base_de_datos.conversiones import segundos_a_día
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Entrenamiento:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def entrenar(directorio: str, años: list[str], ventana: int = 600, vecinos: int = 15) -> Pipeline:
+def entrenar(directorio: str, años: list[str], ventana: int = 600, vecinos: int = 15, promedio: int = 1) -> Pipeline:
   """
   La funcion entrenar recibe un directorio en formato string que contiene tanto las mediciones finales MAG recortadas como los bow shocks
   detectados por Fruchtman, y una lista de strings en la variable 'años' que representa los posibles valores de entre '2014' y '2019' (que 
@@ -31,24 +31,24 @@ def entrenar(directorio: str, años: list[str], ventana: int = 600, vecinos: int
   devuelve el Pipeline del entrenamiento.
   Los conjuntos BS y NBS se balancean para evitar sesgos en la clasificación, y el pipeline entrenado = StandardScaler + KNeighborsClassifier.
   """
-  X_BS,  y_BS  =    bow_shocks_fruchtman(directorio, años)          # Construcción del dataset
-  X_NBS, y_NBS = no_bow_shocks_fruchtman(directorio, años, ventana) # 
-  N: int = len(X_BS)                                                # Balanceo de clases
-  X_entrenamiento: np.ndarray = np.vstack(     [X_BS, X_NBS[:N]])   # Dataset final
-  y_entrenamiento: np.ndarray = np.concatenate([y_BS, y_NBS[:N]])   # 
-  secuencia_KNN: Pipeline = Pipeline([                              # Pipeline KNN
-    ('scaler', StandardScaler()),                                   # 
-    ('knn', KNeighborsClassifier(                                   # 
-      n_neighbors=vecinos, weights='distance', metric='euclidean'   # 
-    ))                                                              # 
-  ])                                                                # 
-  secuencia_KNN.fit(X_entrenamiento, y_entrenamiento)               # 
-  return secuencia_KNN                                              # 
+  X_BS,  y_BS  =    bow_shocks_fruchtman(directorio, años)                    # Construcción del dataset
+  X_NBS, y_NBS = no_bow_shocks_fruchtman(directorio, años, ventana, promedio) # 
+  N: int = len(X_BS)                                                          # Balanceo de clases
+  X_entrenamiento: np.ndarray = np.vstack(     [X_BS, X_NBS[:N]])             # Dataset final
+  y_entrenamiento: np.ndarray = np.concatenate([y_BS, y_NBS[:N]])             # 
+  secuencia_KNN: Pipeline = Pipeline([                                        # Pipeline KNN
+    ('scaler', StandardScaler()),                                             # 
+    ('knn', KNeighborsClassifier(                                             # 
+      n_neighbors=vecinos, weights='distance', metric='euclidean'             # 
+    ))                                                                        # 
+  ])                                                                          # 
+  secuencia_KNN.fit(X_entrenamiento, y_entrenamiento)                         # 
+  return secuencia_KNN                                                        # 
 
 #———————————————————————————————————————————————————————————————————————————————————————
 # Funciones Auxiliares
 #———————————————————————————————————————————————————————————————————————————————————————
-def vector_característico(data: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
+def vector_característico(data: pd.DataFrame) -> np.ndarray:
   """
   La función vector_característico recibe un parámetro 'data' que representa un dataframe del tipo:
   
@@ -87,7 +87,7 @@ def bow_shocks_fruchtman(directorio: str, años: list[str]) -> tuple[np.ndarray,
   return X_BS, y_BS                                                 # Devuelvo la matriz y el vector de etiquetas.
 
 #———————————————————————————————————————————————————————————————————————————————————————
-def no_bow_shocks_fruchtman(directorio: str, años: list[str], ventana: int) -> tuple[np.ndarray, np.ndarray]:
+def no_bow_shocks_fruchtman(directorio: str, años: list[str], ventana: int, promedio: int = 1) -> tuple[np.ndarray, np.ndarray]:
   """
   La función no_bow_shocks_fruchtman recibe en formato string un 'directorio' que contiene una carpeta (y subcarpetas) con los archivos .txt
   de los bow shocks detectados por Fruchtman entre los años 2014 y 2019, y que a su vez contiene las subcarpetas correspondientes que contienen
@@ -95,19 +95,19 @@ def no_bow_shocks_fruchtman(directorio: str, años: list[str], ventana: int) -> 
   la cantidad de años que se desean cargar y calcula el vector característico para las regiones 'no-Bow Shock' al igual que la función
   bow_shocks_fruchtman y devuelve una tupla de la matriz de no bow shocks, y un vector de ceros (etiqueta no-BS) de dicha longitud.
   """
-  lista: list[np.ndarray] = []                                             # Inicializo una lista de np.ndarrays vacía.
-  ruta_final: str = os.path.join(directorio, 'recorte_Vignes')             # Obtengo la ruta final de los archivos MAG con todos los recortes.
-  for año in años:                                                         # Para cada año de los pasados por parámetro,
-    t_0, t_f = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'              # obtengo el tiempo inicial y final (todo el año) para la función
-    data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_final, t_0, t_f)       # leer_archivos_MAG => obtengo las mediciones del año en data_MAG,
-    data_BS: pd.DataFrame  = leer_archivo_Fruchtman(directorio, año)       # leo todo el contenido del archivo Fruchtman en 'data_BS', y
-    data_NBS: pd.DataFrame = obtener_bordes(data_MAG,                      # obtengo los bordes de los BS en 'data_NBS' con los datos de MAG.
-                                            data_BS[0].to_numpy(),ventana) # y ajusto la ventana en segundos que quiero utilizar.
-    X_NBS: np.ndarray      = vector_característico(data_NBS)               # Creo y guardo el vector característico de los NO-BS en 'X_NBS'
-    lista.append(X_NBS)                                                    # y agrego éstos a la lista.
-  X_NBS: np.ndarray = np.vstack(lista)                                     # En 'X_NBS', apilo elementos de lista => matriz de (años, N).
-  y_NBS: np.ndarray = np.zeros(len(X_NBS), dtype=int)                      # En 'y_BS' genero un vector de etiquetas cero de longitud X_NBS.
-  return X_NBS, y_NBS                                                      # Devuelvo la matriz y el vector de etiquetas.
+  lista: list[np.ndarray] = []                                              # Inicializo una lista de np.ndarrays vacía.
+  ruta_final: str = os.path.join(directorio, 'recorte_Vignes')              # Obtengo la ruta final de los archivos MAG con todos los recortes.
+  for año in años:                                                          # Para cada año de los pasados por parámetro,
+    t_0, t_f = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'               # obtengo el tiempo inicial y final (todo el año) para la función
+    data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_final,t_0,t_f,promedio) # leer_archivos_MAG => obtengo las mediciones del año en data_MAG,
+    data_BS: pd.DataFrame  = leer_archivo_Fruchtman(directorio, año)        # leo todo el contenido del archivo Fruchtman en 'data_BS', y
+    data_NBS: pd.DataFrame = obtener_bordes(data_MAG,                       # obtengo los bordes de los BS en 'data_NBS' con los datos de MAG.
+                                            data_BS[0].to_numpy(),ventana)  # y ajusto la ventana en segundos que quiero utilizar.
+    X_NBS: np.ndarray      = vector_característico(data_NBS)                # Creo y guardo el vector característico de los NO-BS en 'X_NBS'
+    lista.append(X_NBS)                                                     # y agrego éstos a la lista.
+  X_NBS: np.ndarray = np.vstack(lista)                                      # En 'X_NBS', apilo elementos de lista => matriz de (años, N).
+  y_NBS: np.ndarray = np.zeros(len(X_NBS), dtype=int)                       # En 'y_BS' genero un vector de etiquetas cero de longitud X_NBS.
+  return X_NBS, y_NBS                                                       # Devuelvo la matriz y el vector de etiquetas.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def obtener_bordes(data_MAG: pd.DataFrame, tiempos_BS: np.ndarray, ventana: int = 600) -> pd.DataFrame:
@@ -132,19 +132,19 @@ def obtener_bordes(data_MAG: pd.DataFrame, tiempos_BS: np.ndarray, ventana: int 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Predicción de Nuevos Bow Shocks: Devuelve los BS que se han identificado en un año dado.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def predecir_bow_shocks(knn: Pipeline, directorio: str, año: str) -> pd.DataFrame:
+def predecir_bow_shocks(knn: Pipeline, directorio: str, año: str, promedio: int = 1) -> pd.DataFrame:
   """
   La función predecir_bow_shocks recibe el algoritmo KNN, y un directorio y un año en formatos string, que representan el directorio donde se
   encuentran los archivos con las mediciones de MAG, y el año cuyos bow shocks debido a transición de la posición de MAVEN de la región
   upstream a downstream, o viceversa, desean predecirse. Devuelve un dataframe con aquellas mediciones que han sido etiquetadas como 1 (bow
   shock) que el algoritmo KNN ha aprendido a etiquetar luego de su entrenamiento.
   """
-  t_0, t_f = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'        # Obtengo el tiempo inicial y final (todo el año) para la función
-  ruta_final: str = os.path.join(directorio, 'recorte_Vignes')     # Obtengo la ruta final de los archivos MAG con todos los recortes.
-  data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_final, t_0, t_f) # leer_archivos_MAG => obtengo las mediciones del año en 'data_MAG',
-  X: np.ndarray          = vector_característico(data_MAG)         # Calculo el vector característico de todos esos datos,
-  y_pred: np.ndarray     = knn.predict(X)                          # y obtengo la predicción del algoritmo KNN.
-  return data_MAG[y_pred == 1]                                     # Devuelvo aquellos datos que han sido etiquetados como 1 (bow shock).
+  t_0, t_f = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'               # Obtengo el tiempo inicial y final (todo el año) para la función
+  ruta_final: str = os.path.join(directorio, 'recorte_Vignes')            # Obtengo la ruta final de los archivos MAG con todos los recortes.
+  data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_final,t_0,t_f,promedio) # leer_archivos_MAG => obtengo las mediciones del año en 'data_MAG',
+  X: np.ndarray          = vector_característico(data_MAG)                # Calculo el vector característico de todos esos datos,
+  y_pred: np.ndarray     = knn.predict(X)                                 # y obtengo la predicción del algoritmo KNN.
+  return data_MAG[y_pred == 1]                                            # Devuelvo los datos que hayan sido etiquetados como 1 (bow shock).
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

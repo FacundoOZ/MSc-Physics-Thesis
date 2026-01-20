@@ -24,6 +24,7 @@ from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera
 def graficador(
     directorio: str,                                                               # Carpeta de los archivos que se desean plotear
     tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
+    promedio: int = 1,                                                             # Promedio de lectura de archivos MAG.
     B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,      # Campo magnético B=sqrt(Bx**2+By**2+Bz**2) y componentes
     x_pc: bool = False, y_pc: bool = False, z_pc: bool = False,                    # Posición en coordenadas PC
     x_ss: bool = False, y_ss: bool = False, z_ss: bool = False,                    # Posición en coordenadas SS
@@ -54,7 +55,8 @@ def graficador(
   coordenadas PlanetoCéntricas (PC) (incluye la rotación de Marte sobre su eje, z apunta al polo norte) ó Sun-State (SS) centradas en el Sol
   (no incluye la rotación de Marte sobre su eje).
   """
-  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final) # Leo los archivos mag que correspondan al intervalo (t0,tf)
+  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final, # Leo los archivos mag que correspondan al intervalo (t0,tf)
+                                         promedio)                                 # con el promedio deseado.
   t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]   # Extraigo la información del .sts en ese intervalo
   if trayectoria:                                                                  # Si trayectoria = True, entonces:
     if coord=='pc':                                                                # 1) si quiero coordenadas PC,

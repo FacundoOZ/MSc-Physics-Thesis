@@ -19,7 +19,8 @@ from base_de_datos.conversiones import fecha_UTC_a_DOY, dias_decimales_a_datetim
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def leer_archivos_MAG(
     directorio: str,                                                             # Carpeta de la base de datos de los archivos a leer
-    tiempo_inicial: str, tiempo_final: str                                       # tiempo inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'
+    tiempo_inicial: str, tiempo_final: str,                                      # tiempo inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'
+    promedio: int = 1
 ) -> pd.DataFrame:
   """
   Lee y concatena ordenadamente todos los archivos .sts del año y en el directorio pasados por parámetro (tanto los de terminación 'r01' como
@@ -57,6 +58,8 @@ def leer_archivos_MAG(
             if os.path.getsize(ruta_archivo) == 0:                               # Si no contiene nada, (puede pasar debido a algún recorte)
               continue                                                           # paso a la siguiente iteración del for.
             df = pd.read_csv(ruta_archivo, sep=' ', header=None)                 # lo leo completamente,
+            if promedio > 1:                                                     # Si el promedio es mayor a 1,
+              df = df.groupby(df.index // promedio).mean(numeric_only=True)      # => tomo la media cada 'promedio' cantidad de muestras,
             df[0] = dias_decimales_a_datetime(df[0].to_numpy(), año)             # convierto la col 0 a datetime CON EL AÑO CORRESPONDIENTE,
             lista_sts.append(df)                                                 # EN lista_sts CREO UN EJE t ABSOLUTO con todos los años
             encontrado = True                                                    # y actualizo la variable encontrado (se encontró)
