@@ -25,9 +25,9 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#test = KNN.entrenar(directorio=ruta, años=['2014','2015','2016','2017','2018','2019'], ventana=1200, vecinos=10)
-#BS_2021 = KNN.predecir_bow_shocks(test, directorio=ruta, año='2021')
-#print(f'Bow shocks detectados en el año 2021: {len(BS_2021)}')
+test    = KNN.entrenar(directorio=ruta, años=['2015'], ventana=1200, vecinos=10, promedio=20)
+BS_2021 = KNN.predecir_bow_shocks(test, directorio=ruta, año='2021', promedio=20)
+print(f'Bow shocks detectados en el año 2021: {len(BS_2021)}')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES

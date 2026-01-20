@@ -9,7 +9,6 @@ import os
 import numpy  as np
 import pandas as pd
 
-from typing import Union
 from sklearn.pipeline      import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors     import KNeighborsClassifier
