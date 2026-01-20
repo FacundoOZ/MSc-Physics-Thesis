@@ -66,8 +66,8 @@ def leer_archivos_MAG(
             lista_sts.append(df)                                                 # EN lista_sts CREO UN EJE t ABSOLUTO con todos los años
             encontrado = True                                                    # y actualizo la variable encontrado (se encontró)
             break                                                                # Ya no itero más el for.
-        if not encontrado:                                                       # Si no se encontró ni el 'r01' ni el 'r02', entonces
-          print(f'No se encontraron archivos del {dia}/{mes}/{año}')             # aviso la fecha del archivo que no se encontró.
+        #if not encontrado:                                                      # Si no se encontró ni el 'r01' ni el 'r02', entonces
+        #  print(f'No se encontraron archivos del {dia}/{mes}/{año}')            # aviso la fecha del archivo que no se encontró.
         j += timedelta(days=1)                                                   # Avanzo al iterador al día siguiente,
         pbar.update(1)                                                           # y actualizo la barra de progreso.
   if not lista_sts:                                                              # Si no se encontró absolutamente ningún archivo, 
