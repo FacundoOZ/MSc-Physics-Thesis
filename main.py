@@ -15,7 +15,7 @@ import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
-import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+#import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
 #import machine_learning.redes_neuronales as ML  # Redes Neuronales
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
@@ -33,7 +33,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #fit.graficador_ajustes(directorio=ruta)
-#fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2025-00:00:00', tiempo_final='31/12/2025-23:59:00')
+#fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2015-00:00:00', tiempo_final='30/3/2015-23:59:00')
 #fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

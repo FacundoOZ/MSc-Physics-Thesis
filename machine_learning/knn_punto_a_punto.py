@@ -21,13 +21,13 @@ from base_de_datos.conversiones import segundos_a_día
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Entrenamiento:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def entrenar(directorio: str, años: list[str], ventana: int = 600, vecinos: int = 15) -> Pipeline:
+def entrenar(directorio: str, años: list[str], ventana: int = 600, K: int = 15) -> Pipeline:
   """
   La funcion entrenar recibe un directorio en formato string que contiene tanto las mediciones finales MAG recortadas como los bow shocks
   detectados por Fruchtman, y una lista de strings en la variable 'años' que representa los posibles valores de entre '2014' y '2019' (que 
   corresponden a los bow shocks del catálogo de Fruchtman) con los que se desea entrenar al KNN. El entero 'ventana' representa el ancho (en
   valores de tiempo en segundos) de mediciones NO-Bow Shock (NBS) que se desean contemplar y que se encuentran inmediatamente junto a éstos
-  (los ya detectados de Fruchtman), y el entero vecinos, representa el número de k-vecinos que se desea utilizar para el KNN. La función
+  (los ya detectados de Fruchtman), y el entero K, representa el número de k-vecinos que se desea utilizar para el KNN. La función
   devuelve el Pipeline del entrenamiento.
   Los conjuntos BS y NBS se balancean para evitar sesgos en la clasificación, y el pipeline entrenado = StandardScaler + KNeighborsClassifier.
   """
@@ -39,7 +39,7 @@ def entrenar(directorio: str, años: list[str], ventana: int = 600, vecinos: int
   secuencia_KNN: Pipeline = Pipeline([                              # Pipeline KNN
     ('scaler', StandardScaler()),                                   # 
     ('knn', KNeighborsClassifier(                                   # 
-      n_neighbors=vecinos, weights='distance', metric='euclidean'   # 
+      n_neighbors=K, weights='distance', metric='euclidean'         # 
     ))                                                              # 
   ])                                                                # 
   secuencia_KNN.fit(X_entrenamiento, y_entrenamiento)               # 
@@ -114,7 +114,7 @@ def obtener_bordes(data_MAG: pd.DataFrame, tiempos_BS: np.ndarray, ventana: int 
   """
   La función obtener_bordes recibe un dataframe con datos de la sonda MAG y un np.ndarray de tiempos que contiene el tiempo de los bow shocks
   cuyas muestras vecinas se desea extraer. Además, recibe un parámetro float ('ventana') que permite ajustar la ventana temporal (en segundos)
-  de mediciones no bow shock que se desea obtener. La función devuelve un dataframe que representa los datos vecinos (obtenidos de 'data_MAG')
+  de mediciones no bow shock que se desea obtener. La función devuelve un dataframe que representa los datos K (obtenidos de 'data_MAG')
   a los tiempos de bow shocks ingresados, exceptuando a los bow shocks en sí mismos.
   """
   t: np.ndarray = data_MAG.iloc[:,0].to_numpy(dtype=float) # Obtengo el vector de tiempos del archivo MAG.

@@ -26,7 +26,7 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_ajustes(
     directorio: str,
-    #tiempo_inicial: str, tiempo_final: str
+    tiempo_inicial: str, tiempo_final: str
     #año: str,
     #promedio: int = 1
 ) -> None:
@@ -74,25 +74,25 @@ def graficador_ajustes(
   p.fill(x_polígono, y_polígono, color='green', alpha=0.3, linewidth=0)
   #——————————————————————————————————————————————————————————————————————————————
 
-  """data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final, promedio)
-  Xss,Yss,Zss = [data[j].to_numpy() for j in [7,8,9]]
+  data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
+  Xss,Yss,Zss = [data[j] for j in [7,8,9]]
   A = Xss/R_m
   B = sqrt(Yss**2+Zss**2)/R_m
-  p.scatter(A,B, s=1)"""
+  p.scatter(A,B, s=1)
 
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————
-  for año in ['2014','2015','2016','2017','2018','2019']:
-    data: np.ndarray = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
-    Xss,Yss,Zss = [data[:,j] for j in [7,8,9]]
+  """for año in ['2014','2015','2016','2017','2018','2019']:
+    data: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
+    Xss,Yss,Zss = [data[j] for j in [7,8,9]]
     A = Xss/R_m
     B = sqrt(Yss**2+Zss**2)/R_m
-    p.scatter(A,B, s=2, label=f'Fruchtman ({año}) ss')
+    p.scatter(A,B, s=2, label=f'Fruchtman ({año}) ss')"""
   #——————————————————————————————————————————————————————————————————————————————
 
     #——————————————————————————————————————————————————————————————————————————————
     # AJUSTE NO LINEAL POR HIPÉRBOLA VIGNES (sobre datos Fruchtman)
-    """popt, pcov = curve_fit(
+  """popt, pcov = curve_fit(
       lambda x, X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=450),
       Xss/R_m,
       sqrt(Yss**2+Zss**2)/R_m,
