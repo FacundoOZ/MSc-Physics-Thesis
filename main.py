@@ -15,13 +15,14 @@ import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
-#import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
 #import machine_learning.redes_neuronales as ML  # Redes Neuronales
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 # De los 3766 originales quedaron 1921 (el 51.009028 %) BS de Fruchtman tras el recorte z_pc > 0.
 
+KNN.example_usage(directorio=ruta, años=['2015'], test=['2021'], ventana=300, K=2, promedio=10)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -40,9 +41,9 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 """MAG.graficador(
-  directorio=ruta+'datos_recortados_merge', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
+  directorio=ruta+'recorte_Vignes', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='25/12/2014-09:00:00', tiempo_final='25/12/2014-12:45:00', promedio=20,
+  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=10,
 # Sistema de Referencia: 'ss' ó 'pc'
   coord='ss',
 # Magnitudes a graficar:
