@@ -7,12 +7,11 @@
 
 import numpy             as np
 import matplotlib.pyplot as p
-from numpy             import sqrt
 from scipy.interpolate import interp1d
 from scipy.optimize    import curve_fit
 
 # Módulos Propios:
-from base_de_datos.conversiones import R_m
+from base_de_datos.conversiones import R_m, módulo
 from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG
 from plots.estilo_plots         import disco_2D
 from base_de_datos.recorte      import preparar_región_Vignes
@@ -77,7 +76,7 @@ def graficador_ajustes(
   data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
   Xss,Yss,Zss = [data[j] for j in [7,8,9]]
   A = Xss/R_m
-  B = sqrt(Yss**2+Zss**2)/R_m
+  B = módulo(Yss,Zss,norm=R_m)
   p.scatter(A,B, s=1)
 
   # DATOS FRUCHTMAN
@@ -86,7 +85,7 @@ def graficador_ajustes(
     data: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
     Xss,Yss,Zss = [data[j] for j in [7,8,9]]
     A = Xss/R_m
-    B = sqrt(Yss**2+Zss**2)/R_m
+    B = módulo(Yss,Zss,norm=R_m)
     p.scatter(A,B, s=2, label=f'Fruchtman ({año}) ss')"""
   #——————————————————————————————————————————————————————————————————————————————
 
@@ -95,7 +94,7 @@ def graficador_ajustes(
   """popt, pcov = curve_fit(
       lambda x, X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=450),
       Xss/R_m,
-      sqrt(Yss**2+Zss**2)/R_m,
+      módulo(Yss,Zss,norm=R_m),
       p0=[0.64] # X0=0.64 es el X0 hallado por Vignes => lo paso como parámetro inicial.
     )
     x_ajuste = np.linspace(np.min(Xss/R_m), np.max(Xss/R_m), 500)

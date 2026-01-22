@@ -12,6 +12,20 @@ from datetime import datetime, timedelta
 R_m: float = 3396.3 # Radio marciano máximo (km)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# función módulo:
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def módulo(*componentes: np.ndarray, norm: float = 1.0) -> np.ndarray:
+  """La función módulo calcula el módulo de un vector de componentes 2D ó 3D utilizando la distancia euclídea. El parámetro norm permite
+  normalizar el módulo utilizando que sqrt(sum( (x_i/norm)**2 )) = sqrt(sum(x_i**2)) / norm."""
+  if len(componentes) < 2:
+    raise ValueError('Ingrese dos ó más componentes.')
+  suma_cuadrados = np.zeros_like(componentes[0], dtype=float)
+  for c in componentes:
+    suma_cuadrados += c**2
+  res: np.ndarray = np.sqrt(suma_cuadrados)/norm
+  return res
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # fecha_UTC_a_DOY: 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def fecha_UTC_a_DOY(dia: str, mes: str, año: str) -> str:

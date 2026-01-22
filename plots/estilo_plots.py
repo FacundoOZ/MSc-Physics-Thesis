@@ -5,9 +5,9 @@
 # Tesis de Licenciatura | Estilo general para gráficos
 #============================================================================================================================================
 
-import numpy as np
+import numpy             as np
 import matplotlib.pyplot as p
-from numpy             import pi, cos, sin
+from numpy             import sqrt, pi, cos, sin
 from matplotlib.colors import LinearSegmentedColormap
 
 # Parámetros estándar de gráficos:

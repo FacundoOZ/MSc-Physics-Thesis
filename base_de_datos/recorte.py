@@ -13,7 +13,7 @@ from typing            import Any
 from scipy.interpolate import interp1d
 
 # Módulos Propios:
-from base_de_datos.conversiones import R_m, fecha_UTC_a_dia_decimal
+from base_de_datos.conversiones import R_m, módulo, fecha_UTC_a_dia_decimal
 from ajustes.Vignes             import hipérbola_mínima, hipérbola_máxima, segmento_izquierdo
 
 columnas = [6,7,8,9,11,12,13] # 6 => día_decimal #          # [7,8,9] => B_x,B_y,B_z [nT] #          # [11,12,13] => x,y,z [km] #
@@ -231,7 +231,7 @@ def región_Vignes(
   Devuelve un np.ndarray que representa dicha máscara booleana.
   """
   X = Xss/R_m                                                       # X es la componente x en el sistema SS normalizada por R_m de archivo MAG.
-  Y = np.sqrt(Yss**2 + Zss**2)/R_m                                  # Y es la proyección vertical del plano yz normalizada por R_m.
+  Y = módulo(Yss, Zss, norm=R_m)                                    # Y es la proyección vertical del plano yz normalizada por R_m.
   x_min_h = f_min(Y)                                                # Las variables x_min_h y x_max_h representan las hipérbolas mín y máx,
   x_max_h = f_max(Y)                                                # respectivamente, evaluadas en el eje vertical (Y).
   máscara_inf = (          (Y<=y_A) & (X>=x_min_h)  & (X<=x_max_h)) # Máscara inferior =      hipérbola_mín/hipérbola_max  para   0 < Y < y_A.

@@ -1,40 +1,93 @@
+
+# Editar
+
+#============================================================================================================================================
+# Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
+#============================================================================================================================================
+
 import os
 import numpy as np
 import pandas as pd
-from numpy import sqrt, mean, std, median, percentile
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from base_de_datos.lectura import leer_archivos_MAG
 import joblib
-import warnings
-warnings.filterwarnings('ignore')
 
+from typing                import Union
+from sklearn.neighbors     import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
 
-class KNN:
-  """KNN classifier for Bow Shock (BS=1) vs Non-Bow Shock (NBS=0) windows."""
+# Módulos Propios:
+from base_de_datos.conversiones   import módulo, R_m
+from base_de_datos.lectura        import leer_archivos_MAG
+from machine_learning.estadística import estadística, estadística_módulos
 
-  def __init__(self, ventana: int, K: int):
-    self.ventana = ventana
-    self.K = K
-    self.knn = KNeighborsClassifier(n_neighbors=K, weights='distance', n_jobs=-1)
-    self.scaler = StandardScaler()
-    self.entrenado = False
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# ClasificadorKNN : para la detección de Bow Shocks mediante mediciones de campo magnético del instrumento MAG de la sonda MAVEN.
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+class ClasificadorKNN:
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  # Inicializador (Constructor):
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  def __init__(
+      self,                                                                                # Estado de la variable actual.
+      K: int,                                                                              # Metaparámetro K para las ventanas vecinas.
+      ventana: int = 300,                                                                  # Ancho de ventana (en segundos)
+      variables: Union[list[str], None] = None                                             # Variables a utilizar del vector característico.
+  ) -> None:
+    """Inicializador de los atributos de la clase ClasificadorKNN para la detección de Bow Shocks. El metaparámetro 'K' es un entero que
+    determina la cantidad de ventanas vecinas que se utilizarán para entrenar al algoritmo KNN (recomendado entre 1 y 30). El parámetro
+    'ventana' es un entero que permite ajustar la cantidad de tiempo en segundos que tendrá el ancho de las ventanas para entrenar al
+    algoritmo KNN (recomendado entre 60 y 600), y cuya finalidad es representar de forma adecuada el ancho de duración de los bow shocks.
+    El parámetro 'variables' es una lista de strings que permite elegir qué magnitudes físicas medidas por el instrumento MAG de la sonda
+    MAVEN se desean utilizar para el entrenamiento del algoritmo KNN. Si su valor es None, utiliza en forma predeterminada las variables
+    ['B','Xss','Yss','Zss']. Los valores posibles son: ['B','R','Bx','By','Bz','Xpc','Ypc','Zpc','Xss','Yss','Zss']."""
+    if K <= 0:                                                                             # Si K<=0, no es entero válido,
+      raise ValueError("'K' debe ser un entero positivo (recomendado 1 ≤ K ≤ 30).")        # => devuelvo un mensaje.
+    if ventana <= 0:                                                                       # Si la ventana es <= 0 no es un tiempo válido,
+      raise ValueError("'ventana' debe ser un entero positivo (recomendado 60 ≤ v ≤ 600).")# => devuelvo un mensaje.
+    if variables is None:                                                                  # Si no se definen las variables,
+      variables: list[str] = ['B','Xss','Yss','Zss']                                       # utilizo las predeterminadas [|B|,Xss,Yss,Zss]
+    if not all(isinstance(v, str) for v in variables):                                     # Si las variables pasadas por parámetro no son
+      raise TypeError("'variables' debe ser una lista de strings.")                        # strings => devuelvo un mensaje.
+    self.K: int               = K                                                          # Metaparámetro K.
+    self.ventana: int         = ventana                                                    # Ventana de puntos.
+    self.variables: list[str] = list(variables)                                            # Variables para entrenamiento.
+    self.entrenado: bool      = False                                                      # Booleano del estado del KNN.
+    self.scaler = StandardScaler()                                                         # Re-escaleo de variables.
+    self.knn    = KNeighborsClassifier(                                                    # Clasificador KNN.
+      n_neighbors=self.K,                                                                  # Número de vecinos.
+      weights='distance',                                                                  # Pesos (distancia).
+      metric='euclidean',                                                                  # Métrica a utilizar (euclídea predeterminada).
+      n_jobs=-1                                                                            # Permite utilizar todo el CPU disponible.
+    )
 
-  def extract_window_features(self, df: pd.DataFrame):
-    if len(df) < 10: 
-      return None
-    Bx,By,Bz,Xss,Yss,Zss = [df.iloc[:,j].astype(float).T for j in [1,2,3,7,8,9]]
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  # Vector Característico:
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  def vector_característico(self, data: pd.DataFrame) -> np.ndarray:
+    """La función vector característico recibe un dataframe 'data' del tipo archivo MAG recortado, cuyas columnas son de la forma:
+    día_decimal Bx By Bz Xpc Ypc Zpc Xss Yss Zss
+    ....        .. .. .. ... ... ... ... ... ...
+    y extrae el vector característico por ventana para alimentar al KNN, con las variables pasadas por parámetro a la clase ClasificadorKNN.
+    Devuelve una lista de valores float convertida a array (np.ndarray[list[float]]) donde cada valor representa las magnitudes estadísticas
+    (del archivo estadística.py) correspondientes a las 'variables' pasadas por parámetro al KNN."""
+    Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(1,10)] # Extraigo todas las magnitudes físicas del archivo tipo MAG. 
+    B, R = módulo(Bx,By,Bz), módulo(Xss,Yss,Zss, norm=R_m)                                 # Calculo los módulos 
+    dicc: dict[str,np.ndarray] = {                                               # 
+      'Bx' : Bx , 'By' : By , 'Bz' : Bz ,                                        # 
+      'Xpc': Xpc, 'Ypc': Ypc, 'Zpc': Zpc, 'Xss': Xss, 'Yss': Yss, 'Zss': Zss}    # 
+    vector: list[float] = []                                                     # 
+    for var in self.variables:                                                   # 
+      if var in ('B','R'):                                                       # 
+        vector.extend(estadística_módulos(B if var=='B' else R))                 # 
+      elif var in dicc:                                                          # 
+        vector.extend(estadística(dicc[var]))                                    # 
+      else:                                                                      # 
+        raise ValueError(f"Variable desconocida: {var}")                         # 
+    res: np.ndarray = np.array(vector)                                           # 
+    return res                                                                   # 
 
-    B_módulo = sqrt(Bx**2 + By**2 + Bz**2)
-    features = []
-    for x in [Xss, Yss, Zss]:
-      features.extend([mean(x), std(x), x.max(), x.min(), median(x), percentile(x, 25), percentile(x, 75)])
-    #R = sqrt(Xss**2 + Yss**2 + Zss**2)
-    #features.extend([mean(R), std(R), R.min(), R.max()])
-    B_mag = sqrt(Bx**2 + By**2 + Bz**2)
-    features.extend([mean(B_mag), std(B_mag), B_mag.max() / mean(B_mag) if mean(B_mag) > 0 else 0])
-    return np.array(features)
-
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  # Muestras BS y NBS:
+  #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   def prepare_training_samples(self, maven_data, bowshock_times, año):
     X, y = [], []
     # convert MAVEN time column to datetime
@@ -51,7 +104,7 @@ class KNN:
       idx_center = np.searchsorted(maven_times, t_bs)
       # BS window
       start, end = max(0, idx_center - half_win), min(len(maven_data), idx_center + half_win)
-      feat = self.extract_window_features(maven_data.iloc[start:end])
+      feat = self.vector_característico(maven_data.iloc[start:end])
       if feat is not None:
         X.append(feat); y.append(1)
       # 3 NBS windows before/after
@@ -59,7 +112,7 @@ class KNN:
         idx_nbs = idx_center + shift * self.ventana
         if idx_nbs - half_win < 0 or idx_nbs + half_win > len(maven_data):
           continue
-        feat = self.extract_window_features(maven_data.iloc[idx_nbs - half_win : idx_nbs + half_win])
+        feat = self.vector_característico(maven_data.iloc[idx_nbs - half_win : idx_nbs + half_win])
         if feat is not None:
           X.append(feat); y.append(0)
     return np.array(X), np.array(y)
@@ -67,7 +120,7 @@ class KNN:
   def train(self, X, y):
     self.knn.fit(self.scaler.fit_transform(X), y)
     self.entrenado = True
-    print(f"Trained KNN: {len(X)} samples, BS={sum(y)}, NBS={len(y)-sum(y)}")
+    print(f"Trained ClasificadorKNN: {len(X)} samples, BS={sum(y)}, NBS={len(y)-sum(y)}")
 
   def predict(self, maven_data):
     predictions = []
@@ -78,7 +131,7 @@ class KNN:
       end_idx = min(len(maven_data), i + self.ventana)
       if end_idx - start_idx >= 10:
         window = maven_data[start_idx:end_idx]
-        features = self.extract_window_features(window)
+        features = self.vector_característico(window)
         if features is not None:
           features_scaled = self.scaler.transform(features.reshape(1,-1))
           pred = self.knn.predict(features_scaled)[0]
@@ -102,7 +155,9 @@ class KNN:
 
 
 def example_usage(directorio, años: list[str], test: list[str], ventana, K, promedio):
-  classifier = KNN(ventana, K)
+  if años == ['2014']:
+    raise ValueError('No hay suficientes muestras para el entrenamiento solo con el año 2014, combine con otros o elija otro.')
+  classifier = ClasificadorKNN(ventana, K)
   all_X, all_y = [], []
   for año in años:
     maven_data = leer_archivos_MAG(os.path.join(directorio, 'recorte_Vignes'), f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59', promedio)

@@ -9,12 +9,11 @@ import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
 import matplotlib.dates  as mdates # Permite realizar gráficos en formatos de fecha 'DD/MM/YYYY', 'HH:MM:SS', etc.
-from numpy    import sqrt
 from datetime import datetime
 from tqdm     import tqdm
 
 # Módulos Propios:
-from base_de_datos.conversiones import R_m
+from base_de_datos.conversiones import R_m, módulo
 from base_de_datos.lectura      import leer_archivos_MAG
 from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera_3D
 
@@ -22,19 +21,19 @@ from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera
 # graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador(
-    directorio: str,                                                               # Carpeta de los archivos que se desean plotear
-    tiempo_inicial: str, tiempo_final: str,                                        # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
-    promedio: int = 1,                                                             # Promedio de lectura de archivos MAG.
-    B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,      # Campo magnético B=sqrt(Bx**2+By**2+Bz**2) y componentes
-    x_pc: bool = False, y_pc: bool = False, z_pc: bool = False,                    # Posición en coordenadas PC
-    x_ss: bool = False, y_ss: bool = False, z_ss: bool = False,                    # Posición en coordenadas SS
-    R: bool = False,                                                               # R = sqrt(Xpc**2+Ypc**2+Zpc**2) (contra t)
-    cil: bool = False,                                                             # cil = sqrt(y**2 + z**2) (contra x) (trayectoria)
-    trayectoria: bool = False,                                                     # Gráfico 2D (x,y) ó 3D (x,y,z, junto a Marte)
-    tamaño_ejes: float = 2.5,                                                      # Ajusta el tamaño máx. de ejes x,y,z a la vez
-    scatter: bool = False,                                                         # Si scatter=True -> grafico sin interpolar (puntos), con
-    tamaño_puntos: int = 2,                                                        # 'tamaño_puntos' el diámetro de los puntos.
-    coord: str = 'pc'                                                              # Sistema de coordenadas a graficar ('pc' ó 'ss')
+    directorio: str,                                                                # Carpeta de los archivos que se desean plotear
+    tiempo_inicial: str, tiempo_final: str,                                         # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
+    promedio: int = 1,                                                              # Promedio de lectura de archivos MAG.
+    B: bool = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,       # Campo magnético B=sqrt(Bx**2+By**2+Bz**2) y componentes
+    x_pc: bool = False, y_pc: bool = False, z_pc: bool = False,                     # Posición en coordenadas PC
+    x_ss: bool = False, y_ss: bool = False, z_ss: bool = False,                     # Posición en coordenadas SS
+    R: bool = False,                                                                # R = sqrt(Xpc**2+Ypc**2+Zpc**2) (contra t)
+    cil: bool = False,                                                              # cil = sqrt(y**2 + z**2) (contra x) (trayectoria)
+    trayectoria: bool = False,                                                      # Gráfico 2D (x,y) ó 3D (x,y,z, junto a Marte)
+    tamaño_ejes: float = 2.5,                                                       # Ajusta el tamaño máx. de ejes x,y,z a la vez
+    scatter: bool = False,                                                          # Si scatter=True -> grafico sin interpolar (puntos), con
+    tamaño_puntos: int = 2,                                                         # 'tamaño_puntos' el diámetro de los puntos.
+    coord: str = 'pc'                                                               # Sistema de coordenadas a graficar ('pc' ó 'ss')
 ) -> None:
   """
   La función graficador recibe en formato string tres elementos:
@@ -56,38 +55,37 @@ def graficador(
   coordenadas PlanetoCéntricas (PC) (incluye la rotación de Marte sobre su eje, z apunta al polo norte) ó Sun-State (SS) centradas en el Sol
   (no incluye la rotación de Marte sobre su eje).
   """
-  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final, # Leo los archivos mag que correspondan al intervalo (t0,tf)
-                                         promedio)                                 # con el promedio deseado.
-  t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]   # Extraigo la información del .sts en ese intervalo
-  if trayectoria:                                                                  # Si trayectoria = True, entonces:
-    if coord=='pc':                                                                # 1) si quiero coordenadas PC,
-      graficar_trayectoria(Xpc,Ypc,Zpc, x_pc,y_pc,z_pc, cil,                       # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
-                           tamaño_ejes, scatter, tamaño_puntos, coord)             # colocando los parámetros que correspondan
-    elif coord=='ss':                                                              # 2) si quiero coordenadas SS,
-      graficar_trayectoria(Xss,Yss,Zss, x_ss,y_ss,z_ss, cil,                       # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
-                           tamaño_ejes, scatter, tamaño_puntos, coord)             # colocando los parámetros correspondientes.
-  else:                                                                            # Si no,
-    if B:                                                                          # Si B = True,
-      B_modulo = sqrt(Bx**2 + By**2 + Bz**2)                                       # grafico el módulo de B.
-      plot_xy(t, B_modulo, r'$\left|\mathbf{B}\right|$', scatter, tamaño_puntos)   # Uso el graficador 2D: plot_xy.
-      p.ylabel('Campo Magnético [nT]')                                             # y nombro al eje y para el campo B (en nanoTesla => [nT])
-    graficar_componentes(                                                          # Si alguna componente de B_i = True, la grafico,
-      t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                     # con su correspondiente etiqueta,
-      'Campo Magnético [nT]', scatter, tamaño_puntos)                              # y nombre del eje y, scatter y tamaño de puntos.
-    r_modulo = sqrt(Xpc**2 + Ypc**2 + Zpc**2)                                      # Defino la distancia de MAVEN a Marte (da igual SS=PC) 
-    graficar_componentes(                                                          # Ídem, grafico las posiciones con respecto al tiempo
-      t, [Xpc,Ypc,Zpc, Xss,Yss,Zss, r_modulo],[x_pc,y_pc,z_pc, x_ss,y_ss,z_ss, R], # tanto para coordenadas PC como SS,
-      [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                   # colocando las etiquetas correspondientes: PC,
-       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$',r'$|\mathbf{r}|$'],# y SS.
-      'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)          # Normalizo por el radio marciano (ESCALA X10).
-    formatear_ejes_y_titulo(                                                       # Adapto el eje temporal x con el formato que corresponda,
-      pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                  # convirtiendo t_inicial y t_final a objeto datetime
-      pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                  # en formato 'DD/MM/YYYY-HH:MM:SS'.
-  p.grid(True, which='minor', linestyle=':', linewidth=0.5)                        # Pongo doble grilla, fina y con formato ':'
-  p.legend()                                                                       # Escribo los labels
-  #guardar_figura()                                                                # guardo la figura
-  p.show()                                                                         # Enseño el plot.
-  p.close()                                                                        # Cierro al terminar el proceso (sino se cuelga el input).
+  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo los archivos mag que correspondan al intervalo (t0,tf)
+                                         promedio)                                  # con el promedio deseado.
+  t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]    # Extraigo la información del .sts en ese intervalo
+  if trayectoria:                                                                   # Si trayectoria = True, entonces:
+    if coord=='pc':                                                                 # 1) si quiero coordenadas PC,
+      graficar_trayectoria(Xpc,Ypc,Zpc, x_pc,y_pc,z_pc, cil,                        # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
+                           tamaño_ejes, scatter, tamaño_puntos, coord)              # colocando los parámetros que correspondan
+    elif coord=='ss':                                                               # 2) si quiero coordenadas SS,
+      graficar_trayectoria(Xss,Yss,Zss, x_ss,y_ss,z_ss, cil,                        # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
+                           tamaño_ejes, scatter, tamaño_puntos, coord)              # colocando los parámetros correspondientes.
+  else:                                                                             # Si no,
+    if B:                                                                           # Si B = True,
+      plot_xy(t,módulo(Bx,By,Bz),r'$\left|\mathbf{B}\right|$',scatter,tamaño_puntos)# Grafico el módulo de B usando el graficador 2D: plot_xy.
+      p.ylabel('Campo Magnético [nT]')                                              # y nombro al eje y para el campo B (en nanoTesla => [nT])
+    graficar_componentes(                                                           # Si alguna componente de B_i = True, la grafico,
+      t, [Bx,By,Bz], [B_x,B_y,B_z], ['$B_x$','$B_y$','$B_z$'],                      # con su correspondiente etiqueta,
+      'Campo Magnético [nT]', scatter, tamaño_puntos)                               # y nombre del eje y, scatter y tamaño de puntos.
+    r_módulo = módulo(Xpc,Ypc,Zpc)                                                  # Defino la distancia de MAVEN a Marte (da igual SS=PC) 
+    graficar_componentes(                                                           # Ídem, grafico las posiciones con respecto al tiempo
+      t, [Xpc,Ypc,Zpc, Xss,Yss,Zss, r_módulo],[x_pc,y_pc,z_pc, x_ss,y_ss,z_ss, R],  # tanto para coordenadas PC como SS,
+      [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                    # colocando las etiquetas correspondientes: PC,
+       r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$',r'$|\mathbf{r}|$'], # y SS.
+      'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)           # Normalizo por el radio marciano (ESCALA X10).
+    formatear_ejes_y_titulo(                                                        # Adapto el eje temporal x con el formato que corresponda,
+      pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                   # convirtiendo t_inicial y t_final a objeto datetime
+      pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                   # en formato 'DD/MM/YYYY-HH:MM:SS'.
+  p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'
+  p.legend()                                                                        # Escribo los labels
+  #guardar_figura()                                                                 # guardo la figura
+  p.show()                                                                          # Enseño el plot.
+  p.close()                                                                         # Cierro al terminar el proceso (sino se cuelga el input).
 
 #———————————————————————————————————————————————————————————————————————————————————————
 # Funciones Auxiliares
@@ -108,7 +106,7 @@ def graficar_trayectoria(
   """
   if cil:                                                                         # Si cil=True, entonces
     disco_2D(resolución_r=200, resolución_theta=200)                              # Grafico la circunferencia rellena (Marte) con shade.
-    proy_yz = sqrt(Y**2 + Z**2)                                                   # Grafico la proyección del plano y,z.
+    proy_yz = módulo(Y,Z)                                                         # Grafico la proyección del plano y,z.
     plot_xy(X/R_m, proy_yz/R_m, 'Posición de MAVEN', scatter, tamaño_puntos)      # Hago plot 2D sqrt(y^2+z^2) vs x normalizado por R_m.
     if coord=='pc':                                                               # Si las coordenadas son PC,
       p.xlabel(r'$x_{\text{pc}}$ [$R_M$]')                                        # entonces coloco labels tipo PC en x

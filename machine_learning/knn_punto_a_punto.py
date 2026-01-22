@@ -15,8 +15,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors     import KNeighborsClassifier
 
 # Módulos Propios:
+from base_de_datos.conversiones import módulo, segundos_a_día
 from base_de_datos.lectura      import leer_archivos_MAG, leer_archivo_Fruchtman
-from base_de_datos.conversiones import segundos_a_día
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Entrenamiento:
@@ -64,7 +64,7 @@ def vector_característico(data: Union[pd.DataFrame, np.ndarray]) -> np.ndarray:
   ..    ...   ...   ...
   """
   Bx,By,Bz,Xss,Yss,Zss = [data[j].to_numpy() for j in [1,2,3,7,8,9]] # Extraigo las componentes de B (que son en sistema PC), y coordenadas SS.
-  B_modulo             = np.sqrt(Bx**2 + By**2 + Bz**2)              # Calculo el módulo de B (coincide con el del sistema SS).
+  B_modulo             = módulo(Bx,By,Bz)                            # Calculo el módulo de B (coincide con el del sistema SS).
   X                    = np.column_stack([B_modulo, Xss, Yss, Zss])  # Apilo verticalmente el módulo de B y las posiciones en la matriz X.
   return X                                                           # Devuelvo la matriz X (col_0 = |B|, col_1 = Xss, etc.).
 
