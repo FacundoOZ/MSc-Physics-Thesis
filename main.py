@@ -22,7 +22,22 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 # De los 3766 originales quedaron 1921 (el 51.009028 %) BS de Fruchtman tras el recorte z_pc > 0.
 
-KNN.example_usage(directorio=ruta, años=['2015'], test=['2021'], ventana=300, K=2, promedio=10)
+knn = KNN.entrenar(
+  directorio=ruta,
+  años_entrenamiento=['2015', '2016', '2017', '2018', '2019'],
+  K=2,
+  variables=['B','Xss','Yss','Zss'],
+  ventana=300,
+  ventanas_NBS=[-1,1,2],
+  superposición_ventana=50,
+  promedio=20
+)
+
+"""KNN.clasificar(
+  directorio=ruta,
+  knn=knn,
+  predecir_años=['2021']
+)"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
