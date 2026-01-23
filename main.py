@@ -22,9 +22,12 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 # De los 3766 originales quedaron 1921 (el 51.009028 %) BS de Fruchtman tras el recorte z_pc > 0.
 
-knn = KNN.entrenar(
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# APRENDIZAJE
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+"""knn = KNN.entrenar(
   directorio=ruta,
-  años_entrenamiento=['2015', '2016', '2017', '2018', '2019'],
+  años_entrenamiento=['2014','2015'],#, '2016', '2017', '2018', '2019'],
   K=2,
   variables=['B','Xss','Yss','Zss'],
   ventana=300,
@@ -32,18 +35,15 @@ knn = KNN.entrenar(
   superposición_ventana=50,
   promedio=20
 )
+knn.save('knn_1.pkl')"""
 
-"""KNN.clasificar(
+
+knn=KNN.Clasificador_KNN_Binario.load('knn_1.pkl')
+KNN.clasificar(
   directorio=ruta,
   knn=knn,
   predecir_años=['2021']
-)"""
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# APRENDIZAJE
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#test    = KNN.entrenar(directorio=ruta, años=['2015'], paso=3, ventana=600, promedio=1, K=2, intervalo_NBS=1200)
-#BS_2021 = KNN.predecir_bow_shocks(test, directorio=ruta, año='2021', ventana=600, promedio=1)
-#print(f'Bow shocks detectados en el año 2021: {len(BS_2021)}')
+)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
