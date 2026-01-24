@@ -1,5 +1,5 @@
 
-# Editar
+# Terminado
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
@@ -240,7 +240,7 @@ def entrenar(
     ruta_Fru: str  = os.path.join(directorio, 'fruchtman', archivo_F)           # y obtengo la ruta completa del archivo Fruchtman.
     data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)      # Leo todos los archivos MAG del año con el promedio indicado.
     data_Fru: pd.DataFrame = pd.read_csv(ruta_Fru, sep=' ', header=None)        # Leo todo el archivo Fruchtman del año.
-    dias_Fru: pd.Series     = data_Fru.iloc[:,0].astype(float)                  # Extraigo días decimales de Fruchtman y convierto a float.
+    dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                   # Extraigo días decimales de Fruchtman y convierto a float.
     t_BS = pd.Timestamp(f'{año}-01-01') + pd.to_timedelta(dias_Fru-1, unit='D') # Convierto los tiempos BS a objetos datetime adecuadamente.
     X_año, y_año = knn.muestras_entrenamiento(data_MAG, t_BS.to_numpy())        # Obtengo muestras de entrenamiento del año con data_MAG y BS.
     if len(X_año) == 0:                                                         # Si no hay muestras entrenadas,
@@ -278,7 +278,7 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     pred, prob, j_ventana = knn.predecir_ventana(data_MAG)                      # Obtengo etiqueta (predicción), probabilidad, j por ventana. 
     print('Clasificación completada.')                                          # Aviso que el KNN terminó la predicción.
     j_BS: np.ndarray = j_ventana[pred == 1]                                     # Recupero los índices j centrales de las ventanas BS,
-    t_BS = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS])                  # y obtengo cuándo ocurrieron en formato datetime.
+    t_BS: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS])# y obtengo cuándo ocurrieron en formato datetime.
     print(f'Ventanas etiquetadas: {len(pred)}')                                 # Aviso la cantidad de ventanas que se utilizaron,
     print(f'Ventanas BS: {len(t_BS)} ({len(t_BS)/len(pred)*100:.2f} %).')       # y cuántas de ellas se clasificaron como Bow Shock.
     if len(t_BS) > 0:                                                           # Si hay al menos 1 bow shock,
@@ -293,21 +293,6 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     ruta_BS: str   = os.path.join(ruta_pred, f'tiempos_BS_{año}.txt')           # para las probabilidades, y los tiempos BS a detectar.
     probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes
     tiempos_BS    .to_csv(ruta_BS,   sep=' ', index=False)                      # en la carpeta directorio + 'KNN' + 'predicción'.
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# :
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-
-
-
-
-
-class Validación_Cruzada:
-  def __init__():
-    return
-
-
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

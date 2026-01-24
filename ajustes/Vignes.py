@@ -112,14 +112,14 @@ def máximo_2015() -> tuple[float, float]:
   cil = módulo(2458.306000, -7176.923000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
   return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 
-def mínimo_2015() -> tuple[float, float]:
-  """
-  Mínimo bow shock del 2015 (23/07/2015-04:41:22):
-  204.195399 0.570000 -2.980000 -0.580000 4935.614000 -1546.648000 2916.324000 -328.066000 -3450.585000 4821.119000
-  """
-  Xss = -328.066000/R_m                             # Obtengo la coordenada Xss normalizada por el radio marciano.
-  cil = módulo(-3450.585000, 4821.119000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
-  return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
+#def mínimo_2015() -> tuple[float, float]:
+#  """
+#  Mínimo bow shock del 2015 (23/07/2015-04:41:22):
+#  204.195399 0.570000 -2.980000 -0.580000 4935.614000 -1546.648000 2916.324000 -328.066000 -3450.585000 4821.119000
+#  """
+#  Xss = -328.066000/R_m                             # Obtengo la coordenada Xss normalizada por el radio marciano.
+#  cil = módulo(-3450.585000, 4821.119000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
+#  return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

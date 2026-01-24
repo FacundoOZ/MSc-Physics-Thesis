@@ -16,7 +16,7 @@ from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG
 from plots.estilo_plots         import disco_2D
 from base_de_datos.recorte      import preparar_región_Vignes
 from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima,
-                                        máximo_2015, mínimo_2019, mínimo_2015)
+                                        máximo_2015, mínimo_2019)
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
@@ -105,7 +105,6 @@ def graficador_ajustes(
     print(f'Desviación estándar: {perr}')"""
     #——————————————————————————————————————————————————————————————————————————————
 
-  #p.scatter(mínimo_2015()[0], mínimo_2015()[1], s=10, color='black', label='mínimo 2015')
   p.scatter(mínimo_2019()[0], mínimo_2019()[1], marker='x', s=200, linewidth=1, color='purple', label='mínimo 2019')
   p.scatter(máximo_2015()[0], máximo_2015()[1], marker='x', s=200, linewidth=1, color='red', label='máximo 2015')
   p.title('Ajustes para los datos de Fruchtman (MAVEN)')
