@@ -35,13 +35,13 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
   superposición_ventana=50,
   promedio=20
 )
-knn.save('knn_1.pkl')"""
+knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
 
-knn=KNN.Clasificador_KNN_Binario.load('knn_1.pkl')
+
 KNN.clasificar(
   directorio=ruta,
-  knn=knn,
+  knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
   predecir_años=['2021']
 )
 
