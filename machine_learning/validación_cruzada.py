@@ -47,8 +47,8 @@ def ejecutar_validación_cruzada(
   MAG_cache: dict[str, pd.DataFrame] = {}                                                 # Inicializo variable dicc MAG_cache para leer 1 vez.
   print('Leyendo todos los archivos MAG:')                                                # Aviso que esta es la lectura previa de los archivos.
   for año in años_entrenamiento:                                                          # Para cada año de todos los años de Fruchtman:
-    t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'               # Obtengo intervalo de tiempo de todo el año de MAG.
-    MAG_cache[año]         = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)                # Leo archivos MAG una sola vez con el promedio dado.
+    t0, tf         = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'                       # Obtengo intervalo de tiempo de todo el año de MAG.
+    MAG_cache[año] = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)                        # Leo archivos MAG una sola vez con el promedio dado.
   for año in años_entrenamiento:                                                          # Para todos los años de los años de Fruchtman:
     print(f'\nValidación cruzada año {año}')                                              # Escribo un pequeño mensaje,
     knn = entrenar(                                                                       # En la variable 'knn' entreno el KNN,
@@ -60,7 +60,7 @@ def ejecutar_validación_cruzada(
       ventana               = ventana,
       ventanas_NBS          = ventanas_NBS,
       superposición_ventana = superposición_ventana,
-      MAG_cache=MAG_cache
+      MAG_cache             = MAG_cache
     )
     data_MAG: pd.DataFrame = MAG_cache[año]                                               # los guardé en el dicc MAG_cache => los obtengo.
     data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                      # Leo el archivo Fruchtman del año correspondiente.

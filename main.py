@@ -38,6 +38,8 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 )
 knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
+#KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
+
 """KNN.clasificar(
   directorio=ruta,
   knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
@@ -51,7 +53,7 @@ CV.ejecutar_validación_cruzada(
   variables=['B','Xss','Yss','Zss'],
   promedio=20,
   ventana=300,
-  ventanas_NBS=[-1,1,2],
+  ventanas_NBS=[-2-1,1,2],
   superposición_ventana=50,
   tolerancia=300
 )
@@ -69,7 +71,7 @@ CV.ejecutar_validación_cruzada(
 """MAG.graficador(
   directorio=ruta+'recorte_Vignes', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=10,
+  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=20,
 # Sistema de Referencia: 'ss' ó 'pc'
   coord='ss',
 # Magnitudes a graficar:

@@ -57,6 +57,8 @@ class Clasificador_KNN_Binario:
     self.ventana: int               = ventana                                              # Ancho de la ventana de puntos (en segundos).
     self.ventanas_NBS: list[int]    = list(ventanas_NBS)                                   # Posición ventanas NBS respecto a BS (a entrenar).
     self.superposición_ventana: int = superposición_ventana                                # Superposición (%) de ventanas para la predicción.
+    self.ventana_puntos: int       = max(ventana//promedio)                                # Calculo puntos reales por ventana (sobre promedio).
+    self.superposición_puntos: int = max(1,(ventana*superposición_ventana)//(100*promedio))# Calculo superposición real por el promedio.
     self.entrenado: bool = False                                                           # Booleano del estado del KNN.
     self.scaler = StandardScaler()                                                         # Re-escaleo de variables.
     self.knn    = KNeighborsClassifier(                                                    # Clasificador KNN.
@@ -106,7 +108,7 @@ class Clasificador_KNN_Binario:
     """
     X: list[np.ndarray]            = []                                             # Inicializo una lista de vectores característicos 'X'.
     y: list[int]                   = []                                             # Inicializo una lista de etiquetas (enteros 0 ó 1) 'y'.
-    media_ventana: int             = (self.ventana) // 2                            # Calculo el ancho de ventana/2 => división entera! (//).
+    media_ventana: int             = (self.ventana_puntos) // 2                     # Calculo el ancho de ventana/2 => división entera! (//).
     días_decimales_MAG: np.ndarray = data_MAG[0].to_numpy()                         # Obtengo días decimales del archivo MAG y convierto a np.
     for dia_decimal in data_Fruchtman:                                              # Para cada BS (día decimal) del archivo Fruchtman:
       j_BS: int        = np.searchsorted(días_decimales_MAG, dia_decimal)           # Busco el j de data_MAG más cercano a t_BS en O(log n).
@@ -118,7 +120,7 @@ class Clasificador_KNN_Binario:
       X.append(v_BS)                                                                # lo agrego a la lista de vectores característicos X,
       y.append(1)                                                                   # y su etiqueta será 1 (bow shock).
       for desplazamiento in (self.ventanas_NBS):                                    # Para cada desplazamiento de la lista ventanas_NBS,
-        j_NBS: int        = j_BS + (desplazamiento*(self.ventana))                  # el j_NBS (centrado), será el j_BS + dicho desp*ventana.
+        j_NBS: int        = j_BS + (desplazamiento*(self.ventana_puntos))           # el j_NBS (centrado), será el j_BS + dicho desp*ventana.
         t0_NBS: int       = j_NBS - media_ventana                                   # Calculo el tiempo inicial,
         tf_NBS: int       = j_NBS + media_ventana                                   # y final de la ventana para el nuevo j_NBS.
         if (j_NBS - media_ventana) < 0 or (j_NBS + media_ventana) > len(data_MAG):  # Si los tiempos se salen de los límites del archivo,
@@ -159,10 +161,10 @@ class Clasificador_KNN_Binario:
     etiqueta:     list[int]         = []                                   # Inicializo una lista para guardar las etiquetas (1: BS ó 0: NBS),
     probabilidad: list[list[float]] = []                                   # una para guardar probabilidades de bow shocks y no bow shocks,
     j_ventana:    list[int]         = []                                   # y una para guardar los índice de los centros de las ventanas.
-    superposición: int = (self.ventana*self.superposición_ventana) // 100  # Calculo la superposición de ventana con el porcentaje dado.
-    for i in range(0, len(data_MAG), max(1,superposición)):                # Para i de 0 al final del archivo MAG (con paso = superposición):
+    paso: int = max(1, self.superposición_puntos)                          # Calculo el paso con la superposición de puntos real.
+    for i in range(0, len(data_MAG)-self.ventana_puntos+1, paso):          # Para i de 0 al final del archivo MAG (con paso = superposición):
       j_0: int = i                                                         # obtengo el índice del inicio de la ventana actual,
-      j_f: int = min(i + self.ventana, len(data_MAG))                      # y el índice del final de la ventana actual.
+      j_f: int = min(i + self.ventana_puntos, len(data_MAG))               # y el índice del final de la ventana actual.
       ventana: pd.DataFrame = data_MAG[j_0 : j_f]                          # Obtengo solamente los datos MAG de esa ventana,
       v: np.ndarray = self.vector_característico(ventana)                  # y calculo su vector característico y lo guardo en la variable v.
       if v is not None:                                                    # Si el vector característico no es None,
@@ -239,7 +241,7 @@ def entrenar(
     if MAG_cache is not None:                                                   # Si los archivos MAG ya se leyeron, entonces leo
       data_MAG: dict[str, pd.DataFrame] = MAG_cache[año]                        # los años del dicc MAG_cache y los guardo en data_MAG.
     else:                                                                       # Si no, debo leerlos.
-      ruta_MAG: str = os.path.join(directorio,'recorte_Vignes')                 # Obtengo la carpeta donde están todos los archivos MAG.
+      ruta_MAG: str          = os.path.join(directorio,'recorte_Vignes')        # Obtengo la carpeta donde están todos los archivos MAG.
       t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'   # Obtengo el intervalo de tiempo de todo el año de MAG, y
       data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)    # leo todos los archivos MAG del año con el promedio indicado.
     data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)            # Leo el archivo Fruchtman del año correspondiente.
@@ -296,6 +298,68 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     ruta_BS: str   = os.path.join(ruta_pred, f'tiempos_BS_{año}.txt')           # para las probabilidades, y los tiempos BS a detectar.
     probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes
     tiempos_BS    .to_csv(ruta_BS,   sep=' ', index=False)                      # en la carpeta directorio + 'KNN' + 'predicción'.
+
+def diagnosticar_knn(knn: Clasificador_KNN_Binario, directorio: str, año_test: str = '2020'):
+  """
+  Diagnostic function to check if KNN is working correctly.
+  """
+  print(f"\n{'='*60}")
+  print(f"DIAGNÓSTICO DEL KNN - AÑO {año_test}")
+  print(f"{'='*60}")
+  ruta_MAG = os.path.join(directorio, 'recorte_Vignes')                         # 1. Load test data
+  t0, tf = f'1/1/{año_test}-00:00:00', f'31/12/{año_test}-23:59:59'
+  data_MAG = leer_archivos_MAG(ruta_MAG, t0, tf, knn.promedio)
+  if len(data_MAG) == 0:
+    print("ERROR: No se encontraron datos MAG")
+    return
+  print(f"1. Datos MAG cargados: {len(data_MAG)} registros")
+  print(f"   Columnas: {list(data_MAG.columns)}")
+  print(f"\n2. Probando vector característico...")                              # 2. Test vector característico on a sample window
+  sample_window = data_MAG.iloc[0:min(300, len(data_MAG))]
+  vector = knn.vector_característico(sample_window)
+  if vector is not None:
+    print(f"   Vector creado: longitud={len(vector)}")
+    print(f"   Valores mín/máx: {vector.min():.3f} / {vector.max():.3f}")
+    print(f"   ¿Contiene NaN? {np.any(np.isnan(vector))}")
+  else:
+    print("   ERROR: No se pudo crear el vector")
+    return
+  print(f"\n3. Probando predicciones...")                                       # 3. Test prediction on first few windows
+  pred, prob, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])          # First 10000 points for speed
+  if len(pred) > 0:
+    print(f"   Predicciones realizadas: {len(pred)} ventanas")
+    print(f"   BS detectados: {sum(pred)} ({sum(pred)/len(pred)*100:.1f}%)")
+    print(f"   Probabilidad promedio BS: {prob[:,1].mean():.3f}")
+    print(f"   Probabilidad promedio NBS: {prob[:,0].mean():.3f}")
+    prob_sum = prob.sum(axis=1)                                                 # Check probability consistency
+    if np.allclose(prob_sum, 1.0, atol=1e-5):
+      print(f"   ✓ Probabilidades suman 1 correctamente")
+    else:
+      print(f"   ✗ ERROR: Probabilidades no suman 1")
+      print(f"     Ejemplo: {prob_sum[:5]}")
+  else:
+    print("   ERROR: No se realizaron predicciones")
+  print(f"\n4. Estadísticas del entrenamiento:")                                # 4. Check training statistics
+  print(f"   Entrenado: {knn.entrenado}")
+  print(f"   K: {knn.K}")
+  print(f"   Variables: {knn.variables}")
+  print(f"   Ventana: {knn.ventana}s")
+  print(f"   Promedio: {knn.promedio}")
+  print(f"\n5. Análisis de características de bow shocks:")                     # 5. Test with known bow shock characteristics
+  if len(data_MAG) > 1000:                                                      # Find periods with high B field variability (typical of shocks)
+    Bx,By,Bz = [data_MAG.iloc[:,j].to_numpy() for j in [1,2,3]]
+    B_mag = np.sqrt(Bx**2 + By**2 + Bz**2)
+    window_size = knn.ventana                                                 # Calculate moving standard deviation
+    if len(B_mag) > window_size:
+      B_std = pd.Series(B_mag).rolling(window_size).std().values
+      high_var_threshold = np.percentile(B_std[~np.isnan(B_std)], 90)       # Find high variability periods
+      high_var_indices = np.where(B_std > high_var_threshold)[0]
+      print(f"   Períodos de alta variabilidad (> percentil 90): {len(high_var_indices)}")
+      print(f"   Esto debería correlacionar con detecciones BS")
+  print(f"\n{'='*60}")
+  print(f"DIAGNÓSTICO COMPLETADO")
+  print(f"{'='*60}")
+  return pred, prob
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
