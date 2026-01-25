@@ -15,7 +15,8 @@ import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
-import machine_learning.clasificador_KNN as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+import machine_learning.validación_cruzada as CV # Evaluación del modelo KNN con validación cruzada y métrica TPR.
 #import machine_learning.redes_neuronales as ML  # Redes Neuronales
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
@@ -30,19 +31,29 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
   años_entrenamiento=['2014','2015'],#, '2016', '2017', '2018', '2019'],
   K=2,
   variables=['B','Xss','Yss','Zss'],
+  promedio=20,
   ventana=300,
   ventanas_NBS=[-1,1,2],
-  superposición_ventana=50,
-  promedio=20
+  superposición_ventana=50
 )
 knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
-
-
-KNN.clasificar(
+"""KNN.clasificar(
   directorio=ruta,
   knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
   predecir_años=['2021']
+)"""
+
+CV.ejecutar_validación_cruzada(
+  directorio=ruta,
+  años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
+  K=1,
+  variables=['B','Xss','Yss','Zss'],
+  promedio=20,
+  ventana=300,
+  ventanas_NBS=[-1,1,2],
+  superposición_ventana=50,
+  tolerancia=300
 )
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

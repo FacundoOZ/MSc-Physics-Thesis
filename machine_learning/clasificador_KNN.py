@@ -16,7 +16,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Módulos Propios:
 from base_de_datos.conversiones   import módulo, R_m, segundos_a_día
-from base_de_datos.lectura        import leer_archivos_MAG
+from base_de_datos.lectura        import leer_archivos_MAG, leer_archivo_Fruchtman
 from machine_learning.estadística import estadística, estadística_módulos
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -208,10 +208,10 @@ def entrenar(
     años_entrenamiento: list[str],                                              # Años que se desean entrenar.
     K: int,                                                                     # Cantidad de vecinos más cercanos a utilizar por el KNN.
     variables: list[str] = ['B','Xss','Yss','Zss'],                             # Variables a utilizar para el vector característico del KNN.
+    promedio: int = 1,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
     ventana: int = 300,                                                         # Ancho de ventana en segundos a utilizar (representa el BS).
     ventanas_NBS: list[int] = [-1,1,2],                                         # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
-    superposición_ventana: int = 50,                                            # Superposición entre ventanas (en %) para la predicción. 
-    promedio: int = 1                                                           # Promedio para suavizar las muestras de MAVEN MAG.
+    superposición_ventana: int = 50                                             # Superposición entre ventanas (en %) para la predicción. 
 ) -> Clasificador_KNN_Binario:
   """
   La función entrenar recibe un directorio que contiene las mediciones de MAVEN MAG y los archivos de Fruchtman con los bow shock detectados,
@@ -235,11 +235,9 @@ def entrenar(
   y: list[int]        = []                                                      # Inicializo una lista de etiquetas (enteros 0 ó 1) 'y'.
   ruta_MAG: str = os.path.join(directorio,'recorte_Vignes')                     # Obtengo la carpeta donde están todos los archivos MAG.
   for año in años_entrenamiento:                                                # Para cada año de la lista de años_entrenamiento,
-    t0, tf         = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'             # obtengo el intervalo de tiempo de todo el año de MAG,
-    archivo_F: str = f'hemisferio_N/fruchtman_{año}_merge_hemisferio_N.sts'     # obtengo el nombre del archivo Fruchtman correspondiente,
-    ruta_Fru: str  = os.path.join(directorio, 'fruchtman', archivo_F)           # y obtengo la ruta completa del archivo Fruchtman.
+    t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'     # obtengo el intervalo de tiempo de todo el año de MAG,
     data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)      # Leo todos los archivos MAG del año con el promedio indicado.
-    data_Fru: pd.DataFrame = pd.read_csv(ruta_Fru, sep=' ', header=None)        # Leo todo el archivo Fruchtman del año.
+    data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)            # Leo el archivo Fruchtman del año correspondiente.
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                   # Extraigo días decimales de Fruchtman y convierto a float.
     t_BS = pd.Timestamp(f'{año}-01-01') + pd.to_timedelta(dias_Fru-1, unit='D') # Convierto los tiempos BS a objetos datetime adecuadamente.
     X_año, y_año = knn.muestras_entrenamiento(data_MAG, t_BS.to_numpy())        # Obtengo muestras de entrenamiento del año con data_MAG y BS.
