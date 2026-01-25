@@ -44,7 +44,7 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
   predecir_años=['2021']
 )"""
 
-CV.ejecutar_validación_cruzada(
+validación = CV.ejecutar_validación_cruzada(
   directorio=ruta,
   años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
   K=1,

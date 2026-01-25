@@ -40,7 +40,7 @@ def ejecutar_validación_cruzada(
   calculando la tasa de verdaderos positivos (TPR), y luego repite el proceso para cada uno de los otros años. Devuelve un dataframe que
   contiene las tasas TP, la cantidad de BS que se poseían y la cantidad detectados para cada año.
   """
-  res: list[dict[str, Any]] = []                                                          # Inicializo variable res (lista de dicc) a llenar.
+  lista: list[dict[str, Any]] = []                                                        # Inicializo variable lista (lista de dicc) a llenar.
   ruta_MAG: str = os.path.join(directorio, 'recorte_Vignes')                              # Obtengo ruta MAG de archivos con recorte Vignes.
   for año in años_entrenamiento:                                                          # Para cada año de todos los años de Fruchtman:
     print(f'\nValidación cruzada año {año}')                                              # Escribo un pequeño mensaje,
@@ -67,7 +67,7 @@ def ejecutar_validación_cruzada(
       if np.any(np.abs((t_BS_pred - t_Fru).total_seconds()) <= tolerancia):               # si hay t_BS_predicho contemplado en la tolerancia,
         TP += 1                                                                           # sumo a TP (una detección correcta!).
     tasa_TP: float = TP/len(t_BS) if len(t_BS) > 0 else np.nan                            # Calculo tasa_TP = TP_totales / cant_t_BS_Fru.
-    res.append({                                                                          # En la variable res (diccionario),
+    lista.append({                                                                        # En la variable lista (lista de diccionarios),
       'Año': año,                                                                         # agrego el año de la validación cruzada,
       'BS_Fruchtman': len(t_BS),                                                          # la cantidad de BS que detectó Fruchtman,
       'BS_detectados': TP,                                                                # la cantidad de BS que detectó el KNN,
@@ -80,7 +80,10 @@ def ejecutar_validación_cruzada(
       'Superposición_ventana': superposición_ventana,
       'Tolerancia': tolerancia                                                            # y la tolerancia que utilizó la validación_cruzada.
     })
-  return pd.DataFrame(res)                                                                # Devuelvo res en formato dataframe.
+  res: pd.DataFrame = pd.DataFrame(lista)                                                 # convierto la lista completa a formato dataframe.
+  print('El algoritmo de Validación Cruzada se ha ejecutado correctamente:\n')            # Devuelvo aviso de que el algoritmo ha terminado,
+  print(res)                                                                              # y muestro el resultado (el diccionario).
+  return res                                                                              # Devuelvo res.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
