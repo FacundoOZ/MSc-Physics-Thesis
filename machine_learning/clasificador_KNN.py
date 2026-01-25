@@ -211,15 +211,17 @@ def entrenar(
     promedio: int = 1,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
     ventana: int = 300,                                                         # Ancho de ventana en segundos a utilizar (representa el BS).
     ventanas_NBS: list[int] = [-1,1,2],                                         # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
-    superposición_ventana: int = 50                                             # Superposición entre ventanas (en %) para la predicción. 
+    superposición_ventana: int = 50,                                            # Superposición entre ventanas (en %) para la predicción. 
+    MAG_cache: Union[dict[str, pd.DataFrame], None] = None                      # Contenido de la lectura de archivos MAG.
 ) -> Clasificador_KNN_Binario:
   """
   La función entrenar recibe un directorio que contiene las mediciones de MAVEN MAG y los archivos de Fruchtman con los bow shock detectados,
   una lista de strings años_entrenamiento que representa los años que se desea entrenar al knn, el metaparámetro K del knn (número de vecinos),
-  las variables que se desean utilizar como vector característico, el ancho de ventana (en segundos) para modelar el BS, las ventanas NBS que
-  se desean considerar, la superposición entre ventanas para la predicción y el promedio de las muestras MAG para eliminar el ruido de los
-  datos y reducir el tiempo de compilación. Devuelve el KNN, es decir, la clase Clasificador_KNN_Binario con el algoritmo KNN entrenado
-  habiendo utilizado todas las variables que se han pasado por parámetro.
+  las variables que se desean utilizar como vector característico, el promedio de las muestras MAG para eliminar el ruido de los datos y
+  reducir el tiempo de compilación, el ancho de ventana (en segundos) para modelar el BS, las ventanas NBS que se desean considerar, la
+  superposición entre ventanas para la predicción y la variable MAG_cache, que permite extraer rápidamente todos los archivos MAG leídos, si
+  ya fueron leídos previamente (en otras funciones). Devuelve el KNN, es decir, la clase Clasificador_KNN_Binario con el algoritmo KNN
+  entrenado habiendo utilizado todas las variables que se han pasado por parámetro.
   """
   if años_entrenamiento == ['2014']:                                            # Si el año de entrenamiento es solo el 2014,
     raise ValueError('El año 2014 no tiene suficientes muestras para entrenar.')# => devuelvo un mensaje (son menos de 20 datos).
@@ -233,10 +235,13 @@ def entrenar(
   knn.promedio = promedio                                                       # El promedio del knn, es el pasado por parámetro a entrenar.
   X: list[np.ndarray] = []                                                      # Inicializo una lista de vectores característicos 'X'.
   y: list[int]        = []                                                      # Inicializo una lista de etiquetas (enteros 0 ó 1) 'y'.
-  ruta_MAG: str = os.path.join(directorio,'recorte_Vignes')                     # Obtengo la carpeta donde están todos los archivos MAG.
   for año in años_entrenamiento:                                                # Para cada año de la lista de años_entrenamiento,
-    t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'     # obtengo el intervalo de tiempo de todo el año de MAG,
-    data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)      # Leo todos los archivos MAG del año con el promedio indicado.
+    if MAG_cache is not None:                                                   # Si los archivos MAG ya se leyeron, entonces leo
+      data_MAG: dict[str, pd.DataFrame] = MAG_cache[año]                        # los años del dicc MAG_cache y los guardo en data_MAG.
+    else:                                                                       # Si no, debo leerlos.
+      ruta_MAG: str = os.path.join(directorio,'recorte_Vignes')                 # Obtengo la carpeta donde están todos los archivos MAG.
+      t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'   # Obtengo el intervalo de tiempo de todo el año de MAG, y
+      data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)    # leo todos los archivos MAG del año con el promedio indicado.
     data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)            # Leo el archivo Fruchtman del año correspondiente.
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                   # Extraigo días decimales de Fruchtman y convierto a float.
     t_BS = pd.Timestamp(f'{año}-01-01') + pd.to_timedelta(dias_Fru-1, unit='D') # Convierto los tiempos BS a objetos datetime adecuadamente.
