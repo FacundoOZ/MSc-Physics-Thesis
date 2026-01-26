@@ -9,7 +9,8 @@ import os
 import numpy  as np
 import pandas as pd
 
-from typing import Any
+from typing   import Any
+from datetime import datetime
 
 # Módulos Propios:
 from base_de_datos.lectura             import leer_archivos_MAG, leer_archivo_Fruchtman
@@ -42,6 +43,8 @@ def ejecutar_validación_cruzada(
   y las tasas TP, la cantidad de BS que se poseían y la cantidad detectados para cada año. Se realiza la lectura de archivos MAG previamente,
   para ahorrar mucho tiempo.
   """
+  t_inicio: datetime = datetime.now()                                                     # Obtengo el tiempo inicial a la hora de la ejecución
+  print(f"Tiempo de inicio del algoritmo: {t_inicio.strftime('%H:%M:%S')}\n")             # del algoritmo, y lo enseño en un mensaje.
   ruta_MAG: str = os.path.join(directorio, 'recorte_Vignes')                              # Obtengo ruta MAG de archivos con recorte Vignes.
   lista:     list[dict[str, Any]]    = []                                                 # Inicializo variable lista (lista de dicc) a llenar.
   MAG_cache: dict[str, pd.DataFrame] = {}                                                 # Inicializo variable dicc MAG_cache para leer 1 vez.
@@ -94,8 +97,10 @@ def ejecutar_validación_cruzada(
   os.makedirs(ruta_validación, exist_ok=True)                                             # si no existe la creo,
   ruta_res: str        = os.path.join(ruta_validación, f'CV_modelo_K{K}.txt')             # Creo la ruta + nombre del archivo a guardar.
   res.to_csv(ruta_res, sep=' ', index=False)                                              # Convierto los resultados a .txt y los guardo.
-  print('El algoritmo de Validación Cruzada se ha ejecutado correctamente:\n')            # Devuelvo aviso de que el algoritmo ha terminado,
-  print(res)                                                                              # y muestro el resultado (el diccionario).
+  t_fin: datetime = datetime.now()                                                        # Obtengo el tiempo actual al final del proceso,
+  print(f"\nTiempo del fin del algoritmo: {t_fin.strftime('%H:%M:%S')}\n")                # para imprimirlo,
+  print(f'El algoritmo se ha ejecutado correctamente en un tiempo de {t_fin-t_inicio}.\n')# y devolver un aviso del fin del algoritmo.
+  print(res)                                                                              # Muestro el resultado (el diccionario).
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
