@@ -49,8 +49,8 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 CV.ejecutar_validación_cruzada(
   directorio=ruta,
   años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
-  K=3,
-  variables=['B','Bx','By','Bz','R'],
+  K=1,
+  variables=['B','Xss','Yss','Zss'],
   promedio=5,
   ventana=120,
   ventanas_NBS=[-2,-1,1,2],

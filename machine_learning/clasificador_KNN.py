@@ -17,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 # Módulos Propios:
 from base_de_datos.conversiones   import módulo, R_m, segundos_a_día
 from base_de_datos.lectura        import leer_archivos_MAG, leer_archivo_Fruchtman
-from machine_learning.estadística import estadística, estadística_módulos
+from machine_learning.estadística import estadística_B, estadística_R, estadística_componentes_B, estadística_componentes_R
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # Clasificador_KNN_Binario : para la detección de Bow Shocks mediante mediciones de campo magnético del instrumento MAG de la sonda MAVEN.
@@ -81,15 +81,18 @@ class Clasificador_KNN_Binario:
     (del archivo estadística.py) correspondientes a las 'variables' pasadas por parámetro al KNN."""
     vector: list[float] = []                                                     # Inicializo el vector característico vacío como list[float]
     Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data_MAG[j].to_numpy() for j in range(1,10)]# Extraigo las magnitudes físicas del archivo tipo MAG. 
-    B, R = módulo(Bx,By,Bz), módulo(Xss,Yss,Zss, norm=R_m)                       # Calculo módulos: NORMALIZO R! => B,R son del mismo orden. 
-    dicc: dict[str,np.ndarray] = {                                               # Creo diccionario con todas las variables del archivo MAG.
-      'Bx' : Bx , 'By' : By , 'Bz' : Bz ,                                        # Componentes de campo magnético (en sistema PC)
-      'Xpc': Xpc, 'Ypc': Ypc, 'Zpc': Zpc, 'Xss': Xss, 'Yss': Yss, 'Zss': Zss}    # Componentes de posición de la sonda (en sistemas PC y SS).
+    pos: dict[str,np.ndarray] = {'Xpc':Xpc, 'Ypc':Ypc, 'Zpc':Zpc,                # Creo un dicc con las posiciones de la sonda en sistema PC
+                                 'Xss':Xss, 'Yss':Yss, 'Zss':Zss}                # y en sistema SS.
+    mag: dict[str,np.ndarray] = {'Bx' : Bx, 'By' : By, 'Bz' : Bz}                # Creo un dicc con las componentes de campo magnético.
     for var in self.variables:                                                   # Para cada elemento de la lista de variables de clase KNN,
-      if var in ('B','R'):                                                       # si las variables son B ó R (no pertenecen al diccionario),
-        vector.extend(estadística_módulos(B if var=='B' else R))                 # calculo sus estadísticas (módulos) y las agrego a vector.
-      elif var in dicc:                                                          # si no, si pertenecen al dicc,
-        vector.extend(estadística(dicc[var]))                                    # calculo sus estadísticas (para componentes) y las agrego.
+      if var=='B':                                                               # Si la variable es B (módulo de campo magnético),
+        vector.extend(estadística_B(módulo(Bx,By,Bz)))                           # uso su estadística especial que contempla gradientes.
+      elif var=='R':                                                             # Si no, si es la posición de la sonda (módulo de r),
+        vector.extend(estadística_R(módulo(Xss,Yss,Zss, norm=R_m)))              # uso su estadística y NORMALIZO => dim de B es similar a R.
+      elif var in mag:                                                           # Si no, si uso las componentes del campo,
+        vector.extend(estadística_componentes_B(mag[var]))                       # eso una estadística especial para ellas.
+      elif var in pos:                                                           # Si no, si pertenecen a pos,
+        vector.extend(estadística_componentes_R((pos[var]/R_m)))                 # uso estadística especial para las posiciones => NORMALIZO!
       else:                                                                      # Si no,
         raise ValueError(f"Variable desconocida: {var}")                         # la variables es inválida => devuelvo un mensaje.
     return np.array(vector)                                                      # Devuelvo el vector convertido a np.ndarray.
