@@ -242,7 +242,7 @@ def entrenar(
   y: list[int]        = []                                                      # Inicializo una lista de etiquetas (enteros 0 ó 1) 'y'.
   for año in años_entrenamiento:                                                # Para cada año de la lista de años_entrenamiento,
     if MAG_cache is not None:                                                   # Si los archivos MAG ya se leyeron, entonces leo
-      data_MAG: dict[str, pd.DataFrame] = MAG_cache[año]                        # los años del dicc MAG_cache y los guardo en data_MAG.
+      data_MAG: pd.DataFrame = MAG_cache[año]                                   # los años del dicc MAG_cache y los guardo en data_MAG.
     else:                                                                       # Si no, debo leerlos.
       ruta_MAG: str          = os.path.join(directorio,'recorte_Vignes')        # Obtengo la carpeta donde están todos los archivos MAG.
       t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'   # Obtengo el intervalo de tiempo de todo el año de MAG, y
