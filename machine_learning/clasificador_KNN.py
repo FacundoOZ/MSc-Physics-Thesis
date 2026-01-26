@@ -57,7 +57,7 @@ class Clasificador_KNN_Binario:
     self.ventana: int               = ventana                                              # Ancho de la ventana de puntos (en segundos).
     self.ventanas_NBS: list[int]    = list(ventanas_NBS)                                   # Posición ventanas NBS respecto a BS (a entrenar).
     self.superposición_ventana: int = superposición_ventana                                # Superposición (%) de ventanas para la predicción.
-    self.ventana_puntos: int       = max(ventana//promedio)                                # Calculo puntos reales por ventana (sobre promedio).
+    self.ventana_puntos: int       = max(1,ventana//promedio)                              # Calculo puntos reales por ventana (sobre promedio).
     self.superposición_puntos: int = max(1,(ventana*superposición_ventana)//(100*promedio))# Calculo superposición real por el promedio.
     self.entrenado: bool = False                                                           # Booleano del estado del KNN.
     self.scaler = StandardScaler()                                                         # Re-escaleo de variables.
