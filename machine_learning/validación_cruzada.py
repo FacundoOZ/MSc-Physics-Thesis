@@ -27,16 +27,13 @@ def ejecutar_validación_cruzada(
     promedio: int = 1,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
     ventana: int = 300,                                                         # Ancho de ventana en segundos a utilizar (representa el BS).
     ventanas_NBS: list[int] = [-1,1,2],                                         # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
-    superposición_ventana: int = 50,                                            # Superposición entre ventanas (en %) para la predicción. 
     tolerancia: int = 300                                                       # Tolerancia en segundos entre el BS real y predicho por KNN.
 ) -> None:
-
   """
   La función ejecutar_validación_cruzada realiza el algoritmo de Cross-Validation sobre un knn con todos los parametros que se han ingresado
-  por parámetro: 'K', 'variables', 'promedio', 'ventana', 'ventanas_NBS', 'superposición_ventana'. En 'años_entrenamiento' debe recibir
-  todos los años de BS previamente detectados (para la supervisión del modelo), en nuestro caso los años 2014-2019 de Fruchtman; y posee
-  un parametro 'tolerancia' que representa el tiempo en segundos que se considera aceptable para la detección del BS por el KNN, respecto
-  del t_BS real predicho por Fruchtman.
+  por parámetro: 'K', 'variables', 'promedio', 'ventana', 'ventanas_NBS'. En 'años_entrenamiento' debe recibir todos los años de BS previamente
+  detectados (para la supervisión del modelo), en nuestro caso los años 2014-2019 de Fruchtman; y posee un parametro 'tolerancia' que representa
+  el tiempo en segundos que se considera aceptable para la detección del BS por el KNN, respecto del t_BS real predicho por Fruchtman.
   La función entrena el KNN con los parámetros ingresados con todos los años de 'años_entrenamiento' excepto uno, y lo prueba para dicho año,
   calculando la tasa de verdaderos positivos (TPR), y luego repite el proceso para cada uno de los otros años. Devuelve un archivo en la
   carpeta destino 'directorio'+'KNN'+'validación_cruzada'+'CV_modelo_K{K}.txt' que contiene todos los parametros que se utilizó en el KNN,
@@ -55,15 +52,14 @@ def ejecutar_validación_cruzada(
   for año in años_entrenamiento:                                                          # Para todos los años de los años de Fruchtman:
     print(f'\nValidación cruzada año {año}')                                              # Escribo un pequeño mensaje,
     knn = entrenar(                                                                       # En la variable 'knn' entreno el KNN,
-      directorio            = directorio,                                                 # con todos los valores que han sido pasados por
-      años_entrenamiento    = [x for x in años_entrenamiento if x != año],                # parámetro a la función ejecutar_validación....
-      K                     = K,
-      variables             = variables,
-      promedio              = promedio,
-      ventana               = ventana,
-      ventanas_NBS          = ventanas_NBS,
-      superposición_ventana = superposición_ventana,
-      MAG_cache             = MAG_cache
+      directorio         = directorio,                                                    # con todos los valores que han sido pasados por
+      años_entrenamiento = [x for x in años_entrenamiento if x != año],                   # parámetro a la función ejecutar_validación....
+      K                  = K,
+      variables          = variables,
+      promedio           = promedio,
+      ventana            = ventana,
+      ventanas_NBS       = ventanas_NBS,
+      MAG_cache          = MAG_cache
     )
     data_MAG: pd.DataFrame = MAG_cache[año]                                               # los guardé en el dicc MAG_cache => los obtengo.
     data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                      # Leo el archivo Fruchtman del año correspondiente.
@@ -81,16 +77,15 @@ def ejecutar_validación_cruzada(
     TPR: float = TP/len(t_BS) if len(t_BS) > 0 else np.nan                                # Calculo TPR = TP_totales / cant_t_BS_Fru.
     lista.append({                                                                        # En la variable lista (lista de diccionarios),
       'Año': año,                                                                         # agrego el año de la validación cruzada,
-      'BS_Fruchtman': len(t_BS),                                                          # la cantidad de BS que detectó Fruchtman,
-      'BS_detectados': TP,                                                                # la cantidad de BS que detectó el KNN,
-      'TPR': TPR,                                                                         # y el resultado de la TPR.
-      'K': K,                                                                             # Además, agrego todos los parámetros del KNN
-      'Variables': variables,                                                             # utilizados.
+      'K': K,                                                                             # y todos los parámetros del KNN que se utilizaron.
+      'Variables': variables,
       'Promedio': promedio,
       'Ventana': ventana,
       'Ventanas_NBS': ventanas_NBS,
-      'Superposición_ventana': superposición_ventana,
-      'Tolerancia': tolerancia                                                            # y la tolerancia que utilizó la validación_cruzada.
+      'Tolerancia': tolerancia,                                                           # Agrego la tolerancia que usó validación_cruzada,
+      'BS_Fruchtman': len(t_BS),                                                          # la cantidad de BS originales de Fruchtman,
+      'BS_detectados': TP,                                                                # la cantidad de BS que detectó el KNN,
+      'TPR': TPR                                                                          # y el resultado de la TPR.
     })
   res: pd.DataFrame = pd.DataFrame(lista)                                                 # Convierto la lista completa a formato dataframe.
   ruta_validación: str = os.path.join(directorio, 'KNN', 'validación_cruzada')            # Obtengo la ruta de la carpeta destino,

@@ -48,14 +48,13 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
 CV.ejecutar_validación_cruzada(
   directorio=ruta,
-  años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
-  K=1,
-  variables=['B','Xss','Yss','Zss'],
-  promedio=5,
-  ventana=120,
-  ventanas_NBS=[-2,-1,1,2],
-  superposición_ventana=75,
-  tolerancia=120
+  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
+  K                  = 1,   # vecinos
+  variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
+  promedio           = 5,   # en segundos
+  ventana            = 60, # en segundos
+  ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
+  tolerancia         = 120  # en segundos
 )
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -71,7 +70,7 @@ CV.ejecutar_validación_cruzada(
 """MAG.graficador(
   directorio=ruta+'recorte_Vignes', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=20,
+  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=30,
 # Sistema de Referencia: 'ss' ó 'pc'
   coord='ss',
 # Magnitudes a graficar:
