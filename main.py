@@ -50,9 +50,9 @@ CV.ejecutar_validación_cruzada(
   años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 1,   # vecinos
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
-  promedio           = 5,   # en segundos
+  promedio           = 10,   # en segundos
   ventana            = 60, # en segundos
-  ventanas_NBS       = [-2,2], # posición de ventanas_NBS respecto a ventanas_BS
+  ventanas_NBS       = [1], # posición de ventanas_NBS respecto a ventanas_BS
   tolerancia         = 120  # en segundos
 )
 

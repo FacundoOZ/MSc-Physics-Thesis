@@ -69,12 +69,17 @@ def ejecutar_validación_cruzada(
     pred, _, j_ventana          = knn.predecir_ventana(data_MAG)                          # Obtengo sólo etiquetas y j con predecir_ventana.
     j_BS_pred: np.ndarray       = j_ventana[pred == 1]                                    # Obtengo solo los índices de BS.
     t_BS_pred: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS_pred])# Obtengo los t_BS de los j_BS predichos.
-    TP: int = 0                                                                           # Inicializo variable int TP (verdaderos positivos).
+    TP: int = 0; FP: int = 0                                                              # Inicializo TP y FP (verdaderos/falsos positivos).
     if len(t_BS_pred) > 0:                                                                # Si hay tiempos BS predichos,
       diff = np.abs((t_BS_pred.values[:,None] - t_BS.values[None,:])                      # Calculo la diferencia entre el t_BS_predicho,
                     .astype('timedelta64[s]').astype(int))                                # y el t_BS de Fruchtman y convierto a int.
+      diff_inv = np.abs((t_BS.values[:,None] - t_BS_pred.values[None,:])                  # Calculo la diferencia entre los t_BS de Fruchtman,
+                        .astype('timedelta64[s]').astype(int))                            # y el t_BS_predicho (la inversa).
       TP = np.sum(np.any(diff <= tolerancia, axis=0))                                     # TP es la suma de los encontrados en la tolerancia.
-    TPR: float = TP/len(t_BS) if len(t_BS) > 0 else np.nan                                # Calculo TPR = TP_totales / cant_t_BS_Fru.
+      FP = np.sum(~np.any(diff_inv <= tolerancia, axis=0))                                # FP es la suma de los encontrados en la tolerancia.
+    TPR: float = round(TP/len(t_BS), 3) if len(t_BS) > 0 else np.nan                      # Calculo TPR=TP_totales/cant_t_BS_Fru (3 dígitos).
+    Precision: float = TP/(TP + FP) if (TP + FP) > 0 else np.nan                          # Calculo la precición del modelo con los FP.
+    F1: float = 2*Precision*TPR/(Precision + TPR) if Precision > 0 and TPR > 0 else np.nan# Calculo la métrica F1
     lista.append({                                                                        # En la variable lista (lista de diccionarios),
       'Año': año,                                                                         # agrego el año de la validación cruzada,
       'K': K,                                                                             # y todos los parámetros del KNN que se utilizaron.
@@ -84,8 +89,12 @@ def ejecutar_validación_cruzada(
       'Ventanas_NBS': ventanas_NBS,
       'Tolerancia': tolerancia,                                                           # Agrego la tolerancia que usó validación_cruzada,
       'BS_Fruchtman': len(t_BS),                                                          # la cantidad de BS originales de Fruchtman,
-      'BS_detectados': TP,                                                                # la cantidad de BS que detectó el KNN,
-      'TPR': TPR                                                                          # y el resultado de la TPR.
+      'BS_detectados': len(t_BS_pred),                                                    # la cantidad de BS que detectó el KNN,
+      'TP': TP,                                                                           # los verdaderos positivos,
+      'FP': FP,                                                                           # los falsos positivos,
+      'TPR': TPR,                                                                         # el resultado de la tasa de verdaderos positivos,
+      'Precision': Precision,                                                             # la precisión,
+      'F1': F1                                                                            # y la métrica F1.
     })
   res: pd.DataFrame = pd.DataFrame(lista)                                                 # Convierto la lista completa a formato dataframe.
   ruta_validación: str = os.path.join(directorio, 'KNN', 'validación_cruzada')            # Obtengo la ruta de la carpeta destino,
