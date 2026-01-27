@@ -40,15 +40,15 @@ def ejecutar_validación_cruzada(
   y las tasas TP, la cantidad de BS que se poseían y la cantidad detectados para cada año. Se realiza la lectura de archivos MAG previamente,
   para ahorrar mucho tiempo.
   """
-  t_inicio: datetime = datetime.now()                                                     # Obtengo el tiempo inicial a la hora de la ejecución
+  t_inicio: datetime = datetime.now()                                                     # Obtengo el t_inicial a la hora de la ejecución.
   print(f"Tiempo de inicio del algoritmo: {t_inicio.strftime('%H:%M:%S')}\n")             # del algoritmo, y lo enseño en un mensaje.
   ruta_MAG: str = os.path.join(directorio, 'recorte_Vignes')                              # Obtengo ruta MAG de archivos con recorte Vignes.
-  lista:     list[dict[str, Any]]    = []                                                 # Inicializo variable lista (lista de dicc) a llenar.
-  MAG_cache: dict[str, pd.DataFrame] = {}                                                 # Inicializo variable dicc MAG_cache para leer 1 vez.
-  print('Leyendo todos los archivos MAG:')                                                # Aviso que esta es la lectura previa de los archivos.
+  lista:     list[dict[str, Any]]    = []                                                 # Inicializo variable lista (de dicc) a llenar.
+  MAG_cache: dict[str, pd.DataFrame] = {}                                                 # Inicializo variable MAG_cache => leo 1 sola vez.
+  print('Leyendo todos los archivos MAG:')                                                # Aviso que ésta es la lectura previa de archivos.
   for año in años_entrenamiento:                                                          # Para cada año de todos los años de Fruchtman:
     t0, tf         = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'                       # Obtengo intervalo de tiempo de todo el año de MAG.
-    MAG_cache[año] = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)                        # Leo archivos MAG una sola vez con el promedio dado.
+    MAG_cache[año] = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)                        # Leo archivos MAG 1 sola vez con el promedio dado.
   for año in años_entrenamiento:                                                          # Para todos los años de los años de Fruchtman:
     print(f'\nValidación cruzada año {año}')                                              # Escribo un pequeño mensaje,
     knn = entrenar(                                                                       # En la variable 'knn' entreno el KNN,
@@ -64,7 +64,7 @@ def ejecutar_validación_cruzada(
     data_MAG: pd.DataFrame = MAG_cache[año]                                               # los guardé en el dicc MAG_cache => los obtengo.
     data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                      # Leo el archivo Fruchtman del año correspondiente.
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                             # Extraigo días decimales Fruchtman y paso a float.
-    t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1 de enero del año en formato str.
+    t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1/enero del año en formato str.
     t_BS: pd.Series        = t0_año + pd.to_timedelta(dias_Fru-1, unit='D')               # Convierto t_BS a objetos datetime adecuadamente.
     pred, _, j_ventana          = knn.predecir_ventana(data_MAG)                          # Obtengo sólo etiquetas y j con predecir_ventana.
     j_BS_pred: np.ndarray       = j_ventana[pred == 1]                                    # Obtengo solo los índices de BS.

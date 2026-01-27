@@ -6,9 +6,9 @@
 #============================================================================================================================================
 
 import os
+import pickle
 import numpy  as np
 import pandas as pd
-import pickle
 
 from typing                import Union
 from sklearn.neighbors     import KNeighborsClassifier
@@ -55,7 +55,7 @@ class Clasificador_KNN_Binario:
     self.promedio: int           = promedio                                                # Promedio a utilizar de las mediciones MAVEN MAG.
     self.ventana: int            = ventana                                                 # Ancho de la ventana de puntos (en segundos).
     self.ventanas_NBS: list[int] = list(ventanas_NBS)                                      # Posición ventanas NBS respecto a BS (a entrenar).
-    self.ventana_puntos: int     = max(1,(ventana+promedio-1)//promedio)                   # Calculo puntos reales por ventana (sobre promedio).
+    self.ventana_puntos: int     = max(1,(ventana+promedio-1)//promedio)                   # Calculo puntos reales por ventana (con promedio).
     self.entrenado: bool = False                                                           # Booleano del estado del KNN.
     self.scaler = StandardScaler()                                                         # Re-escaleo de variables.
     self.knn    = KNeighborsClassifier(                                                    # Clasificador KNN.
@@ -85,7 +85,7 @@ class Clasificador_KNN_Binario:
       if var=='B':                                                               # Si la variable es B (módulo de campo magnético),
         vector.extend(estadística_B(módulo(Bx,By,Bz)))                           # uso su estadística especial que contempla gradientes.
       elif var=='R':                                                             # Si no, si es la posición de la sonda (módulo de r),
-        vector.extend(estadística_R(módulo(Xss,Yss,Zss, norm=R_m)))              # uso su estadística y NORMALIZO => dim de B es similar a R.
+        vector.extend(estadística_R(módulo(Xss,Yss,Zss, norm=R_m)))              # uso su estadística y NORMALIZO! => dim de B es similar a R.
       elif var in mag:                                                           # Si no, si uso las componentes del campo,
         vector.extend(estadística_componentes_B(mag[var]))                       # eso una estadística especial para ellas.
       elif var in pos:                                                           # Si no, si pertenecen a pos,
@@ -167,8 +167,8 @@ class Clasificador_KNN_Binario:
     for i in range(0, len(data_MAG), self.ventana_puntos):                 # Para i de 0 al final del archivo MAG:
       j_0: int = i                                                         # obtengo el índice del inicio de la ventana actual,
       j_f: int = i + self.ventana_puntos                                   # y el índice del final de la ventana actual.
-      if j_f > len(data_MAG):                                              # 
-        break                                                              # 
+      if j_f > len(data_MAG):                                              # Si el j_final se pasa de los puntos,
+        break                                                              # el for debe terminar.
       ventana: pd.DataFrame = data_MAG[j_0 : j_f]                          # Obtengo solamente los datos MAG de esa ventana,
       v: np.ndarray = self.vector_característico(ventana)                  # y calculo su vector característico y lo guardo en la variable v.
       if v is not None:                                                    # Si el vector característico no es None,
@@ -231,10 +231,10 @@ def entrenar(
   if años_entrenamiento == ['2014']:                                            # Si el año de entrenamiento es solo el 2014,
     raise ValueError('El año 2014 no tiene suficientes muestras para entrenar.')# => devuelvo un mensaje (son menos de 20 datos).
   knn: Clasificador_KNN_Binario = Clasificador_KNN_Binario(                     # En la variable 'knn' creo la clase Clasificador_KNN_Binario,
-    K                     = K,                                                  # con todos los valores que han sido pasados por parámetro a
-    variables             = variables,                                          # la función entrenar.
-    ventana               = ventana,
-    ventanas_NBS          = ventanas_NBS,
+    K            = K,                                                           # con todos los valores que han sido pasados por parámetro a
+    variables    = variables,                                                   # la función entrenar.
+    ventana      = ventana,
+    ventanas_NBS = ventanas_NBS,
   )
   knn.promedio = promedio                                                       # El promedio del knn, es el pasado por parámetro a entrenar.
   X: list[np.ndarray] = []                                                      # Inicializo una lista de vectores característicos 'X'.

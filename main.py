@@ -17,7 +17,6 @@ import plots.estilo_plots
 import ajustes.bow_shock as fit
 import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
 import machine_learning.validación_cruzada as CV # Evaluación del modelo KNN con validación cruzada y métrica TPR.
-#import machine_learning.redes_neuronales as ML  # Redes Neuronales
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
@@ -47,13 +46,13 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 )"""
 
 CV.ejecutar_validación_cruzada(
-  directorio=ruta,
+  directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 1,   # vecinos
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
   promedio           = 5,   # en segundos
   ventana            = 60, # en segundos
-  ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
+  ventanas_NBS       = [-2,2], # posición de ventanas_NBS respecto a ventanas_BS
   tolerancia         = 120  # en segundos
 )
 
