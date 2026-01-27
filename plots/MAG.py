@@ -55,7 +55,7 @@ def graficador(
   coordenadas PlanetoCéntricas (PC) (incluye la rotación de Marte sobre su eje, z apunta al polo norte) ó Sun-State (SS) centradas en el Sol
   (no incluye la rotación de Marte sobre su eje).
   """
-  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo los archivos mag que correspondan al intervalo (t0,tf)
+  data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo archivos MAG que correspondan al intervalo (t0,tf)
                                          promedio)                                  # con el promedio deseado.
   t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]    # Extraigo la información del .sts en ese intervalo
   if trayectoria:                                                                   # Si trayectoria = True, entonces:

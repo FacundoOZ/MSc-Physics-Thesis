@@ -1,5 +1,5 @@
 
-# Terminado
+# Comentar casos de test
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
@@ -24,7 +24,7 @@ from machine_learning.estadística import estadística_B, estadística_R, estad�
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 class Clasificador_KNN_Binario:
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  # Inicializador (Constructor): Inicia las variables características del KNN.
+  # Constructor: Inicia las variables características del KNN.
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   def __init__(self, K: int, variables: Union[list[str], None] = None, promedio: int = 1, ventana: int = 300,
                ventanas_NBS: list[int] = [-1,1,2]) -> None:
@@ -301,14 +301,17 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes
     tiempos_BS    .to_csv(ruta_BS,   sep=' ', index=False)                      # en la carpeta directorio + 'KNN' + 'predicción'.
 
-def diagnosticar_knn(knn: Clasificador_KNN_Binario, directorio: str, año_test: str = '2020'):
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# test_KNN: función para probar el funcionamiento correcto del Clasificador_KNN_Binario.
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def test_KNN(knn: Clasificador_KNN_Binario, directorio: str, año_test: str = '2020'):
   """
-  Diagnostic function to check if KNN is working correctly.
+  Docstring.
   """
   print(f"\n{'='*60}")
   print(f"DIAGNÓSTICO DEL KNN - AÑO {año_test}")
   print(f"{'='*60}")
-  ruta_MAG = os.path.join(directorio, 'recorte_Vignes')                         # 1. Load test data
+  ruta_MAG = os.path.join(directorio, 'recorte_Vignes')                       # 1. Load test data
   t0, tf = f'1/1/{año_test}-00:00:00', f'31/12/{año_test}-23:59:59'
   data_MAG = leer_archivos_MAG(ruta_MAG, t0, tf, knn.promedio)
   if len(data_MAG) == 0:
@@ -316,7 +319,7 @@ def diagnosticar_knn(knn: Clasificador_KNN_Binario, directorio: str, año_test: 
     return
   print(f"1. Datos MAG cargados: {len(data_MAG)} registros")
   print(f"   Columnas: {list(data_MAG.columns)}")
-  print(f"\n2. Probando vector característico...")                              # 2. Test vector característico on a sample window
+  print(f"\n2. Probando vector característico...")                            # 2. Test vector característico on a sample window
   sample_window = data_MAG.iloc[0:min(300, len(data_MAG))]
   vector = knn.vector_característico(sample_window)
   if vector is not None:
@@ -326,14 +329,14 @@ def diagnosticar_knn(knn: Clasificador_KNN_Binario, directorio: str, año_test: 
   else:
     print("   ERROR: No se pudo crear el vector")
     return
-  print(f"\n3. Probando predicciones...")                                       # 3. Test prediction on first few windows
-  pred, prob, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])          # First 10000 points for speed
+  print(f"\n3. Probando predicciones...")                                     # 3. Test prediction on first few windows
+  pred, prob, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])        # First 10000 points for speed
   if len(pred) > 0:
     print(f"   Predicciones realizadas: {len(pred)} ventanas")
     print(f"   BS detectados: {sum(pred)} ({sum(pred)/len(pred)*100:.1f}%)")
     print(f"   Probabilidad promedio BS: {prob[:,1].mean():.3f}")
     print(f"   Probabilidad promedio NBS: {prob[:,0].mean():.3f}")
-    prob_sum = prob.sum(axis=1)                                                 # Check probability consistency
+    prob_sum = prob.sum(axis=1)                                               # Check probability consistency
     if np.allclose(prob_sum, 1.0, atol=1e-5):
       print(f"   ✓ Probabilidades suman 1 correctamente")
     else:
@@ -341,20 +344,20 @@ def diagnosticar_knn(knn: Clasificador_KNN_Binario, directorio: str, año_test: 
       print(f"     Ejemplo: {prob_sum[:5]}")
   else:
     print("   ERROR: No se realizaron predicciones")
-  print(f"\n4. Estadísticas del entrenamiento:")                                # 4. Check training statistics
+  print(f"\n4. Estadísticas del entrenamiento:")                              # 4. Check training statistics
   print(f"   Entrenado: {knn.entrenado}")
   print(f"   K: {knn.K}")
   print(f"   Variables: {knn.variables}")
   print(f"   Ventana: {knn.ventana}s")
   print(f"   Promedio: {knn.promedio}")
-  print(f"\n5. Análisis de características de bow shocks:")                     # 5. Test with known bow shock characteristics
-  if len(data_MAG) > 1000:                                                      # Find periods with high B field variability (typical of shocks)
+  print(f"\n5. Análisis de características de bow shocks:")                   # 5. Test with known bow shock characteristics
+  if len(data_MAG) > 1000:                                                    # Find periods with high B field variability (typical of shocks)
     Bx,By,Bz = [data_MAG.iloc[:,j].to_numpy() for j in [1,2,3]]
     B_mag = np.sqrt(Bx**2 + By**2 + Bz**2)
     window_size = knn.ventana                                                 # Calculate moving standard deviation
     if len(B_mag) > window_size:
       B_std = pd.Series(B_mag).rolling(window_size).std().values
-      high_var_threshold = np.percentile(B_std[~np.isnan(B_std)], 90)       # Find high variability periods
+      high_var_threshold = np.percentile(B_std[~np.isnan(B_std)], 90)         # Find high variability periods
       high_var_indices = np.where(B_std > high_var_threshold)[0]
       print(f"   Períodos de alta variabilidad (> percentil 90): {len(high_var_indices)}")
       print(f"   Esto debería correlacionar con detecciones BS")
