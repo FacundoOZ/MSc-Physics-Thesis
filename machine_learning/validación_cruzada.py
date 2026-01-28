@@ -28,19 +28,19 @@ def ejecutar_validación_cruzada(
     ventana: int = 60,                                                          # Ancho de ventana en segundos a utilizar (representa el BS).
     ventanas_NBS: list[int] = [2],                                              # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
     tolerancia: int = 120,                                                      # Tolerancia en segundos entre el BS real y predicho por KNN.
-    post_procesamiento: bool = False,                                           #
-    umbral: int = 30                                                            #
+    post_procesamiento: bool = False,                                           # Post-procesamiento de mediciones BS consecutivas (promedio).
+    umbral: int = 30                                                            # Umbral en minutos a utilizar por el post-procesamiento BS.
 ) -> None:
   """
   La función ejecutar_validación_cruzada realiza el algoritmo de Cross-Validation sobre un knn con todos los parametros que se han ingresado
-  por parámetro: 'K', 'variables', 'promedio', 'ventana', 'ventanas_NBS'. En 'años_entrenamiento' debe recibir todos los años de BS previamente
-  detectados (para la supervisión del modelo), en nuestro caso los años 2014-2019 de Fruchtman; y posee un parametro 'tolerancia' que representa
-  el tiempo en segundos que se considera aceptable para la detección del BS por el KNN, respecto del t_BS real predicho por Fruchtman.
-  La función entrena el KNN con los parámetros ingresados con todos los años de 'años_entrenamiento' excepto uno, y lo prueba para dicho año,
-  calculando la tasa de verdaderos positivos (TPR), y luego repite el proceso para cada uno de los otros años. Devuelve un archivo en la
-  carpeta destino 'directorio'+'KNN'+'validación_cruzada'+'CV_modelo_K{K}.txt' que contiene todos los parametros que se utilizó en el KNN,
-  y las tasas TP, la cantidad de BS que se poseían y la cantidad detectados para cada año. Se realiza la lectura de archivos MAG previamente,
-  para ahorrar mucho tiempo.
+  por parámetro: 'K', 'variables', 'promedio', 'ventana', 'ventanas_NBS', 'post_procesamiento' y 'umbral'. En 'años_entrenamiento' debe
+  recibir todos los años de BS previamente detectados (para la supervisión del modelo), en nuestro caso los años 2014-2019 de Fruchtman;
+  y posee un parametro 'tolerancia' que representa el tiempo en segundos que se considera aceptable para la detección del BS por el KNN,
+  respecto del t_BS real predicho por Fruchtman. La función entrena el KNN con los parámetros ingresados con todos los años de
+  'años_entrenamiento' excepto uno, y lo prueba para dicho año, calculando la tasa de verdaderos positivos (TPR), y luego repite el proceso
+  para cada uno de los otros años. Devuelve un archivo en la carpeta destino 'directorio'+'KNN'+'validación_cruzada'+'CV_modelo_K{K}.txt' que
+  contiene todos los parametros que se utilizó en el KNN, y las tasas TP, la cantidad de BS que se poseían y la cantidad detectados para cada
+  año. Se realiza la lectura de archivos MAG previamente, para ahorrar mucho tiempo.
   """
   t_inicio: datetime = datetime.now()                                                     # Obtengo el t_inicial a la hora de la ejecución.
   print(f"Tiempo de inicio del algoritmo: {t_inicio.strftime('%H:%M:%S')}\n")             # del algoritmo, y lo enseño en un mensaje.
@@ -68,9 +68,9 @@ def ejecutar_validación_cruzada(
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                             # Extraigo días decimales Fruchtman y paso a float.
     t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1/enero del año en formato str.
     t_BS: pd.Series        = t0_año + pd.to_timedelta(dias_Fru-1, unit='D')               # Convierto t_BS a objetos datetime adecuadamente.
-    pred, prob, j_ventana = knn.predecir_ventana(data_MAG)                                # Obtengo sólo etiquetas y j con predecir_ventana.
+    pred, prob, j_ventana  = knn.predecir_ventana(data_MAG)                               # Obtengo sólo etiquetas y j con predecir_ventana.
     if post_procesamiento:                                                                # Si el booleano post_procesamiento=True, entonces
-      pred, _, j_ventana  = knn.post_procesar_BS(data_MAG, pred, prob, j_ventana, umbral) # EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
+      pred, _, j_ventana   = knn.post_procesar_BS(data_MAG, pred, prob, j_ventana, umbral)# EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
     j_BS_pred: np.ndarray       = j_ventana[pred == 1]                                    # Obtengo solo los índices de BS.
     t_BS_pred: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS_pred])# Obtengo los t_BS de los j_BS predichos.
     TP: int = 0; FP: int = 0                                                              # Inicializo TP y FP (verdaderos/falsos positivos).

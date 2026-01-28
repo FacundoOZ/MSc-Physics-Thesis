@@ -26,23 +26,25 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 """knn = KNN.entrenar(
-  directorio=ruta,
-  años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
-  K=1,
-  variables=['B','R','Bx','By','Bz','Xss','Yss','Zss'],
-  promedio=5,
-  ventana=120,
-  ventanas_NBS=[2],
+  directorio         = ruta,
+  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'],
+  K                  = 1,
+  variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
+  promedio           = 5,
+  ventana            = 120,
+  ventanas_NBS       = [2],
 )
 knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
-"""KNN.clasificar(
-  directorio=ruta,
-  knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
-  predecir_años=['2018']
-)"""
+KNN.clasificar(
+  directorio         = ruta,
+  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
+  predecir_años      = ['2018'],
+  post_procesamiento = True,
+  umbral             = 30
+)
 
 """CV.ejecutar_validación_cruzada(
   directorio         = ruta,
@@ -66,39 +68,49 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 MAG.graficador(
-  directorio=ruta+'datos_recortados_merge',# ó 'hemisferio_N' ó 'hemisferio_ND'
-# Intervalo de tiempo deseado
-  tiempo_inicial='1/1/2018-00:00:00', tiempo_final='1/1/2018-23:59:00', promedio=30,
+  directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
+# Intervalo de tiempo deseado:
+  tiempo_inicial = '1/1/2018-00:00:00',
+  tiempo_final   = '1/1/2018-23:59:00',
+  promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
-  coord='ss',
+  coord          = 'ss',
 # Magnitudes a graficar:
-  B=True,
-  #B_x=True, B_y=True, B_z=True,
-# Coordenadas Planeto-Céntricas (PC) (centradas en Marte):
-  #z_pc=True, x_pc=True, y_pc=True,
-# Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO):
-  #x_ss=True, y_ss=True, z_ss=True,
-#  cil=True, # Usar solamente con coord='ss' y trayectoria=True
-# Distancia de MAVEN a Marte:
-  #R=True,
-# Curvas paramétricas:
-#  trayectoria=True,
-# Scatter:
-  scatter=True,
-  tamaño_puntos=5
+  B    = True,
+  #B_x  = True,
+  #B_y  = True,
+  #B_z  = True,
+  #x_pc = True, # Coordenadas Planeto-Céntricas (PC) (centradas en Marte).
+  #y_pc = True,
+  #z_pc = True,
+  #x_ss = True, # Coordenadas Sun-State (SS) ó Mars Solar Orbit (MSO).
+  #y_ss = True,
+  #z_ss = True,
+  #cil  = True, # Usar solamente con coord='ss' y trayectoria=True.
+  #R    = True, # Distancia de MAVEN a Marte.
+# Curvas paramétricas 2D y 3D:
+  #trayectoria   = True,
+# Interpolación:
+  scatter       = True,
+  tamaño_puntos = 5
 )
 
 
-"""ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
-                                tiempo_inicial = '30/11/2014-00:00:00', tiempo_final='6/12/2014-23:59:00', promedio=1,
-                                paso=200,
-                                coord='pc'
+"""ani.trayectoria_3D_MAVEN_MAG(
+  directorio     = ruta + 'datos_recortados_merge',
+  tiempo_inicial = '30/11/2014-00:00:00',
+  tiempo_final   = '6/12/2014-23:59:00',
+  promedio       = 1,
+  paso           = 200,
+  coord          = 'pc'
 )"""
 
-"""SWEA.graficador_distribución_angular(directorio=ruta,
-                                     archivo='mvn_swe_l2_svypad_20141225_v05_r01.cdf',
-                                     tiempo_inicial='09:40:00', tiempo_final='10:05:00',
-                                     promedio=True
+"""SWEA.graficador_distribución_angular(
+  directorio     = ruta,
+  archivo        = 'mvn_swe_l2_svypad_20141225_v05_r01.cdf',
+  tiempo_inicial = '09:40:00',
+  tiempo_final   = '10:05:00',
+  promedio       = True
 )"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -120,12 +132,7 @@ MAG.graficador(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.0106192420023148, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.0175636284027778, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.1075636023958333, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.183952555, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.2047857120023149, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.2946818720023148, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.29468, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
 #print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
