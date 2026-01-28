@@ -5,6 +5,9 @@
 # Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por MAG: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/MAG
 #============================================================================================================================================
 
+import os
+import datetime as dt
+
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
@@ -55,6 +58,18 @@ def graficador(
   coordenadas PlanetoCéntricas (PC) (incluye la rotación de Marte sobre su eje, z apunta al polo norte) ó Sun-State (SS) centradas en el Sol
   (no incluye la rotación de Marte sobre su eje).
   """
+  # KNN BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  ruta_BS = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2018.txt')
+  BS = pd.read_csv(ruta_BS, skiprows=1, header=None, names=['DOY'])
+  BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))
+  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+  # FRU BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  ruta_Fru = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'fruchtman', 'hemisferio_N', 'fruchtman_2018_merge_hemisferio_N.sts')
+  FR = pd.read_csv(ruta_Fru, sep=' ', header=None)
+  FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))
+  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  
   data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo archivos MAG que correspondan al intervalo (t0,tf)
                                          promedio)                                  # con el promedio deseado.
   t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]    # Extraigo la información del .sts en ese intervalo
@@ -81,6 +96,16 @@ def graficador(
     formatear_ejes_y_titulo(                                                        # Adapto el eje temporal x con el formato que corresponda,
       pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                   # convirtiendo t_inicial y t_final a objeto datetime
       pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                   # en formato 'DD/MM/YYYY-HH:MM:SS'.
+    
+  # PLOTS——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+  ax = p.gca()
+  for t_bs in BS['datetime'][1:70]:
+    ax.axvline(t_bs, color='k', alpha=0.6)
+  for t_fr in FR['datetime'][1:30]:
+    ax.axvline(t_fr, color='red', alpha=0.6)
+  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+  
   p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'
   p.legend()                                                                        # Escribo los labels
   #guardar_figura()                                                                 # guardo la figura

@@ -93,8 +93,18 @@ def segundos_a_día(s: int) -> float:
   """
   Recibe un entero que representa una cantidad de segundos y lo convierte a formato día, por ejemplo s=600 => devuelve 0.00694....
   """
-  res: float = s / 86400.0 # En la variable res, calculo y guardo los segundos ingresados en formato día.
-  return res               # Devuelvo res.
+  res: float = s/86400.0 # En la variable res, calculo y guardo los segundos ingresados en formato día.
+  return res             # Devuelvo res.
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# minutos_a_día:
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def minutos_a_día(m: int) -> float:
+  """
+  Recibe un entero que representa una cantidad de minutos y lo convierte a formato día, por ejemplo m=30 => devuelve 0.0208....
+  """
+  res: float = m/1440.0 # En la variable res, calculo y guardo los minutos ingresados en formato día.
+  return res            # Devuelvo res.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -113,6 +113,7 @@ def stats_R(x: np.ndarray, x_izq: np.ndarray, x_der: np.ndarray) -> list[float]:
   ]                                              # 
   return res                                     # Devuelvo res.
 
+#———————————————————————————————————————————————————————————————————————————————————————
 def dividir_ventana(x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
   """
   La función dividir_ventana, permite dividir en 3 partes iguales la ventana a la cual se le realizará la estadística, lo que permite
@@ -124,6 +125,7 @@ def dividir_ventana(x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
   if n < 3:                                         # Si no hay al menos 3 puntos, para poder calcular magnitudes adecuadamente:
     return x, x, x                                  # devuelvo una tripla con 3 referencias al mismo objeto (no lo pude dividir).
   return x[ : n//3], x[n//3 : 2*n//3], x[2*n//3 : ] # Si no, divido en 1/3, 2/3 y 3/3 de mediciones (divido los datos en 3 subventanas).
+#———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

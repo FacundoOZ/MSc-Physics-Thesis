@@ -16,7 +16,7 @@ import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
 import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
-import machine_learning.validación_cruzada as CV # Evaluación del modelo KNN con validación cruzada y métrica TPR.
+import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
@@ -27,13 +27,12 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 """knn = KNN.entrenar(
   directorio=ruta,
-  años_entrenamiento=['2014','2015'],#, '2016', '2017', '2018', '2019'],
-  K=2,
-  variables=['B','Xss','Yss','Zss'],
-  promedio=20,
-  ventana=300,
-  ventanas_NBS=[-1,1,2],
-  superposición_ventana=50
+  años_entrenamiento=['2014','2015','2016','2017','2018','2019'],
+  K=1,
+  variables=['B','R','Bx','By','Bz','Xss','Yss','Zss'],
+  promedio=5,
+  ventana=120,
+  ventanas_NBS=[2],
 )
 knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
@@ -42,19 +41,19 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 """KNN.clasificar(
   directorio=ruta,
   knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
-  predecir_años=['2021']
+  predecir_años=['2018']
 )"""
 
-CV.ejecutar_validación_cruzada(
+"""CV.ejecutar_validación_cruzada(
   directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 1,   # vecinos
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
-  promedio           = 10,   # en segundos
-  ventana            = 60, # en segundos
-  ventanas_NBS       = [1], # posición de ventanas_NBS respecto a ventanas_BS
+  promedio           = 5,   # en segundos
+  ventana            = 120, # en segundos
+  ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
   tolerancia         = 120  # en segundos
-)
+)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
@@ -66,10 +65,10 @@ CV.ejecutar_validación_cruzada(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""MAG.graficador(
-  directorio=ruta+'recorte_Vignes', # 'datos_recortados_merge' ó 'hemisferio_N' ó 'hemisferio_ND'
+MAG.graficador(
+  directorio=ruta+'datos_recortados_merge',# ó 'hemisferio_N' ó 'hemisferio_ND'
 # Intervalo de tiempo deseado
-  tiempo_inicial='1/1/2020-09:00:00', tiempo_final='1/1/2020-23:59:00', promedio=30,
+  tiempo_inicial='1/1/2018-00:00:00', tiempo_final='1/1/2018-23:59:00', promedio=30,
 # Sistema de Referencia: 'ss' ó 'pc'
   coord='ss',
 # Magnitudes a graficar:
@@ -85,9 +84,9 @@ CV.ejecutar_validación_cruzada(
 # Curvas paramétricas:
 #  trayectoria=True,
 # Scatter:
-  #scatter=True,
-  #tamaño_puntos=1
-)"""
+  scatter=True,
+  tamaño_puntos=5
+)
 
 
 """ani.trayectoria_3D_MAVEN_MAG(directorio=ruta+'datos_recortados_merge',
@@ -121,7 +120,12 @@ CV.ejecutar_validación_cruzada(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=17.812841, año=2019)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.0106192420023148, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.0175636284027778, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.1075636023958333, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.183952555, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.2047857120023149, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
+#print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.2946818720023148, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
 #print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

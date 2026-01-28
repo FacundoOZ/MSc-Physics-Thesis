@@ -23,11 +23,13 @@ def ejecutar_validación_cruzada(
     directorio: str,                                                            # Carpeta donde se encuentran las mediciones Fruchtman y MAG.
     años_entrenamiento: list[str] = ['2014','2015','2016','2017','2018','2019'],# Años que se desean entrenar.
     K: int = 1,                                                                 # Cantidad de vecinos más cercanos a utilizar por el KNN.
-    variables: list[str] = ['B','Xss','Yss','Zss'],                             # Variables a utilizar para el vector característico del KNN.
-    promedio: int = 1,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
-    ventana: int = 300,                                                         # Ancho de ventana en segundos a utilizar (representa el BS).
-    ventanas_NBS: list[int] = [-1,1,2],                                         # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
-    tolerancia: int = 300                                                       # Tolerancia en segundos entre el BS real y predicho por KNN.
+    variables: list[str] = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],          # Variables a utilizar para el vector característico del KNN.
+    promedio: int = 5,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
+    ventana: int = 60,                                                          # Ancho de ventana en segundos a utilizar (representa el BS).
+    ventanas_NBS: list[int] = [2],                                              # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
+    tolerancia: int = 120,                                                      # Tolerancia en segundos entre el BS real y predicho por KNN.
+    post_procesamiento: bool = False,                                           #
+    umbral: int = 30                                                            #
 ) -> None:
   """
   La función ejecutar_validación_cruzada realiza el algoritmo de Cross-Validation sobre un knn con todos los parametros que se han ingresado
@@ -66,7 +68,9 @@ def ejecutar_validación_cruzada(
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                             # Extraigo días decimales Fruchtman y paso a float.
     t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1/enero del año en formato str.
     t_BS: pd.Series        = t0_año + pd.to_timedelta(dias_Fru-1, unit='D')               # Convierto t_BS a objetos datetime adecuadamente.
-    pred, _, j_ventana          = knn.predecir_ventana(data_MAG)                          # Obtengo sólo etiquetas y j con predecir_ventana.
+    pred, prob, j_ventana = knn.predecir_ventana(data_MAG)                                # Obtengo sólo etiquetas y j con predecir_ventana.
+    if post_procesamiento:                                                                # Si el booleano post_procesamiento=True, entonces
+      pred, _, j_ventana  = knn.post_procesar_BS(data_MAG, pred, prob, j_ventana, umbral) # EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
     j_BS_pred: np.ndarray       = j_ventana[pred == 1]                                    # Obtengo solo los índices de BS.
     t_BS_pred: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS_pred])# Obtengo los t_BS de los j_BS predichos.
     TP: int = 0; FP: int = 0                                                              # Inicializo TP y FP (verdaderos/falsos positivos).
@@ -78,8 +82,8 @@ def ejecutar_validación_cruzada(
       TP = np.sum(np.any(diff <= tolerancia, axis=0))                                     # TP es la suma de los encontrados en la tolerancia.
       FP = np.sum(~np.any(diff_inv <= tolerancia, axis=0))                                # FP es la suma de los encontrados en la tolerancia.
     TPR: float = round(TP/len(t_BS), 3) if len(t_BS) > 0 else np.nan                      # Calculo TPR=TP_totales/cant_t_BS_Fru (3 dígitos).
-    Precision: float = TP/(TP + FP) if (TP + FP) > 0 else np.nan                          # Calculo la precición del modelo con los FP.
-    F1: float = 2*Precision*TPR/(Precision + TPR) if Precision > 0 and TPR > 0 else np.nan# Calculo la métrica F1
+    Pre: float = round(TP/(TP + FP), 3) if (TP + FP) > 0 else np.nan                      # Calculo la precisión del modelo con los FP.
+    F1: float = round(2*Pre*TPR/(Pre + TPR), 3) if Pre > 0 and TPR > 0 else np.nan        # Calculo la métrica F1
     lista.append({                                                                        # En la variable lista (lista de diccionarios),
       'Año': año,                                                                         # agrego el año de la validación cruzada,
       'K': K,                                                                             # y todos los parámetros del KNN que se utilizaron.
@@ -93,7 +97,7 @@ def ejecutar_validación_cruzada(
       'TP': TP,                                                                           # los verdaderos positivos,
       'FP': FP,                                                                           # los falsos positivos,
       'TPR': TPR,                                                                         # el resultado de la tasa de verdaderos positivos,
-      'Precision': Precision,                                                             # la precisión,
+      'Precision': Pre,                                                                   # la precisión,
       'F1': F1                                                                            # y la métrica F1.
     })
   res: pd.DataFrame = pd.DataFrame(lista)                                                 # Convierto la lista completa a formato dataframe.
