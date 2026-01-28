@@ -38,24 +38,26 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
-KNN.clasificar(
+"""KNN.clasificar(
   directorio         = ruta,
   knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
   predecir_años      = ['2018'],
   post_procesamiento = True,
   umbral             = 30
-)
+)"""
 
-"""CV.ejecutar_validación_cruzada(
+CV.ejecutar_validación_cruzada(
   directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 1,   # vecinos
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
   promedio           = 5,   # en segundos
-  ventana            = 120, # en segundos
+  ventana            = 60, # en segundos
   ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
-  tolerancia         = 120  # en segundos
-)"""
+  tolerancia         = 120, # en segundos
+  post_procesamiento = True,
+  umbral             = 40
+)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
@@ -67,11 +69,11 @@ KNN.clasificar(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-MAG.graficador(
+"""MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '1/1/2018-00:00:00',
-  tiempo_final   = '1/1/2018-23:59:00',
+  tiempo_inicial = '01/01/2018-00:00:00',
+  tiempo_final   = '15/01/2018-23:59:00',
   promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -93,7 +95,7 @@ MAG.graficador(
 # Interpolación:
   scatter       = True,
   tamaño_puntos = 5
-)
+)"""
 
 
 """ani.trayectoria_3D_MAVEN_MAG(

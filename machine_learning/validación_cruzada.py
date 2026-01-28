@@ -1,5 +1,5 @@
 
-# Terminado
+# Modularizar
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de Validación Cruzada (Cross-Validation) usando métrica TPR (true positives rate).
@@ -68,19 +68,19 @@ def ejecutar_validación_cruzada(
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                             # Extraigo días decimales Fruchtman y paso a float.
     t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1/enero del año en formato str.
     t_BS: pd.Series        = t0_año + pd.to_timedelta(dias_Fru-1, unit='D')               # Convierto t_BS a objetos datetime adecuadamente.
-    pred, prob, j_ventana  = knn.predecir_ventana(data_MAG)                               # Obtengo sólo etiquetas y j con predecir_ventana.
+    pred, prob, j_v  = knn.predecir_ventana(data_MAG)                                     # Obtengo sólo etiquetas y j con predecir_ventana.
     if post_procesamiento:                                                                # Si el booleano post_procesamiento=True, entonces
-      pred, _, j_ventana   = knn.post_procesar_BS(data_MAG, pred, prob, j_ventana, umbral)# EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
-    j_BS_pred: np.ndarray       = j_ventana[pred == 1]                                    # Obtengo solo los índices de BS.
+      pred, _, j_v   = knn.post_procesar_BS(data_MAG, pred, prob, j_v, umbral)            # EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
+    j_BS_pred: int = np.round(j_v[pred == 1]).astype(int)                                 # Obtengo solo los índices de BS,
     t_BS_pred: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS_pred])# Obtengo los t_BS de los j_BS predichos.
     TP: int = 0; FP: int = 0                                                              # Inicializo TP y FP (verdaderos/falsos positivos).
     if len(t_BS_pred) > 0:                                                                # Si hay tiempos BS predichos,
-      diff = np.abs((t_BS_pred.values[:,None] - t_BS.values[None,:])                      # Calculo la diferencia entre el t_BS_predicho,
-                    .astype('timedelta64[s]').astype(int))                                # y el t_BS de Fruchtman y convierto a int.
-      diff_inv = np.abs((t_BS.values[:,None] - t_BS_pred.values[None,:])                  # Calculo la diferencia entre los t_BS de Fruchtman,
-                        .astype('timedelta64[s]').astype(int))                            # y el t_BS_predicho (la inversa).
-      TP = np.sum(np.any(diff <= tolerancia, axis=0))                                     # TP es la suma de los encontrados en la tolerancia.
-      FP = np.sum(~np.any(diff_inv <= tolerancia, axis=0))                                # FP es la suma de los encontrados en la tolerancia.
+      diferencia         = np.abs((t_BS_pred.values[:,None] - t_BS.values[None,:])        # Calculo la diferencia entre el t_BS_predicho,
+                                  .astype('timedelta64[s]').astype(int))                  # y el t_BS de Fruchtman y convierto a int.
+      diferencia_inversa = np.abs((t_BS.values[:,None] - t_BS_pred.values[None,:])        # Calculo la diferencia entre los t_BS de Fruchtman,
+                                  .astype('timedelta64[s]').astype(int))                  # y el t_BS_predicho (la inversa).
+      TP = np.sum(np.any(diferencia <= tolerancia, axis=0))                               # TP es la suma de los encontrados en la tolerancia.
+      FP = np.sum(~np.any(diferencia_inversa <= tolerancia, axis=0))                      # FP es la suma de los encontrados en la tolerancia.
     TPR: float = round(TP/len(t_BS), 3) if len(t_BS) > 0 else np.nan                      # Calculo TPR=TP_totales/cant_t_BS_Fru (3 dígitos).
     Pre: float = round(TP/(TP + FP), 3) if (TP + FP) > 0 else np.nan                      # Calculo la precisión del modelo con los FP.
     F1: float = round(2*Pre*TPR/(Pre + TPR), 3) if Pre > 0 and TPR > 0 else np.nan        # Calculo la métrica F1

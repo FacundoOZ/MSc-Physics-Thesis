@@ -15,7 +15,7 @@ from sklearn.neighbors     import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 
 # Módulos Propios:
-from base_de_datos.conversiones   import módulo, R_m, segundos_a_día, minutos_a_día
+from base_de_datos.conversiones   import módulo, R_m, segundos_a_día
 from base_de_datos.lectura        import leer_archivos_MAG, leer_archivo_Fruchtman
 from machine_learning.estadística import estadística_B, estadística_R, estadística_componentes_B, estadística_componentes_R
 
@@ -198,12 +198,13 @@ class Clasificador_KNN_Binario:
     etiqueta: list[int]            = list(pred)                                             # Convierto a formato lista las etiquetas (pred),
     probabilidad: list[np.ndarray] = list(prob)                                             # las probabilidades (prob),
     j_v: list[float]               = list(j_v)                                              # y los índices j_ventana (j_v).
-    i: int = 0                                                                              # Creo una variable iteradora. 
+    t_MAX: pd.Timedelta = pd.Timedelta(minutes=umbral)                                      # En t_MAX obtengo umbral en formato Timedelta.
+    i: int = 0                                                                              # Creo una variable iteradora.
     while i < len(etiqueta) - 1:                                                            # Mientras i se encuentre en rango de la lista,
       if etiqueta[i] == 1 and etiqueta[i+1] == 1:                                           # si dos mediciones consecutivas son bow shocks,
-        if (t_ventana[i+1] - t_ventana[i]) < minutos_a_día(umbral):                         # y si sus tiempos están contemplados en umbral,
-          j_v[i] = j_v[i] + (j_v[i+1] - j_v[i])/2                                           # Calculo el índice promedio,
-          t_ventana[i] = t_ventana[i] + (t_ventana[i+1] - t_ventana[i])/2                   # el nuevo tiempo promedio,
+        if (t_ventana[i+1] - t_ventana[i]) < t_MAX:                                         # y si el tiempo entre BS es menor a t_MAX,
+          j_v[i]          = j_v[i]       + 0.5*(j_v[i+1] - j_v[i])                          # Calculo el índice promedio,
+          t_ventana[i]    = t_ventana[i] + 0.5*(t_ventana[i+1]  - t_ventana[i])             # el nuevo tiempo promedio,
           probabilidad[i] = 0.5*(probabilidad[i] + probabilidad[i+1])                       # y promedio las probabilidades.
           del etiqueta[i+1]                                                                 # Elimino el evento siguiente,
           del probabilidad[i+1]                                                             # su probabilidad,
@@ -322,7 +323,7 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     if post_procesamiento:                                                      # Si se desea realizar el post-procesamiento de ventanas_BS,
       pred, prob, j_v = knn.post_procesar_BS(data_MAG, pred, prob, j_v, umbral) # EJECUTAMOS EL POSTPROCESAMIENTO DE VENTANAS_BS VECINAS.
     print('Clasificación completada.')                                          # Aviso que el KNN terminó la predicción.
-    j_BS: np.ndarray = j_v[pred == 1]                                           # Recupero los índices j centrales de las ventanas BS,
+    j_BS: int = np.round(j_v[pred == 1]).astype(int)                            # Recupero los índices j centrales de las ventanas BS,
     t_BS: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS])# y obtengo cuándo ocurrieron en formato datetime.
     print(f'Ventanas etiquetadas: {len(pred)}')                                 # Aviso la cantidad de ventanas que se utilizaron,
     print(f'Ventanas BS: {len(t_BS)} ({len(t_BS)/len(pred)*100:.2f} %).')       # y cuántas de ellas se clasificaron como Bow Shock.
