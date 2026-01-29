@@ -1,5 +1,5 @@
 
-# Comentar casos de test
+# Terminado
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
@@ -339,6 +339,8 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     ruta_BS: str   = os.path.join(ruta_pred, f'tiempos_BS_{año}.txt')           # para las probabilidades, y los tiempos BS a detectar.
     probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes
     tiempos_BS    .to_csv(ruta_BS,   sep=' ', index=False)                      # en la carpeta directorio + 'KNN' + 'predicción'.
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 
 
@@ -347,65 +349,65 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def test_KNN(knn: Clasificador_KNN_Binario, directorio: str, año_test: str = '2020'):
   """
-  Docstring.
+  Casos de tests para el Clasificador_KNN_Binario.
   """
-  print(f"\n{'='*60}")
-  print(f"DIAGNÓSTICO DEL KNN - AÑO {año_test}")
-  print(f"{'='*60}")
+  print(f"\n{'='*60}")                                                        #
+  print(f"DIAGNÓSTICO DEL KNN - AÑO {año_test}")                              #
+  print(f"{'='*60}")                                                          #
   ruta_MAG = os.path.join(directorio, 'recorte_Vignes')                       # 1. Load test data
-  t0, tf = f'1/1/{año_test}-00:00:00', f'31/12/{año_test}-23:59:59'
-  data_MAG = leer_archivos_MAG(ruta_MAG, t0, tf, knn.promedio)
-  if len(data_MAG) == 0:
-    print("ERROR: No se encontraron datos MAG")
-    return
-  print(f"1. Datos MAG cargados: {len(data_MAG)} registros")
-  print(f"   Columnas: {list(data_MAG.columns)}")
-  print(f"\n2. Probando vector característico...")                            # 2. Test vector característico on a sample window
-  sample_window = data_MAG.iloc[0:min(300, len(data_MAG))]
-  vector = knn.vector_característico(sample_window)
-  if vector is not None:
-    print(f"   Vector creado: longitud={len(vector)}")
-    print(f"   Valores mín/máx: {vector.min():.3f} / {vector.max():.3f}")
-    print(f"   ¿Contiene NaN? {np.any(np.isnan(vector))}")
-  else:
-    print("   ERROR: No se pudo crear el vector")
-    return
-  print(f"\n3. Probando predicciones...")                                     # 3. Test prediction on first few windows
+  t0, tf = f'1/1/{año_test}-00:00:00', f'31/12/{año_test}-23:59:59'           #
+  data_MAG = leer_archivos_MAG(ruta_MAG, t0, tf, knn.promedio)                #
+  if len(data_MAG) == 0:                                                      #
+    print('ERROR: No se encontraron datos MAG')                               #
+    return                                                                    #
+  print(f'1. Datos MAG cargados: {len(data_MAG)} registros')                  #
+  print(f'   Columnas: {list(data_MAG.columns)}')                             #
+  print(f'\n2. Probando vector característico...')                            # 2. Test vector característico on a sample window
+  sample_window = data_MAG.iloc[0:min(300, len(data_MAG))]                    #
+  vector = knn.vector_característico(sample_window)                           #
+  if vector is not None:                                                      #
+    print(f'   Vector creado: longitud={len(vector)}')                        #
+    print(f'   Valores mín/máx: {vector.min():.3f} / {vector.max():.3f}')     #
+    print(f'   ¿Contiene NaN? {np.any(np.isnan(vector))}')                    #
+  else:                                                                       #
+    print('   ERROR: No se pudo crear el vector')                             #
+    return                                                                    #
+  print(f'\n3. Probando predicciones...')                                     # 3. Test prediction on first few windows
   pred, prob, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])        # First 10000 points for speed
-  if len(pred) > 0:
-    print(f"   Predicciones realizadas: {len(pred)} ventanas")
-    print(f"   BS detectados: {sum(pred)} ({sum(pred)/len(pred)*100:.1f}%)")
-    print(f"   Probabilidad promedio BS: {prob[:,1].mean():.3f}")
-    print(f"   Probabilidad promedio NBS: {prob[:,0].mean():.3f}")
+  if len(pred) > 0:                                                           #
+    print(f'   Predicciones realizadas: {len(pred)} ventanas')                #
+    print(f'   BS detectados: {sum(pred)} ({sum(pred)/len(pred)*100:.1f}%)')  #
+    print(f'   Probabilidad promedio BS: {prob[:,1].mean():.3f}')             #
+    print(f'   Probabilidad promedio NBS: {prob[:,0].mean():.3f}')            #
     prob_sum = prob.sum(axis=1)                                               # Check probability consistency
-    if np.allclose(prob_sum, 1.0, atol=1e-5):
-      print(f"   ✓ Probabilidades suman 1 correctamente")
-    else:
-      print(f"   ✗ ERROR: Probabilidades no suman 1")
-      print(f"     Ejemplo: {prob_sum[:5]}")
-  else:
-    print("   ERROR: No se realizaron predicciones")
-  print(f"\n4. Estadísticas del entrenamiento:")                              # 4. Check training statistics
-  print(f"   Entrenado: {knn.entrenado}")
-  print(f"   K: {knn.K}")
-  print(f"   Variables: {knn.variables}")
-  print(f"   Ventana: {knn.ventana}s")
-  print(f"   Promedio: {knn.promedio}")
-  print(f"\n5. Análisis de características de bow shocks:")                   # 5. Test with known bow shock characteristics
+    if np.allclose(prob_sum, 1.0, atol=1e-5):                                 #
+      print(f'   ✓ Probabilidades suman 1 correctamente')                     #
+    else:                                                                     #
+      print(f'   ✗ ERROR: Probabilidades no suman 1')                         #
+      print(f'     Ejemplo: {prob_sum[:5]}')                                  #
+  else:                                                                       #
+    print('   ERROR: No se realizaron predicciones')                          #
+  print(f'\n4. Estadísticas del entrenamiento:')                              # 4. Check training statistics
+  print(f'   Entrenado: {knn.entrenado}')                                     #
+  print(f'   K: {knn.K}')                                                     #
+  print(f'   Variables: {knn.variables}')                                     #
+  print(f'   Ventana: {knn.ventana}s')                                        #
+  print(f'   Promedio: {knn.promedio}')                                       #
+  print(f'\n5. Análisis de características de bow shocks:')                   # 5. Test with known bow shock characteristics
   if len(data_MAG) > 1000:                                                    # Find periods with high B field variability (typical of shocks)
-    Bx,By,Bz = [data_MAG.iloc[:,j].to_numpy() for j in [1,2,3]]
-    B_mag = np.sqrt(Bx**2 + By**2 + Bz**2)
+    Bx,By,Bz = [data_MAG.iloc[:,j].to_numpy() for j in [1,2,3]]               #
+    B_mag = np.sqrt(Bx**2 + By**2 + Bz**2)                                    #
     window_size = knn.ventana                                                 # Calculate moving standard deviation
-    if len(B_mag) > window_size:
-      B_std = pd.Series(B_mag).rolling(window_size).std().values
+    if len(B_mag) > window_size:                                              #
+      B_std = pd.Series(B_mag).rolling(window_size).std().values              #
       high_var_threshold = np.percentile(B_std[~np.isnan(B_std)], 90)         # Find high variability periods
-      high_var_indices = np.where(B_std > high_var_threshold)[0]
-      print(f"   Períodos de alta variabilidad (> percentil 90): {len(high_var_indices)}")
-      print(f"   Esto debería correlacionar con detecciones BS")
-  print(f"\n{'='*60}")
-  print(f"DIAGNÓSTICO COMPLETADO")
-  print(f"{'='*60}")
-  return pred, prob
+      high_var_indices = np.where(B_std > high_var_threshold)[0]              #
+      print(f'   Períodos de alta variabilidad (> percentil 90): {len(high_var_indices)}')#
+      print(f'   Esto debería correlacionar con detecciones BS')              #
+  print(f"\n{'='*60}")                                                        #
+  print(f'DIAGNÓSTICO COMPLETADO')                                            #
+  print(f"{'='*60}")                                                          #
+  return pred, prob                                                           #
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

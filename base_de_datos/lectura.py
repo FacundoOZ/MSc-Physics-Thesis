@@ -13,6 +13,7 @@ from datetime import datetime, timedelta # Contiene correctamente los días de c
 
 # Módulos Propios:
 from base_de_datos.conversiones import fecha_UTC_a_DOY, dias_decimales_a_datetime
+from base_de_datos.unión        import hallar_índice_más_cercano
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # leer_archivos_MAG: lee y concatena los archivos MAG unidos desde un tiempo inicial a un tiempo final.
@@ -92,6 +93,35 @@ def leer_archivo_Fruchtman(
   ruta: str   = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # Ruta completa.
   data = np.loadtxt(ruta)                                                     # Cargo el archivo.
   return pd.DataFrame(data)                                                   # Devuelvo los datos.
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# leer_bow_shocks_KNN: busca las componentes de campo magnético y posición en los archivos MAG asociadas a los t_BS predichos por KNN.
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def leer_bow_shocks_KNN(
+    directorio: str,                                                                               # Directorio donde están los archivos.
+    año: str                                                                                       # Año cuyos datos del bow shocks se buscan.
+) -> pd.DataFrame:
+    """
+    La función leer_bow_shocks_KNN recibe en formato str un 'directorio' y un 'año', que representan la ruta donde se encuentra el archivo
+    'tiempos_BS_{año}.txt' que contiene los tiempos en día decimal predichos para los bow shocks del año correspondiente por el KNN (en las
+    subcarpetas 'KNN', 'predicción'), y donde también se encuentran todos los archivos MAG que se buscarán en la carpeta 'recorte_Vignes' del
+    año correspondiente, y que se utilizarán para obtener los valores de campo magnético y posiciones de la sonda en el tiempo BS del archivo
+    MAG más cercano al tiempo determinado por el KNN. Para encontrar el índice más cercano a cada tiempo BS en los archivos MAG
+    correspondientes, se utiliza la función hallar_índice_más_cercano que lo busca en tiempo O(log n).
+    La función devuelve un dataframe de igual longitud que el archivo '.txt' original, pero con el contenido de las posiciones y campos.
+    """
+    ruta_BS: str = os.path.join(directorio, 'KNN', 'predicción', f'tiempos_BS_{año}.txt')          # Obtengo ruta de BS predichos por KNN.
+    t_BS: np.ndarray            = pd.read_csv(ruta_BS)['día_decimal'].to_numpy()                   # Obtengo el contenido t_BS (día decimal).
+    fechas_BS: pd.DatetimeIndex = dias_decimales_a_datetime(t_BS, int(año))                        # Convierto días a fecha datetime.
+    t0: str = fechas_BS.min().strftime('%d/%m/%Y-%H:%M:%S')                                        # Obtengo el tiempo inicial,
+    tf: str = fechas_BS.max().strftime('%d/%m/%Y-%H:%M:%S')                                        # y el tiempo final de los bow shocks.
+    data_MAG: pd.DataFrame  = leer_archivos_MAG(os.path.join(directorio,'recorte_Vignes'), t0, tf) # Obtengo data_MAG en el intervalo (t0,tf),
+    tiempos_MAG: np.ndarray = data_MAG[0].to_numpy()                                               # y los tiempos en día decimal (columna 0).
+    filas: list[np.ndarray] = []                                                                   # Creo lista donde irán las nuevas filas. 
+    for t in fechas_BS:                                                                            # Para cada elem de las fechas,
+      j: int = hallar_índice_más_cercano(tiempos_MAG, t)                                           # busco el j más cercano en MAG (O(log n)),
+      filas.append(data_MAG.iloc[j].to_numpy())                                                    # y appendeo toda la fila MAG de ese j.
+    return pd.DataFrame(filas)                                                                     # Devuelvo un dataframe de longitud t_BS.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -1,5 +1,5 @@
 
-# MODULARIZAR, DOCUMENTAR Y COMENTAR
+# MODULARIZAR Y COMENTAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para estudiar modelos de regresión
@@ -13,7 +13,7 @@ from scipy.optimize    import curve_fit
 
 # Módulos Propios:
 from base_de_datos.conversiones import R_m, módulo
-from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG
+from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG, leer_bow_shocks_KNN
 from plots.estilo_plots         import disco_2D
 from base_de_datos.recorte      import preparar_región_Vignes
 from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima,
@@ -26,8 +26,9 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_ajustes(
     directorio: str,
-    tiempo_inicial: str, tiempo_final: str
-    #año: str,
+    tiempo_inicial: str, tiempo_final: str,
+    datos: str = 'Fruchtman',
+    año: str = '2014',
     #promedio: int = 1
 ) -> None:
 
@@ -74,20 +75,27 @@ def graficador_ajustes(
   p.fill(x_polígono, y_polígono, color='green', alpha=0.3, linewidth=0)
   #——————————————————————————————————————————————————————————————————————————————
 
-  data = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
-  Xss,Yss,Zss = [data[j] for j in [7,8,9]]
-  A = Xss/R_m
-  B = módulo(Yss,Zss,norm=R_m)
-  p.scatter(A,B, s=1)
+  # TRAYECTORIA MAVEN
+  #——————————————————————————————————————————————————————————————————————————————
+  if datos == 'trayectoria':
+    data_MAG = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final)
+    Xss,Yss,Zss = [data_MAG[j] for j in [7,8,9]]
+    p.scatter(Xss/R_m, módulo(Yss, Zss, norm=R_m), s=1)
+  # BOW SHOCKS KNN
+  #——————————————————————————————————————————————————————————————————————————————
+  elif datos == 'KNN':
+    data_BS = leer_bow_shocks_KNN(directorio, año)
+    Xbs,Ybs,Zbs = [data_BS[j] for j in [7,8,9]]
+    p.scatter(Xbs/R_m, módulo(Ybs, Zbs, norm=R_m), s=1)
+  #——————————————————————————————————————————————————————————————————————————————
 
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————
-  """for año in ['2014','2015','2016','2017','2018','2019']:
-    data: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
-    Xss,Yss,Zss = [data[j] for j in [7,8,9]]
-    A = Xss/R_m
-    B = módulo(Yss,Zss,norm=R_m)
-    p.scatter(A,B, s=2, label=f'Fruchtman ({año}) ss')"""
+  elif datos == 'Fruchtman':
+    for año in ['2014','2015','2016','2017','2018','2019']:
+      data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
+      Xss,Yss,Zss = [data_Fru[j] for j in [7,8,9]]
+      p.scatter(Xss/R_m, módulo(Yss, Zss, norm=R_m), s=2, label=f'Fruchtman ({año}) ss')
   #——————————————————————————————————————————————————————————————————————————————
 
     #——————————————————————————————————————————————————————————————————————————————
