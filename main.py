@@ -41,7 +41,7 @@ knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
 """KNN.clasificar(
   directorio         = ruta,
   knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
-  predecir_años      = ['2018'],
+  predecir_años      = ['2014'],
   post_procesamiento = True,
   umbral             = 30
 )"""
@@ -63,7 +63,7 @@ CV.ejecutar_validación_cruzada(
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #fit.graficador_ajustes(directorio=ruta)
-#fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2015-00:00:00', tiempo_final='30/3/2015-23:59:00')
+#fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2015-00:00:00', tiempo_final='30/3/2015-23:59:00', datos='Fruchtman', año='2014')
 #fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

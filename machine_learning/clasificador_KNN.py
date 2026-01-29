@@ -194,6 +194,7 @@ class Clasificador_KNN_Binario:
     es decir, si se calcula un promedio y próximo a dicho promedio se vuelve a cumplir la cota de umbral, se calcula el promedio entre dicho
     promedio antiguo, y el dato siguiente.
     """
+    print(len(pred), len(prob), len(j_v))
     t_ventana: list[pd.Timestamp] = list(pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_v]))# Obtengo t_ventana correspondiente a su índice j,
     etiqueta: list[int]            = list(pred)                                             # Convierto a formato lista las etiquetas (pred),
     probabilidad: list[np.ndarray] = list(prob)                                             # las probabilidades (prob),
@@ -212,6 +213,9 @@ class Clasificador_KNN_Binario:
           del t_ventana[i+1]                                                                # y el tiempo previamente calculado.
           continue                                                                          # CONTINÚO => uso nuevo promedio para el próximo.
       i += 1                                                                                # Incremento el índice iterador.
+    print(len(np.array(etiqueta)), len(np.array(probabilidad)), len(np.array(j_v)))
+    print(f"BS before processing: {sum(pred)}")
+    print(f"BS after processing: {sum(etiqueta)}")
     return (np.array(etiqueta), np.array(probabilidad), np.array(j_v))                      # Devuelvo las etiquetas, probs y j's como arrays.
 
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

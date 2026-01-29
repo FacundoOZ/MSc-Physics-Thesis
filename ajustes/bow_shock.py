@@ -85,15 +85,15 @@ def graficador_ajustes(
   #——————————————————————————————————————————————————————————————————————————————
   elif datos == 'KNN':
     data_BS = leer_bow_shocks_KNN(directorio, año)
-    Xbs,Ybs,Zbs = [data_BS[j] for j in [7,8,9]]
-    p.scatter(Xbs/R_m, módulo(Ybs, Zbs, norm=R_m), s=1)
+    Xss,Yss,Zss = [data_BS[j] for j in [7,8,9]]
+    p.scatter(Xss/R_m, módulo(Yss, Zss, norm=R_m), s=1)
   #——————————————————————————————————————————————————————————————————————————————
 
   # DATOS FRUCHTMAN
   #——————————————————————————————————————————————————————————————————————————————
   elif datos == 'Fruchtman':
     for año in ['2014','2015','2016','2017','2018','2019']:
-      data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo los archivos mag que correspondan al intervalo (t0,tf)
+      data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)                  # Leo archivos MAG que correspondan al intervalo (t0,tf)
       Xss,Yss,Zss = [data_Fru[j] for j in [7,8,9]]
       p.scatter(Xss/R_m, módulo(Yss, Zss, norm=R_m), s=2, label=f'Fruchtman ({año}) ss')
   #——————————————————————————————————————————————————————————————————————————————

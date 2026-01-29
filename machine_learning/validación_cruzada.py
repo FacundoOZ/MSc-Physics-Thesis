@@ -69,11 +69,12 @@ def ejecutar_validación_cruzada(
     t0_año: pd.Timestamp   = pd.Timestamp(f'{año}-01-01')                                 # En t0_año, guardo 1/enero del año en formato str.
     t_BS: pd.Series        = t0_año + pd.to_timedelta(dias_Fru-1, unit='D')               # Convierto t_BS a objetos datetime adecuadamente.
     pred, prob, j_v  = knn.predecir_ventana(data_MAG)                                     # Obtengo sólo etiquetas y j con predecir_ventana.
+    print(f"Initial: len(pred)={len(pred)}, BS count={sum(pred == 1)}")
     if post_procesamiento:                                                                # Si el booleano post_procesamiento=True, entonces
-      pred, _, j_v   = knn.post_procesar_BS(data_MAG, pred, prob, j_v, umbral)            # EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
-      j_BS_pred: np.ndarray = np.round(j_v).astype(int)                                   # Luego del PP, los j_v solo son los bowshocks.
-    else:                                                                                 # Si no,
-      j_BS_pred: int = np.round(j_v[pred == 1]).astype(int)                               # debo obtener solo índices de BS (j tiene ambos),
+      pred, prob, j_v   = knn.post_procesar_BS(data_MAG, pred, prob, j_v, umbral)         # EJECUTO POSTPROCESAMIENTO VENTANAS_BS VECINAS.
+      print(f"After post-proc: len(pred)={len(pred)}, BS count={sum(pred == 1)}")
+    j_BS_pred: int = np.round(j_v[pred == 1]).astype(int)                                 # Obtengo solo los índices de BS,
+    print(f"j_BS_pred length: {len(j_BS_pred)}")
     t_BS_pred: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS_pred])# Obtengo los t_BS de los j_BS predichos.
     TP: int = 0; FP: int = 0                                                              # Inicializo TP y FP (verdaderos/falsos positivos).
     if len(t_BS_pred) > 0:                                                                # Si hay tiempos BS predichos,
