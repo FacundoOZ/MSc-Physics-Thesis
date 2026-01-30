@@ -148,12 +148,13 @@ class Clasificador_KNN_Binario:
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   # Predecir Parámetros de Ventana: Predice las etiquetas (BS=1, NBS=0), probabilidades (%) y índices de ventana (j) de nuevos datos MAG.
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  def predecir_ventana(self, data_MAG: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+  def predecir_ventana(self, data_MAG: pd.DataFrame, límite: float = 0.8) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     La función predecir_ventana recibe un dataframe 'data_MAG' con datos del tipo MAG (día_decimal Bx By Bz Xpc Ypc Zpc Xss Yss Zss) del
     recorte de Vignes, y calcula las predicciones de etiquetas (BS=1 ó NBS=0), las probabilidades de los BS y NBS, y los índices j de las
-    ventanas correspondientes, devolviendo estos tres parámetros en formato tripla de np.ndarrays. Calcular las predicciones en cada ventana,
-    y calcula los vectores característicos con las variables que se hayan indicado al KNN.
+    ventanas correspondientes, devolviendo estos tres parámetros en formato tripla de np.ndarrays. Mediante el float 'límite' (entre 0.0 y
+    1.0) se puede seleccionar qué ventanas serán consideradas como BS, cuando su probabilidad sea > a dicho límite.
+    La función calcula las predicciones en cada ventana, y los vectores característicos con las variables que se hayan indicado al KNN.
       Devuelve:
         prob[:,1] = Probabilidad de la clase BS.
         prob[:,0] = Probabilidad de la clase NBS.
@@ -172,8 +173,8 @@ class Clasificador_KNN_Binario:
       v: np.ndarray = self.vector_característico(ventana)                   # y calculo su vector característico y lo guardo en variable v.
       if v is not None:                                                     # Si el vector característico no es None,
         v_escalado: np.ndarray = self.scaler.transform(v.reshape(1,-1))     # lo re-escalo (funciona mejor pues KNN trabaja con distancias).
-        pred: int              = self.knn.predict(v_escalado)[0]            # Obtengo las predicciones de etiqueta bow shock ó no bow shock.
         prob: np.ndarray       = self.knn.predict_proba(v_escalado)[0]      # Obtengo las probabilidades,
+        pred: int              = 1 if prob[1] > límite else 0 # Obtengo las predicciones de etiqueta bow shock ó no bow shock.
         etiqueta.append(pred)                                               # y agrego ambos a la lista de etiquetas,
         probabilidad.append(prob)                                           # y a la lista de probabilidades.
         j_ventana.append(j_0 + (self.ventana_puntos//2))                    # Obtengo el índice de la ventana como el medio de j_0 y j_f.

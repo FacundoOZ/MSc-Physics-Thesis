@@ -27,36 +27,36 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 """knn = KNN.entrenar(
   directorio         = ruta,
-  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'],
+  años_entrenamiento = ['2015','2016','2017','2018','2019'],
   K                  = 1,
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
   promedio           = 5,
   ventana            = 120,
   ventanas_NBS       = [2],
 )
-knn.save(directorio=ruta, nombre_archivo='knn_1.pkl')"""
+knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
 
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
 """KNN.clasificar(
   directorio         = ruta,
-  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'),
-  predecir_años      = ['2014'],
+  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_final.pkl'),
+  predecir_años      = ['2015'],
   post_procesamiento = True,
-  umbral             = 30
+  umbral             = 40
 )"""
 
 CV.ejecutar_validación_cruzada(
   directorio         = ruta,
-  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
-  K                  = 1,   # vecinos
-  variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
+  años_entrenamiento = ['2015','2016','2017','2018','2019'], # con BS de Fruchtman
+  K                  = 5,   # vecinos
+  variables          = ['B','R'], # features
   promedio           = 5,   # en segundos
-  ventana            = 60, # en segundos
-  ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
+  ventana            = 120, # en segundos
+  ventanas_NBS       = [5,10,15], # posición de ventanas_NBS respecto a ventanas_BS
   tolerancia         = 120, # en segundos
   post_procesamiento = True,
-  umbral             = 40
+  umbral             = 120
 )
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -69,11 +69,11 @@ CV.ejecutar_validación_cruzada(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""MAG.graficador(
+MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '01/01/2018-00:00:00',
-  tiempo_final   = '15/01/2018-23:59:00',
+  tiempo_inicial = '01/11/2014-00:00:00',
+  tiempo_final   = '10/11/2014-23:59:00',
   promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -95,7 +95,7 @@ CV.ejecutar_validación_cruzada(
 # Interpolación:
   scatter       = True,
   tamaño_puntos = 5
-)"""
+)
 
 
 """ani.trayectoria_3D_MAVEN_MAG(

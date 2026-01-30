@@ -59,20 +59,20 @@ def graficador(
   (no incluye la rotación de Marte sobre su eje).
   """
   # KNN BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  ruta_BS = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2018_old.txt')
+  ruta_BS = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2014.txt')
   BS = pd.read_csv(ruta_BS, skiprows=1, header=None, names=['DOY'])
-  BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))
+  BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(2014, 1, 1) + dt.timedelta(days=d - 1))
 
-  ruta_BS_new = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2018.txt')
+  """ruta_BS_new = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2018.txt')
   BS_new = pd.read_csv(ruta_BS_new, skiprows=1, header=None, names=['DOY'])
-  BS_new['datetime'] = BS_new['DOY'].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))
+  BS_new['datetime'] = BS_new['DOY'].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))"""
 
   #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
   # FRU BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  ruta_Fru = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'fruchtman', 'hemisferio_N', 'fruchtman_2018_merge_hemisferio_N.sts')
+  ruta_Fru = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'fruchtman', 'hemisferio_N', 'fruchtman_2014_merge_hemisferio_N.sts')
   FR = pd.read_csv(ruta_Fru, sep=' ', header=None)
-  FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))
+  FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(2014, 1, 1) + dt.timedelta(days=d - 1))
   #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   
   data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo archivos MAG que correspondan al intervalo (t0,tf)
@@ -106,8 +106,8 @@ def graficador(
   ax = p.gca()
   for t_bs in BS['datetime'][1:70]:
     ax.axvline(t_bs, color='k', alpha=0.6)
-  for t_bs in BS_new['datetime'][1:70]:
-    ax.axvline(t_bs, color='green', alpha=0.6)
+  #for t_bs in BS_new['datetime'][1:70]:
+  #  ax.axvline(t_bs, color='green', alpha=0.6)
   for t_fr in FR['datetime'][1:30]:
     ax.axvline(t_fr, color='red', alpha=0.6)
   #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

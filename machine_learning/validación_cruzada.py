@@ -20,16 +20,16 @@ from machine_learning.clasificador_KNN import entrenar
 # ejecutar_validación_cruzada: función para realizar Cross-Validation sobre años_entrenamiento con métrica TPR (tasa_verdaderos_positivos). 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def ejecutar_validación_cruzada(
-    directorio: str,                                                            # Carpeta donde se encuentran las mediciones Fruchtman y MAG.
-    años_entrenamiento: list[str] = ['2014','2015','2016','2017','2018','2019'],# Años que se desean entrenar.
-    K: int = 1,                                                                 # Cantidad de vecinos más cercanos a utilizar por el KNN.
-    variables: list[str] = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],          # Variables a utilizar para el vector característico del KNN.
-    promedio: int = 5,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
-    ventana: int = 60,                                                          # Ancho de ventana en segundos a utilizar (representa el BS).
-    ventanas_NBS: list[int] = [2],                                              # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
-    tolerancia: int = 120,                                                      # Tolerancia en segundos entre el BS real y predicho por KNN.
-    post_procesamiento: bool = False,                                           # Post-procesamiento de mediciones BS consecutivas (promedio).
-    umbral: int = 30                                                            # Umbral en minutos a utilizar por el post-procesamiento BS.
+    directorio: str,                                                                      # Carpeta donde se encuentran las mediciones Fruchtman y MAG.
+    años_entrenamiento: list[str] = ['2015','2016','2017','2018','2019'],                 # Años que se desean entrenar.
+    K: int = 1,                                                                           # Cantidad de vecinos más cercanos a utilizar por el KNN.
+    variables: list[str] = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],                    # Variables a utilizar para el vector característico del KNN.
+    promedio: int = 5,                                                                    # Promedio para suavizar las muestras de MAVEN MAG.
+    ventana: int = 60,                                                                    # Ancho de ventana en segundos a utilizar (representa el BS).
+    ventanas_NBS: list[int] = [2],                                                        # Posiciones de ventanas vecinas al BS para entrenar zona NBS.
+    tolerancia: int = 120,                                                                # Tolerancia en segundos entre el BS real y predicho por KNN.
+    post_procesamiento: bool = False,                                                     # Post-procesamiento de mediciones BS consecutivas (promedio).
+    umbral: int = 30                                                                      # Umbral en minutos a utilizar por el post-procesamiento BS.
 ) -> None:
   """
   La función ejecutar_validación_cruzada realiza el algoritmo de Cross-Validation sobre un knn con todos los parametros que se han ingresado
