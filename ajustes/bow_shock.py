@@ -9,7 +9,6 @@ import os
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
-from typing            import Union
 from scipy.interpolate import interp1d
 from scipy.optimize    import curve_fit
 
@@ -20,8 +19,6 @@ from plots.estilo_plots         import disco_2D
 from base_de_datos.recorte      import preparar_región_Vignes
 from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima,
                                         máximo_2015, mínimo_2019)
-
-ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # 
@@ -77,7 +74,9 @@ def graficador_ajustes(
   #guardar_figura()                                                                        # guardo la figura
   p.show()                                                                                 # Enseño el plot.
 
-
+#———————————————————————————————————————————————————————————————————————————————————————
+# Funciones Auxiliares
+#———————————————————————————————————————————————————————————————————————————————————————
 def ajustar_Fruchtman_por_Vignes(Xss, Yss, Zss, año) -> None:
   popt, pcov = curve_fit(
     lambda x, X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=450),
@@ -92,15 +91,14 @@ def ajustar_Fruchtman_por_Vignes(Xss, Yss, Zss, año) -> None:
   print(f'Parámetros de ajuste: {popt}')
   print(f'Desviación estándar: {perr}')
 
-
-
+#———————————————————————————————————————————————————————————————————————————————————————
 def dibujar_segmento(región) -> None:
   recta, y_A, y_B = [región[v] for v in ['recta','y_A','y_B']]
   y_grilla = np.linspace(y_A, y_B, 300)
   p.plot(recta(y_grilla), y_grilla, color='green')
 
-def sombrear_área(Xmin, Ymin, Xmax, Ymax) -> None:
-  # REGIÓN SOMBREADA
+#———————————————————————————————————————————————————————————————————————————————————————
+def sombrear_área(Xmin, Ymin, Xmax, Ymax) -> None:    # REGIÓN SOMBREADA
   j_min, j_max = np.argsort(Ymin), np.argsort(Ymax)  # Sort curves by y (required for interpolation)
   Y = np.linspace(                                    # Common y-grid where both curves exist
     max(Ymin[j_min].min(), Ymax[j_max].min()),
@@ -113,30 +111,7 @@ def sombrear_área(Xmin, Ymin, Xmax, Ymax) -> None:
   x_polígono = np.concatenate(([Xmin[-2]], Xmax[Ymax > Ymin[-2]], [Xmin[-2]]))
   y_polígono = np.concatenate(([Ymin[-2]], Ymax[Ymax > Ymin[-2]], [Ymin[-2]]))
   p.fill(x_polígono, y_polígono, color='green', alpha=0.3, linewidth=0)
-
-
-
-
-def función_ajuste(
-    x, y, funcion,
-    datos_iniciales=None
-):
-  popt, pcov = curve_fit(funcion, x, y, p0=datos_iniciales) # Ajusto los datos a la función
-  perr = np.sqrt(np.diag(pcov))
-
-  print(f'Parámetros de ajuste: {popt}')
-  print(f'Desviación estándar: {perr}')
-  
-  #p.errorbar(x, y, yerr=perr[1], fmt='o', color='black', label=data)
-  #p.plot(grilla_x, funcion(grilla_x, *popt), color='blue', label=fit)
-  return popt, pcov
-
-# Example data
-#X = np.array([1, 2, 3, 4, 5])
-#t = np.array([2.1, 4.1, 6.2, 8.1, 5])
-
-# Perform the linear fit
-#popt, pcov = funcion_ajuste(X, t, funcion_lineal, eje_x='$\Delta x$ [m]', eje_y='$T$ [K]')
+#———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
