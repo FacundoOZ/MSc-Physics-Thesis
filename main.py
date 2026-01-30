@@ -46,7 +46,7 @@ knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
   umbral             = 40
 )"""
 
-CV.ejecutar_validación_cruzada(
+"""CV.ejecutar_validación_cruzada(
   directorio         = ruta,
   años_entrenamiento = ['2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 5,   # vecinos
@@ -57,19 +57,28 @@ CV.ejecutar_validación_cruzada(
   tolerancia         = 120, # en segundos
   post_procesamiento = True,
   umbral             = 120
-)
+)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#fit.graficador_ajustes(directorio=ruta)
-#fit.graficador_ajustes(directorio=ruta+'recorte_Vignes', tiempo_inicial='1/1/2015-00:00:00', tiempo_final='30/3/2015-23:59:00', datos='Fruchtman', año='2014')
+fit.graficador_ajustes(
+  directorio=ruta,
+  objetos=['marte','Vignes','Fruchtman','mín','máx'],#'Fruchtman','mín','máx','región']  # ['marte','Vignes','Fruchtman','mín','máx','región','trayectoria','KNN']
+  ajuste_Fruchtman=True,
+# Trayectoria Cilíndrica de MAVEN:
+  trayectoria=False,
+  recorte='recorte_Vignes',
+  tiempo_inicial='01/01/2015-00:00:00',
+  tiempo_final='30/01/2015-23:59:00',
+  promedio=5,
+)
 #fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-MAG.graficador(
+"""MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
   tiempo_inicial = '01/11/2014-00:00:00',
@@ -95,7 +104,7 @@ MAG.graficador(
 # Interpolación:
   scatter       = True,
   tamaño_puntos = 5
-)
+)"""
 
 
 """ani.trayectoria_3D_MAVEN_MAG(

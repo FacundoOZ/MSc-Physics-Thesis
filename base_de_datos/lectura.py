@@ -82,15 +82,21 @@ def leer_archivos_MAG(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def leer_archivo_Fruchtman(
     directorio: str,                                                          # Directorio donde se encuentra la carpeta 'merge'.
-    año: str                                                                  # Año del archivo a leer.
+    año: str,                                                                 # Año del archivo a leer.
+    hemisferio_N: bool = True                                                 # Booleano que permite leer datos completos, ó el recorte Zpc>0
 ) -> pd.DataFrame:
   """
   La función leer_archivo_Fruchtman recibe en formato string un directorio y un año, que representan la carpeta donde se encuentra el archivo
   a leer de tipo 'fruchtman_{año}_merge_hemisferio_N.sts', ubicado dentro de la carpeta 'merge' correspondiente, y el año cuyo archivo se
-  desea leer, respectivamente y devuelve un pd.DataFrame con los datos cargados.
+  desea leer, respectivamente. Si el booleano 'hemisferio_N' = True, lee los datos tras efectuar el recorte Zpc > 0, sino, lee los datos
+  originales. Devuelve un pd.DataFrame con los datos cargados.
   """
-  nombre: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                     # Nombre del archivo.
-  ruta: str   = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # Ruta completa.
+  if hemisferio_N:
+    nombre: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                   # Nombre del archivo.
+    ruta: str = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # Ruta completa.
+  else:
+    nombre: str = f'fruchtman_{año}_merge.sts'                                # Nombre del archivo.
+    ruta: str = os.path.join(directorio, 'fruchtman', nombre)                 # Ruta completa.
   data = np.loadtxt(ruta)                                                     # Cargo el archivo.
   return pd.DataFrame(data)                                                   # Devuelvo los datos.
 
@@ -116,7 +122,7 @@ def leer_bow_shocks_KNN(
     t0: str = fechas_BS.min().strftime('%d/%m/%Y-%H:%M:%S')                                        # Obtengo el tiempo inicial,
     tf: str = fechas_BS.max().strftime('%d/%m/%Y-%H:%M:%S')                                        # y el tiempo final de los bow shocks.
     data_MAG: pd.DataFrame  = leer_archivos_MAG(os.path.join(directorio,'recorte_Vignes'), t0, tf) # Obtengo data_MAG en el intervalo (t0,tf),
-    tiempos_MAG: np.ndarray = data_MAG[0].to_numpy()                                               # y los tiempos en día decimal (columna 0).
+    tiempos_MAG: np.ndarray = pd.to_datetime(data_MAG[0].to_numpy())                               # y los tiempos en día decimal (columna 0).
     filas: list[np.ndarray] = []                                                                   # Creo lista donde irán las nuevas filas. 
     for t in fechas_BS:                                                                            # Para cada elem de las fechas,
       j: int = hallar_índice_más_cercano(tiempos_MAG, t)                                           # busco el j más cercano en MAG (O(log n)),
