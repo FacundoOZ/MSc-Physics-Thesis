@@ -91,14 +91,13 @@ def leer_archivo_Fruchtman(
   desea leer, respectivamente. Si el booleano 'hemisferio_N' = True, lee los datos tras efectuar el recorte Zpc > 0, sino, lee los datos
   originales. Devuelve un pd.DataFrame con los datos cargados.
   """
-  if hemisferio_N:
-    nombre: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                   # Nombre del archivo.
-    ruta: str = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # Ruta completa.
-  else:
-    nombre: str = f'fruchtman_{año}_merge.sts'                                # Nombre del archivo.
-    ruta: str = os.path.join(directorio, 'fruchtman', nombre)                 # Ruta completa.
-  data = np.loadtxt(ruta)                                                     # Cargo el archivo.
-  return pd.DataFrame(data)                                                   # Devuelvo los datos.
+  if hemisferio_N:                                                            # Si hemisferio_N=True,
+    nombre: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                   # reconstruyo el nombre del archivo del año correspondiente,
+    ruta: str = os.path.join(directorio, 'fruchtman', 'hemisferio_N', nombre) # y la ruta completa + nombre.
+  else:                                                                       # Si hemisferio_N=False,
+    nombre: str = f'fruchtman_{año}_merge.sts'                                # reconstruyo el nombre del archivo original (merge),
+    ruta: str = os.path.join(directorio, 'fruchtman', nombre)                 # y su ruta completa + nombre.
+  return pd.DataFrame(np.loadtxt(ruta))                                       # Devuelvo los datos cargados en formato dataframe.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # leer_bow_shocks_KNN: busca las componentes de campo magnético y posición en los archivos MAG asociadas a los t_BS predichos por KNN.

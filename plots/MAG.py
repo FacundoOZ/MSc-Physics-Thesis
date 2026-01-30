@@ -20,6 +20,7 @@ from base_de_datos.conversiones import R_m, módulo
 from base_de_datos.lectura      import leer_archivos_MAG
 from plots.estilo_plots         import guardar_figura, plot_xy, disco_2D, esfera_3D
 
+ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # graficador: función para graficar campo magnético y posiciones y trayectoria 2D y 3D de MAVEN medidos por el instrumento MAG (Magnetometer)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -36,7 +37,8 @@ def graficador(
     tamaño_ejes: float = 2.5,                                                       # Ajusta el tamaño máx. de ejes x,y,z a la vez
     scatter: bool = False,                                                          # Si scatter=True -> grafico sin interpolar (puntos), con
     tamaño_puntos: int = 2,                                                         # 'tamaño_puntos' el diámetro de los puntos.
-    coord: str = 'pc'                                                               # Sistema de coordenadas a graficar ('pc' ó 'ss')
+    coord: str = 'pc',                                                              # Sistema de coordenadas a graficar ('pc' ó 'ss')
+    bow_shocks: list[str] = ['Fruchtman','KNN']                                     # 
 ) -> None:
   """
   La función graficador recibe en formato string tres elementos:
@@ -58,23 +60,6 @@ def graficador(
   coordenadas PlanetoCéntricas (PC) (incluye la rotación de Marte sobre su eje, z apunta al polo norte) ó Sun-State (SS) centradas en el Sol
   (no incluye la rotación de Marte sobre su eje).
   """
-  # KNN BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  ruta_BS = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2014.txt')
-  BS = pd.read_csv(ruta_BS, skiprows=1, header=None, names=['DOY'])
-  BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(2014, 1, 1) + dt.timedelta(days=d - 1))
-
-  """ruta_BS_new = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'KNN', 'predicción', 'tiempos_BS_2018.txt')
-  BS_new = pd.read_csv(ruta_BS_new, skiprows=1, header=None, names=['DOY'])
-  BS_new['datetime'] = BS_new['DOY'].apply(lambda d: dt.datetime(2018, 1, 1) + dt.timedelta(days=d - 1))"""
-
-  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-  # FRU BOW SHOCKS—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  ruta_Fru = os.path.join('C:/Users/facuo/Documents/Tesis/MAG/', 'fruchtman', 'hemisferio_N', 'fruchtman_2014_merge_hemisferio_N.sts')
-  FR = pd.read_csv(ruta_Fru, sep=' ', header=None)
-  FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(2014, 1, 1) + dt.timedelta(days=d - 1))
-  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  
   data: pd.DataFrame = leer_archivos_MAG(directorio, tiempo_inicial, tiempo_final,  # Leo archivos MAG que correspondan al intervalo (t0,tf)
                                          promedio)                                  # con el promedio deseado.
   t,Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data[j].to_numpy() for j in range(0,10)]    # Extraigo la información del .sts en ese intervalo
@@ -101,21 +86,25 @@ def graficador(
     formatear_ejes_y_titulo(                                                        # Adapto el eje temporal x con el formato que corresponda,
       pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                   # convirtiendo t_inicial y t_final a objeto datetime
       pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                   # en formato 'DD/MM/YYYY-HH:MM:SS'.
-    
-  # PLOTS——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  ax = p.gca()
-  for t_bs in BS['datetime'][1:70]:
-    ax.axvline(t_bs, color='k', alpha=0.6)
-  #for t_bs in BS_new['datetime'][1:70]:
-  #  ax.axvline(t_bs, color='green', alpha=0.6)
-  for t_fr in FR['datetime'][1:30]:
-    ax.axvline(t_fr, color='red', alpha=0.6)
-  #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
-  
-  p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'
-  p.legend()                                                                        # Escribo los labels
-  #guardar_figura()                                                                 # guardo la figura
+    if 'Fruchtman' in bow_shocks:
+      ax = p.gca()
+      archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'
+      ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)
+      FR = pd.read_csv(ruta_Fru, sep=' ', header=None)
+      FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(int(año),1,1) + dt.timedelta(days=d-1))
+      for t_fr in FR['datetime'][1:30]:
+        ax.axvline(t_fr, color='red', alpha=0.6)
+    if 'KNN' in bow_shocks:
+      ax = p.gca()
+      archivo_BS: str = f'tiempos_BS_{año}.txt'
+      ruta_BS: str    = os.path.join(ruta, 'KNN', 'predicción', archivo_BS)
+      BS = pd.read_csv(ruta_BS, skiprows=1, header=None, names=['DOY'])
+      BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(int(año),1,1) + dt.timedelta(days=d-1))
+      for t_bs in BS['datetime'][1:70]:
+        ax.axvline(t_bs, color='k', alpha=0.6)
+  p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'.
+  p.legend()                                                                        # Escribo los labels.
+  #guardar_figura()                                                                 # Guardo la figura.
   p.show()                                                                          # Enseño el plot.
   p.close()                                                                         # Cierro al terminar el proceso (sino se cuelga el input).
 

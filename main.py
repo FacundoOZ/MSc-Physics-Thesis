@@ -19,9 +19,6 @@ import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario superv
 import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
-
-# De los 3766 originales quedaron 1921 (el 51.009028 %) BS de Fruchtman tras el recorte z_pc > 0.
-
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -62,23 +59,28 @@ knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-fit.graficador_ajustes(
-  directorio=ruta,
-  objetos=['marte','Vignes','Fruchtman','mín','máx'],#'Fruchtman','mín','máx','región']  # ['marte','Vignes','Fruchtman','mín','máx','región','trayectoria','KNN']
-  ajuste_Fruchtman=True,
+"""fit.graficador_ajustes(
+  directorio       = ruta,
+# Elementos que tendrá el plot:
+  objetos          = ['Marte','Vignes','Fruchtman','mín','máx'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
+# Mediciones de BS detectados por Fruchtman:
+  años_Fruchtman   = ['2014','2015','2016','2017','2018','2019'], # ['2014',...,'2019']
+  ajuste_Fruchtman = True,
 # Trayectoria Cilíndrica de MAVEN:
-  trayectoria=False,
-  recorte='recorte_Vignes',
-  tiempo_inicial='01/01/2015-00:00:00',
-  tiempo_final='30/01/2015-23:59:00',
-  promedio=5,
-)
-#fit.ajuste_Fruchtman(directorio=ruta+'fruchtman', año='2015')
+  trayectoria      = False,
+  recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
+  tiempo_inicial   = '01/01/2015-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
+  tiempo_final     = '30/01/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
+  promedio         = 5,                     # en segundos
+# Mediciones de BS detectadas por el KNN
+  años_KNN         = ['2014'], # ['2014',...,'2025']
+  ajuste_KNN       = False
+)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""MAG.graficador(
+MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
   tiempo_inicial = '01/11/2014-00:00:00',
@@ -103,9 +105,10 @@ fit.graficador_ajustes(
   #trayectoria   = True,
 # Interpolación:
   scatter       = True,
-  tamaño_puntos = 5
-)"""
-
+  tamaño_puntos = 5,
+# Mediciones BS detectadas por Fruchtman y/o por el KNN:
+  bow_shocks = ['Fruchtman','KNN']
+)
 
 """ani.trayectoria_3D_MAVEN_MAG(
   directorio     = ruta + 'datos_recortados_merge',
@@ -125,20 +128,29 @@ fit.graficador_ajustes(
 )"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# DESCARGA, RECORTE Y UNIÓN
+# UNIÓN
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#data.descargar_archivo_MAG(directorio=ruta, dia='16', mes='8', año='2024', coord='ss')
-#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos', fecha_inicio='1/11/2023', fecha_final='31/12/2023', coord='ss') # DD/MM/YYYY
-#edit.recortar_archivo_MAG(directorio=ruta, archivo='mvn_mag_l2_2024229ss1s_20240816_v01_r01.sts', coord='ss')
-#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_pc', año='2024', coord='ss') # Recibe el año en que deseo cortar los datos
 #merge.unir_archivo_MAG(directorio=ruta, archivo_pc='mvn_mag_l2_2022219pc1s_20220807_v01_r01_recortado.sts')
 #merge.unir_paquete_MAG(directorio=ruta, año='2024')
+#merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# RECORTE
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#edit.recortar_archivo_MAG(directorio=ruta, archivo='mvn_mag_l2_2024229ss1s_20240816_v01_r01.sts', coord='ss')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
+#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_pc', año='2024', coord='ss') # Recibe el año en que deseo cortar los datos
 #edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
 #edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
-#merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
-#edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts', región=edit.preparar_región_Vignes())
+#edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts',
+#                         región=edit.preparar_región_Vignes())
 #edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2025')
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# DESCARGA
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#data.descargar_archivo_MAG(directorio=ruta, dia='16', mes='8', año='2024', coord='ss')
+#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos', fecha_inicio='1/11/2023', fecha_final='31/12/2023', coord='ss')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
