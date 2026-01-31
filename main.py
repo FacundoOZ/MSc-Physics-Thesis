@@ -43,18 +43,16 @@ knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
   umbral             = 40
 )"""
 
-"""CV.ejecutar_validación_cruzada(
+CV.ejecutar_validación_cruzada(
   directorio         = ruta,
-  años_entrenamiento = ['2015','2016','2017','2018','2019'], # con BS de Fruchtman
-  K                  = 5,   # vecinos
-  variables          = ['B','R'], # features
+  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
+  K                  = 1,   # vecinos
+  variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'], # features
   promedio           = 5,   # en segundos
-  ventana            = 120, # en segundos
-  ventanas_NBS       = [5,10,15], # posición de ventanas_NBS respecto a ventanas_BS
+  ventana            = 60, # en segundos
+  ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
   tolerancia         = 120, # en segundos
-  post_procesamiento = True,
-  umbral             = 120
-)"""
+)
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
@@ -80,7 +78,7 @@ knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-MAG.graficador(
+"""MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
   tiempo_inicial = '01/11/2014-00:00:00',
@@ -108,7 +106,7 @@ MAG.graficador(
   tamaño_puntos = 5,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
   bow_shocks = ['Fruchtman','KNN']
-)
+)"""
 
 """ani.trayectoria_3D_MAVEN_MAG(
   directorio     = ruta + 'datos_recortados_merge',
@@ -142,8 +140,8 @@ MAG.graficador(
 #edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_pc', año='2024', coord='ss') # Recibe el año en que deseo cortar los datos
 #edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
 #edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
-#edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts',
-#                         región=edit.preparar_región_Vignes())
+"""edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts',
+                         región=edit.preparar_región_Vignes())"""
 #edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2025')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

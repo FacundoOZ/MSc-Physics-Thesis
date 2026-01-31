@@ -6,8 +6,6 @@
 #============================================================================================================================================
 
 import os
-import datetime as dt
-
 import numpy             as np
 import pandas            as pd
 import matplotlib.pyplot as p
@@ -38,7 +36,7 @@ def graficador(
     scatter: bool = False,                                                          # Si scatter=True -> grafico sin interpolar (puntos), con
     tamaño_puntos: int = 2,                                                         # 'tamaño_puntos' el diámetro de los puntos.
     coord: str = 'pc',                                                              # Sistema de coordenadas a graficar ('pc' ó 'ss')
-    bow_shocks: list[str] = ['Fruchtman','KNN']                                     # 
+    bow_shocks: list[str] = ['Fruchtman','KNN']                                     # Tipo de predicción cuyos bow shocks deseo graficar.
 ) -> None:
   """
   La función graficador recibe en formato string tres elementos:
@@ -83,25 +81,11 @@ def graficador(
       [r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',                    # colocando las etiquetas correspondientes: PC,
        r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$',r'$|\mathbf{r}|$'], # y SS.
       'Posición de MAVEN [$R_M$]', scatter, tamaño_puntos, escala=R_m/10)           # Normalizo por el radio marciano (ESCALA X10).
-    formatear_ejes_y_titulo(                                                        # Adapto el eje temporal x con el formato que corresponda,
-      pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S'),                   # convirtiendo t_inicial y t_final a objeto datetime
-      pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S'))                   # en formato 'DD/MM/YYYY-HH:MM:SS'.
-    if 'Fruchtman' in bow_shocks:
-      ax = p.gca()
-      archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'
-      ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)
-      FR = pd.read_csv(ruta_Fru, sep=' ', header=None)
-      FR['datetime'] = FR.iloc[:,0].apply(lambda d: dt.datetime(int(año),1,1) + dt.timedelta(days=d-1))
-      for t_fr in FR['datetime'][1:30]:
-        ax.axvline(t_fr, color='red', alpha=0.6)
-    if 'KNN' in bow_shocks:
-      ax = p.gca()
-      archivo_BS: str = f'tiempos_BS_{año}.txt'
-      ruta_BS: str    = os.path.join(ruta, 'KNN', 'predicción', archivo_BS)
-      BS = pd.read_csv(ruta_BS, skiprows=1, header=None, names=['DOY'])
-      BS['datetime'] = BS['DOY'].apply(lambda d: dt.datetime(int(año),1,1) + dt.timedelta(days=d-1))
-      for t_bs in BS['datetime'][1:70]:
-        ax.axvline(t_bs, color='k', alpha=0.6)
+    if 'Fruchtman' in bow_shocks:                                                   # Si quiero graficar bow shocks detectados por Fruchtman,
+      graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='Fruchtman')         # los busco y grafico en el intervalo (t_inicial,t_final).
+    if 'KNN' in bow_shocks:                                                         # Si quiero los de mi predicción KNN,
+      graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='KNN')               # los busco y grafico en el intervalo (t_inicial,t_final).
+    formatear_ejes_y_titulo(tiempo_inicial, tiempo_final)                           # Adapto el eje temporal x con el formato que corresponda,
   p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'.
   p.legend()                                                                        # Escribo los labels.
   #guardar_figura()                                                                 # Guardo la figura.
@@ -181,21 +165,51 @@ def graficar_componentes(
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def formatear_ejes_y_titulo(
-    t0: datetime, tf: datetime                                                      # Tiempos en formato de objeto datetime inicial y final.
+    tiempo_inicial: str, tiempo_final: str                                          # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
 ) -> None:
   """
   Ajusta el formato del eje temporal dependiendo del intervalo de tiempo graficado y crea el título correspondiente. Si se grafican
   mediciones correspondientes a un mismo día y mes, se utilizará el formato HH:MM:SS; y si no, se utilizará el formato DD/MM.
   """
+  t0: pd.Timestamp = pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S')     # Convierto a objeto datetime los tiempos strings inicial
+  tf: pd.Timestamp = pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S')     # y final, cuyo formato es 'DD/MM/YYYY-HH:MM:SS'.
   ax = p.gca()                                                                      # Get Current Axes (obtener ejes actuales) en la var ax.
   if t0.date() == tf.date():                                                        # Si el día y el mes es el mismo,
     ax.set_title(f"Mediciones del día {t0.strftime('%d/%m/%Y')} (resolución 1 Hz)") # uso el título 'Mediciones del día ...'
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))                  # y el eje en formato 'HH:MM:SS'.
     p.xlabel('Tiempo UTC (HH:MM:SS)')                                               # Coloco el label.
   else:                                                                             # Si los días son distintos, uso formato 'DD/MM/YYYY', y 
-    ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (resolución 1 Hz)") # modifico el título,
+    ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (1 Hz)") # modifico el título,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))                  # y el eje en formato 'DD/MM'.
     p.xlabel('Fecha UTC (DD/MM/YYYY)')                                              # Título del eje x.
+
+#———————————————————————————————————————————————————————————————————————————————————————
+def graficar_bow_shocks(
+    tiempo_inicial: str, tiempo_final: str,                                      # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
+    origen: str                                                                  # Origen de los bow shocks a graficar ('Fruchtman' ó 'KNN').
+) -> None:
+  """
+  Grafica líneas verticales que representan los tiempos cuando ocurrieron los bow shocks en el intervalo ('tiempo_inicial','tiempo_final')
+  detectados. El string 'origen' debe ser igual a 'Fruchtman' ó 'KNN', y la función va a buscar los dataframes que contienen los tiempos de
+  los bow shocks en día decimal, en las subcarpetas correspondientes. No devuelve nada.
+  """
+  t0: pd.Timestamp = pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S')  # Convierto a objeto datetime los tiempos strings inicial
+  tf: pd.Timestamp = pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S')  # y final, cuyo formato es 'DD/MM/YYYY-HH:MM:SS'.
+  t_ref: pd.Timestamp = pd.Timestamp(f'{año}-01-01 00:00:00')                    # Obtengo tiempo cero como referencia (1 de enero del año).
+  año: int = t0.year                                                             # Obtengo el año de tiempo inicial (no graficaré 2 años).
+  if origen=='Fruchtman':                                                        # Si el origen es Fruchtman,
+    archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                 # reconstruyo el nombre del archivo con el año indicado,
+    ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
+    día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
+  elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
+    archivo_KNN: str = f'tiempos_BS_{año}.txt'                                   # reconstruyo el nombre correspondiente,
+    ruta_KNN: str    = os.path.join(ruta,'KNN','predicción', archivo_KNN)        # obtengo la ruta_completa + nombre_archivo,
+    día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
+  t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
+  t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.
+  ax = p.gca()                                                                   # Get Current Axes (obtener ejes actuales) en la var ax.
+  for t_BS in t_máscara:                                                         # Para cada tiempo (día_decimal) de bow shock de la lista,
+    ax.axvline(t_BS, alpha=0.4)                                                  # grafico una línea vertical con transparencia (alpha).
 #———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
