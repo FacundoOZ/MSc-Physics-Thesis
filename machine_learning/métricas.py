@@ -26,8 +26,14 @@ def calcular_métricas_KNN_con_Fruchtman(
     tolerancia: int = 60                                                               # Tolerancia entre datos Fruchtman y KNN (en segundos).
 ) -> None:
   """
-  doc
-  """
+  La función calcular_métricas_KNN_con_Fruchtman recibe en formato string un 'directorio', un 'modelo_KNN' y una lista de strings 'años', que
+  representan la carpeta de origen donde se encuentran las subcarpetas correspondientes con los tiempos bow shock en día decimal detectados
+  por Fruchtman (para los años 2014-2019), como por los detectados por el modelo KNN ingresado con el 'post_procesamiento' correspondiente,
+  y calcula las métricas Recall ó TPR (tasa de verdaderos positivos), Precision y F1 para los años ingresados por parámetro. Si el booleano
+  'hemisferio_N'=False, compara con la cantidad de bow shocks Fruchtman originales, pero si es True, solo los del recorte Zpc > 0.
+  La función calcula las métricas en base al entero 'tolerancia', que representa la diferencia de tiempo en segundos que se considerará entre
+  los BS detectados por Fruchtman y el modelo KNN, y devuelve un dataframe con los resultados en la carpeta de predicción correspondiente.
+    """
   lista: list[dict[str,float]] = []                                                    # Inicio la variable final lista (lista[diccionarios]).
   for año in tqdm(años, desc='Calculando métricas del año', unit='año'):               # Para cada año entre los años seleccionados,
     ruta_base: str = os.path.join(directorio,'KNN','predicción', modelo_KNN)           # Obtengo la ruta base del KNN.
@@ -57,6 +63,7 @@ def calcular_métricas_KNN_con_Fruchtman(
       if abs((t_Fru[j] - t_k).total_seconds()) > tolerancia:                           # Si la diferencia es mayor a la tolerancia,
         FP += 1                                                                        # el KNN predijo un BS que en principio, Fruchtman no.
     lista.append({                                                                     # Agrego a la lista todos los valores del dicc:
+      'Año': int(año),                                                                 # -El año correspondiente,
       'BS_Fru': len(días_Fru),                                                         # -La cantidad total de BS detectados por Fruchtman,
       'BS_KNN': len(días_KNN),                                                         # -La cantidad total de BS detectados por el KNN,
       'TP': TP,                                                                        # -Los verdaderos positivos del KNN,
