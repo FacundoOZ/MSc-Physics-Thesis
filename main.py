@@ -5,24 +5,27 @@
 # Tesis de Licenciatura | Archivo principal para correr los programas
 #============================================================================================================================================
 
-import base_de_datos.descarga     as data       # Descarga los datos
-import base_de_datos.recorte      as edit       # Recorta los datos
-import base_de_datos.unión        as merge      # Une los datos
 import base_de_datos.conversiones as convert    # Conversiones entre magnitudes
+import plots.estilo_plots
+
+import base_de_datos.descarga as data  # Descarga los datos
+import base_de_datos.recorte  as edit  # Recorta los datos
+import base_de_datos.unión    as merge # Une los datos
+import base_de_datos.promedio as avg   # Promedia datos
 import plots.MAG          as MAG  # Funciones para graficar 2D y 3D
 import plots.SWEA         as SWEA # Funciones para graficar 2D y 3D
 import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
 import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
-import plots.estilo_plots
 import ajustes.bow_shock as fit
 import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
-#import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
+import machine_learning.métricas           as metric
+import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-knn = KNN.entrenar(
+"""knn = KNN.entrenar(
   directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018'],
   K                  = 3,
@@ -37,8 +40,20 @@ KNN.clasificar(
   directorio    = ruta,
   knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION3_para2019.pkl'),
   predecir_años = ['2019']
+)"""
+
+metric.calcular_métricas_KNN_con_Fruchtman(
+  directorio         = ruta,
+  años               = ['2014','2015','2016','2017','2018','2019'],
+  modelo_KNN         = 'salvation_K1',
+  post_procesamiento = False,
+  hemisferio_N       = True,
+  tolerancia         = 600
 )
 
+#———————————————————————————————————————————————————————————————————————————————————————
+# TESTING & CROSS-VALIDATION
+#———————————————————————————————————————————————————————————————————————————————————————
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
 """CV.ejecutar_validación_cruzada(
@@ -58,19 +73,21 @@ KNN.clasificar(
 """fit.graficador_ajustes(
   directorio       = ruta,
 # Elementos que tendrá el plot:
-  objetos          = ['Marte','Vignes','Fruchtman','mín','máx'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
+  objetos          = ['Marte','Vignes','KNN'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
 # Mediciones de BS detectados por Fruchtman:
-  años_Fruchtman   = ['2014','2015','2016','2017','2018','2019'], # ['2014',...,'2019']
-  ajuste_Fruchtman = True,
+  #años_Fruchtman   = ['2014','2015','2016','2017','2018','2019'], # ['2014',...,'2019']
+  #ajuste_Fruchtman = True,
 # Trayectoria Cilíndrica de MAVEN:
-  trayectoria      = False,
-  recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
-  tiempo_inicial   = '01/01/2015-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
-  tiempo_final     = '30/01/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
-  promedio         = 5,                     # en segundos
+  #trayectoria      = False,
+  #recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
+  #tiempo_inicial   = '01/01/2015-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #tiempo_final     = '30/01/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #promedio         = 5,                     # en segundos
 # Mediciones de BS detectadas por el KNN
-  años_KNN         = ['2014'], # ['2014',...,'2025']
-  ajuste_KNN       = False
+  modelo             = 'salvation_K1',
+  post_procesamiento = True,
+  años_KNN           = ['2015'], # ['2014',...,'2025']
+  ajuste_KNN         = False
 )"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -79,8 +96,8 @@ KNN.clasificar(
 """MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '01/11/2015-00:00:00',
-  tiempo_final   = '10/11/2015-23:59:00',
+  tiempo_inicial = '01/10/2015-00:00:00',
+  tiempo_final   = '31/12/2015-23:59:00',
   promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -103,7 +120,9 @@ KNN.clasificar(
   scatter       = True,
   tamaño_puntos = 5,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
-  bow_shocks = ['KNN']
+  bow_shocks = ['KNN'],
+  modelo_KNN='salvation_K1',
+  post_procesamiento=True
 )"""
 
 """ani.trayectoria_3D_MAVEN_MAG(
@@ -122,6 +141,13 @@ KNN.clasificar(
   tiempo_final   = '10:05:00',
   promedio       = True
 )"""
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# PROMEDIO
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+"""for año in ['2014','2015','2016','2017','2018','2019']:
+  avg.promediar_archivo_temporal_KNN(directorio=ruta, modelo='salvation_K2', año=año, promedio=600)
+"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # UNIÓN

@@ -294,11 +294,10 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
       dias_dec = []                                                             # la lista es vacía.
     probabilidades: pd.DataFrame = pd.DataFrame({'NBS':prob[:,0],'BS':prob[:,1],# Genero un dataframe con las probabilidades BS, NBS,
                                                  'Predicción': pred})           # y con la predicción correspondiente.
-    tiempos_BS: pd.DataFrame     = pd.DataFrame({'día_decimal': dias_dec})      # Genero dataframe con tiempos_BS predichos (en día decimal).
     ruta_prob: str = os.path.join(ruta_pred, f'probabilidades_{año}.txt')       # Obtengo la ruta + nombre_completo de los archivos de salida
     ruta_BS: str   = os.path.join(ruta_pred, f'tiempos_BS_{año}.txt')           # para las probabilidades, y los tiempos BS a detectar.
-    probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes
-    tiempos_BS    .to_csv(ruta_BS,   sep=' ', index=False)                      # en la carpeta directorio + 'KNN' + 'predicción'.
+    probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes.
+    np.savetxt(ruta_BS, dias_dec, fmt='%.10f')                                  # Guardo un txt sin título de los bow shocks.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 

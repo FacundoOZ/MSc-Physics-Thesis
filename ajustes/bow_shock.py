@@ -33,6 +33,8 @@ def graficador_ajustes(
     recorte: str = 'recorte_Vignes',                                                       # Tipo de recorte a usar para la trayectoria MAVEN.
     tiempo_inicial: str='01/01/2015-00:00:00', tiempo_final: str='30/3/2015-23:59:00',     # Tiempo inicial y final de datos de trayectoria.
     promedio: int = 1,                                                                     # Promedio a utilizar por leer_archivos_MAG.
+    modelo: str = 'salvation_K1',                                                          # Modelo del KNN cuyos bow shocks quiero graficar.
+    post_procesamiento: bool = False,                                                      # Booleano para modelos post-procesados.
     años_KNN: list[str] = ['2014'],                                                        # Bow shocks predichos por KNN del año asignado.
     ajuste_KNN: bool = False                                                               # Booleano para realizar ajuste Vignes a KNN.
 ) -> None:
@@ -46,8 +48,9 @@ def graficador_ajustes(
   por cónicas del tipo Vignes.
   Si el booleano 'trayectoria'=True, se graficarán las trayectorias realizadas por MAVEN en este plot cilíndrico con el 'recorte' que se
   haya seleccionado, en el intervalo ('tiempo_inicial', 'tiempo_final'), y con el 'promedio' elegido.
-  La lista de strings 'años_KNN' determina los bow shocks detectados por el KNN de cuyo año se desean graficar, y si su booleano
-  'ajuste_KNN'=True, realiza y grafica un ajuste por función de Vignes correspondiente.
+  El string 'modelo' representa el tipo de modelo KNN cuyos bow shocks desean graficarse, y el booleano 'post_procesamiento' si desean
+  graficarse las mediciones procesadas (bow shocks promediados) o no. La lista de strings 'años_KNN' determina los bow shocks detectados por
+  el KNN de cuyo año se desean graficar, y el booleano 'ajuste_KNN'=True, realiza y grafica un ajuste por función de Vignes correspondiente.
   """
   if 'Marte' in objetos:                                                                   # Si 'Marte' figura en la lista de objetos,
     disco_2D(resolución_r=200, resolución_theta=200)                                       # grafico el semi-disco correspondiente.
@@ -81,7 +84,7 @@ def graficador_ajustes(
     p.plot(Xss/R_m, módulo(Yss,Zss, norm=R_m))                                             # y grafico en formato cilíndrico normalizado.
   if 'KNN' in objetos:                                                                     # Si 'KNN' está en la lista de objetos,
     for año in años_KNN:                                                                   # para cada año cuyos bow shocks deseo graficar,
-      data_BS: pd.DataFrame = leer_bow_shocks_KNN(directorio, año)                         # leo los bow shocks detectados por KNN,
+      data_BS: pd.DataFrame = leer_bow_shocks_KNN(directorio,modelo,post_procesamiento,año)# leo los bow shocks detectados por KNN,
       Xss, Yss, Zss = [data_BS[j] for j in [7,8,9]]                                        # extraigo solo las componentes (X,Y,Z) en SS,
       p.scatter(Xss/R_m, módulo(Yss,Zss, norm=R_m), s=1)                                   # y grafico en formato cilíndrico normalizado.
       if ajuste_KNN:                                                                       # Si el booleano ajuste_Fruchtman=True,

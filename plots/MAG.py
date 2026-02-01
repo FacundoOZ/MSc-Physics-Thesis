@@ -36,7 +36,9 @@ def graficador(
     scatter: bool = False,                                                          # Si scatter=True -> grafico sin interpolar (puntos), con
     tamaño_puntos: int = 2,                                                         # 'tamaño_puntos' el diámetro de los puntos.
     coord: str = 'pc',                                                              # Sistema de coordenadas a graficar ('pc' ó 'ss')
-    bow_shocks: list[str] = ['Fruchtman','KNN']                                     # Tipo de predicción cuyos bow shocks deseo graficar.
+    bow_shocks: list[str] = ['Fruchtman','KNN'],                                    # Tipo de predicción cuyos bow shocks deseo graficar.
+    modelo_KNN: str = 'salvation_K1',                                               # Tipo de modelo KNN a utilizar.
+    post_procesamiento: bool = False                                                # Booleano para utilizar post-procesamiento de bow shocks.
 ) -> None:
   """
   La función graficador recibe en formato string tres elementos:
@@ -84,7 +86,8 @@ def graficador(
     if 'Fruchtman' in bow_shocks:                                                   # Si quiero graficar bow shocks detectados por Fruchtman,
       graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='Fruchtman')         # los busco y grafico en el intervalo (t_inicial,t_final).
     if 'KNN' in bow_shocks:                                                         # Si quiero los de mi predicción KNN,
-      graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='KNN')               # los busco y grafico en el intervalo (t_inicial,t_final).
+      graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='KNN',               # los busco y grafico en el intervalo (t_inicial,t_final),
+                          modelo_KNN=modelo_KNN, post_procesamiento=post_procesamiento)# del modelo KNN indicado y con post_procesamiento.
     formatear_ejes_y_titulo(tiempo_inicial, tiempo_final)                           # Adapto el eje temporal x con el formato que corresponda,
   p.grid(True, which='minor', linestyle=':', linewidth=0.5)                         # Pongo doble grilla, fina y con formato ':'.
   p.legend()                                                                        # Escribo los labels.
@@ -166,7 +169,9 @@ def graficar_componentes(
 #———————————————————————————————————————————————————————————————————————————————————————
 def graficar_bow_shocks(
     tiempo_inicial: str, tiempo_final: str,                                      # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
-    origen: str                                                                  # Origen de los bow shocks a graficar ('Fruchtman' ó 'KNN').
+    origen: str,                                                                 # Origen de los bow shocks a graficar ('Fruchtman' ó 'KNN').
+    modelo_KNN: str,                                                             # Tipo de modelo KNN a utilizar.
+    post_procesamiento: bool = False                                             # Booleano para utilizar post-procesamiento de bow shocks.
 ) -> None:
   """
   Grafica líneas verticales que representan los tiempos cuando ocurrieron los bow shocks en el intervalo ('tiempo_inicial','tiempo_final')
@@ -182,8 +187,12 @@ def graficar_bow_shocks(
     ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
     día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
   elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
-    archivo_KNN: str = f'tiempos_BS_{año}.txt'                                   # reconstruyo el nombre correspondiente,
-    ruta_KNN: str    = os.path.join(ruta,'KNN','predicción', archivo_KNN)        # obtengo la ruta_completa + nombre_archivo,
+    ruta_base: str     = os.path.join(ruta,'KNN','predicción', modelo_KNN)       # construyo la ruta base donde se encuentran los archivos.
+    if post_procesamiento:                                                       # Si quiero tomar post-procesamiento,
+      archivo_KNN: str = f'tiempos_BS_{año}_promedio.txt'                        # reconstruyo el nombre del año correspondiente,
+      ruta_KNN: str    = os.path.join(ruta_base,'post_procesamiento',archivo_KNN)# obtengo la ruta_completa correspondiente + nombre_archivo,
+    else:                                                                        # Si no,
+      ruta_KNN: str    = os.path.join(ruta_base, f'tiempos_BS_{año}.txt')        # obtengo la ruta_completa + nombre_archivo original.
     día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
   t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
   t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.

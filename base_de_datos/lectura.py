@@ -104,6 +104,8 @@ def leer_archivo_Fruchtman(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def leer_bow_shocks_KNN(
     directorio: str,                                                                               # Directorio donde están los archivos.
+    modelo: str,                                                                                   # Modelo KNN cuyos bow shocks quiero leer.
+    post_procesamiento: bool,                                                                      # Booleano para leer post-procesados.
     año: str                                                                                       # Año cuyos datos del bow shocks se buscan.
 ) -> pd.DataFrame:
     """
@@ -112,11 +114,16 @@ def leer_bow_shocks_KNN(
     subcarpetas 'KNN', 'predicción'), y donde también se encuentran todos los archivos MAG que se buscarán en la carpeta 'recorte_Vignes' del
     año correspondiente, y que se utilizarán para obtener los valores de campo magnético y posiciones de la sonda en el tiempo BS del archivo
     MAG más cercano al tiempo determinado por el KNN. Para encontrar el índice más cercano a cada tiempo BS en los archivos MAG
-    correspondientes, se utiliza la función hallar_índice_más_cercano que lo busca en tiempo O(log n).
+    correspondientes, se utiliza la función hallar_índice_más_cercano que lo busca en tiempo O(log n). El string 'modelo' y el booleano
+    'post_procesamiento' representan el tipo de modelo KNN a utilizar, y si desean leerse las mediciones originales, o post-procesadas.
     La función devuelve un dataframe de igual longitud que el archivo '.txt' original, pero con el contenido de las posiciones y campos.
     """
-    ruta_BS: str = os.path.join(directorio, 'KNN', 'predicción', f'tiempos_BS_{año}.txt')          # Obtengo ruta de BS predichos por KNN.
-    t_BS: np.ndarray            = pd.read_csv(ruta_BS)['día_decimal'].to_numpy()                   # Obtengo el contenido t_BS (día decimal).
+    if post_procesamiento:                                                                         # Si post_procesamiento=True,
+      archivo_BS: str = f'tiempos_BS_{año}_promedio.txt'                                           # obtengo el nombre del archivo,
+      ruta_BS: str = os.path.join(directorio,'KNN','predicción',modelo,'post_procesamiento',archivo_BS)# y su ruta completa + nombre.
+    else:                                                                                          # Si no,
+      ruta_BS: str = os.path.join(directorio,'KNN','predicción',modelo, f'tiempos_BS_{año}.txt')   # Obtengo la ruta original.
+    t_BS: np.ndarray            = np.loadtxt(ruta_BS)                                              # Obtengo el contenido t_BS (día decimal).
     fechas_BS: pd.DatetimeIndex = dias_decimales_a_datetime(t_BS, int(año))                        # Convierto días a fecha datetime.
     t0: str = fechas_BS.min().strftime('%d/%m/%Y-%H:%M:%S')                                        # Obtengo el tiempo inicial,
     tf: str = fechas_BS.max().strftime('%d/%m/%Y-%H:%M:%S')                                        # y el tiempo final de los bow shocks.
