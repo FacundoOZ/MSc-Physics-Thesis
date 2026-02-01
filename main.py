@@ -16,34 +16,32 @@ import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
 import plots.estilo_plots
 import ajustes.bow_shock as fit
 import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
-import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
+#import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""knn = KNN.entrenar(
+knn = KNN.entrenar(
   directorio         = ruta,
-  años_entrenamiento = ['2015','2016','2017','2018','2019'],
+  años_entrenamiento = ['2014','2015','2016','2017','2018'],
   K                  = 1,
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
   promedio           = 5,
-  ventana            = 120,
+  ventana            = 60,
   ventanas_NBS       = [2],
 )
-knn.save(directorio=ruta, nombre_archivo='knn_final.pkl')"""
+knn.save(directorio=ruta, nombre_archivo='KNN_SALVATION_para2019.pkl')
+
+KNN.clasificar(
+  directorio         = ruta,
+  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION_para2019.pkl'),
+  predecir_años      = ['2019']
+)
 
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
-"""KNN.clasificar(
-  directorio         = ruta,
-  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_final.pkl'),
-  predecir_años      = ['2015'],
-  post_procesamiento = True,
-  umbral             = 40
-)"""
-
-CV.ejecutar_validación_cruzada(
+"""CV.ejecutar_validación_cruzada(
   directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # con BS de Fruchtman
   K                  = 1,   # vecinos
@@ -51,8 +49,8 @@ CV.ejecutar_validación_cruzada(
   promedio           = 5,   # en segundos
   ventana            = 60, # en segundos
   ventanas_NBS       = [2], # posición de ventanas_NBS respecto a ventanas_BS
-  tolerancia         = 120, # en segundos
-)
+  tolerancia         = 120 # en segundos
+)"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # AJUSTES
@@ -81,8 +79,8 @@ CV.ejecutar_validación_cruzada(
 """MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '01/11/2014-00:00:00',
-  tiempo_final   = '10/11/2014-23:59:00',
+  tiempo_inicial = '01/11/2015-00:00:00',
+  tiempo_final   = '10/11/2015-23:59:00',
   promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -105,7 +103,7 @@ CV.ejecutar_validación_cruzada(
   scatter       = True,
   tamaño_puntos = 5,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
-  bow_shocks = ['Fruchtman','KNN']
+  bow_shocks = ['KNN']
 )"""
 
 """ani.trayectoria_3D_MAVEN_MAG(

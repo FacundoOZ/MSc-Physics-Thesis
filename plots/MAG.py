@@ -164,6 +164,34 @@ def graficar_componentes(
       p.ylabel(ylabel)                                                 # Coloco la etiqueta que corresponda en el eje y.
 
 #———————————————————————————————————————————————————————————————————————————————————————
+def graficar_bow_shocks(
+    tiempo_inicial: str, tiempo_final: str,                                      # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
+    origen: str                                                                  # Origen de los bow shocks a graficar ('Fruchtman' ó 'KNN').
+) -> None:
+  """
+  Grafica líneas verticales que representan los tiempos cuando ocurrieron los bow shocks en el intervalo ('tiempo_inicial','tiempo_final')
+  detectados. El string 'origen' debe ser igual a 'Fruchtman' ó 'KNN', y la función va a buscar los dataframes que contienen los tiempos de
+  los bow shocks en día decimal, en las subcarpetas correspondientes. No devuelve nada.
+  """
+  t0: pd.Timestamp = pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S')  # Convierto a objeto datetime los tiempos strings inicial
+  tf: pd.Timestamp = pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S')  # y final, cuyo formato es 'DD/MM/YYYY-HH:MM:SS'.
+  año: int = t0.year                                                             # Obtengo el año de tiempo inicial (no graficaré 2 años).
+  t_ref: pd.Timestamp = pd.Timestamp(f'{año}-01-01 00:00:00')                    # Obtengo tiempo cero como referencia (1 de enero del año).
+  if origen=='Fruchtman':                                                        # Si el origen es Fruchtman,
+    archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                 # reconstruyo el nombre del archivo con el año indicado,
+    ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
+    día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
+  elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
+    archivo_KNN: str = f'tiempos_BS_{año}.txt'                                   # reconstruyo el nombre correspondiente,
+    ruta_KNN: str    = os.path.join(ruta,'KNN','predicción', archivo_KNN)        # obtengo la ruta_completa + nombre_archivo,
+    día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
+  t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
+  t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.
+  ax = p.gca()                                                                   # Get Current Axes (obtener ejes actuales) en la var ax.
+  for t_BS in t_máscara:                                                         # Para cada tiempo (día_decimal) de bow shock de la lista,
+    ax.axvline(t_BS, alpha=0.4)                                                  # grafico una línea vertical con transparencia (alpha).
+
+#———————————————————————————————————————————————————————————————————————————————————————
 def formatear_ejes_y_titulo(
     tiempo_inicial: str, tiempo_final: str                                          # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
 ) -> None:
@@ -182,34 +210,6 @@ def formatear_ejes_y_titulo(
     ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (1 Hz)") # modifico el título,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))                  # y el eje en formato 'DD/MM'.
     p.xlabel('Fecha UTC (DD/MM/YYYY)')                                              # Título del eje x.
-
-#———————————————————————————————————————————————————————————————————————————————————————
-def graficar_bow_shocks(
-    tiempo_inicial: str, tiempo_final: str,                                      # Tiempos inicial y final en formato str 'DD/MM/YYYY-HH:MM:SS'.
-    origen: str                                                                  # Origen de los bow shocks a graficar ('Fruchtman' ó 'KNN').
-) -> None:
-  """
-  Grafica líneas verticales que representan los tiempos cuando ocurrieron los bow shocks en el intervalo ('tiempo_inicial','tiempo_final')
-  detectados. El string 'origen' debe ser igual a 'Fruchtman' ó 'KNN', y la función va a buscar los dataframes que contienen los tiempos de
-  los bow shocks en día decimal, en las subcarpetas correspondientes. No devuelve nada.
-  """
-  t0: pd.Timestamp = pd.to_datetime(tiempo_inicial, format='%d/%m/%Y-%H:%M:%S')  # Convierto a objeto datetime los tiempos strings inicial
-  tf: pd.Timestamp = pd.to_datetime(tiempo_final,   format='%d/%m/%Y-%H:%M:%S')  # y final, cuyo formato es 'DD/MM/YYYY-HH:MM:SS'.
-  t_ref: pd.Timestamp = pd.Timestamp(f'{año}-01-01 00:00:00')                    # Obtengo tiempo cero como referencia (1 de enero del año).
-  año: int = t0.year                                                             # Obtengo el año de tiempo inicial (no graficaré 2 años).
-  if origen=='Fruchtman':                                                        # Si el origen es Fruchtman,
-    archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                 # reconstruyo el nombre del archivo con el año indicado,
-    ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
-    día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
-  elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
-    archivo_KNN: str = f'tiempos_BS_{año}.txt'                                   # reconstruyo el nombre correspondiente,
-    ruta_KNN: str    = os.path.join(ruta,'KNN','predicción', archivo_KNN)        # obtengo la ruta_completa + nombre_archivo,
-    día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
-  t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
-  t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.
-  ax = p.gca()                                                                   # Get Current Axes (obtener ejes actuales) en la var ax.
-  for t_BS in t_máscara:                                                         # Para cada tiempo (día_decimal) de bow shock de la lista,
-    ax.axvline(t_BS, alpha=0.4)                                                  # grafico una línea vertical con transparencia (alpha).
 #———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
