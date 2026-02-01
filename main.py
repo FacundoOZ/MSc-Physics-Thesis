@@ -25,18 +25,18 @@ ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 knn = KNN.entrenar(
   directorio         = ruta,
   años_entrenamiento = ['2014','2015','2016','2017','2018'],
-  K                  = 1,
+  K                  = 2,
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
   promedio           = 5,
   ventana            = 60,
   ventanas_NBS       = [2],
 )
-knn.save(directorio=ruta, nombre_archivo='KNN_SALVATION_para2019.pkl')
+knn.save(directorio=ruta, nombre_archivo='KNN_SALVATION2_para2019.pkl')
 
 KNN.clasificar(
-  directorio         = ruta,
-  knn                = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION_para2019.pkl'),
-  predecir_años      = ['2019']
+  directorio    = ruta,
+  knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION2_para2019.pkl'),
+  predecir_años = ['2019']
 )
 
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')

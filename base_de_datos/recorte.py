@@ -31,10 +31,10 @@ def recortar_archivo_MAG(
   en las subcarpetas correspondientes al año y al mes del archivo que se ha seleccionado (extrae el año y el mes del nombre del archivo).
   Si ya fue recortado, no lo recorta.
   """
-  año: str  = archivo[11:15]                                                           # Extraigo el año del string archivo,
-  mes: str  = str(int(archivo[27:29]))                                                 # y el mes (remuevo los ceros delante si hubiera)
-  ruta_i    = os.path.join(directorio, año, mes, archivo)                              # Obtengo la ruta inicial (ruta origen) del archivo
-  ruta_f    = os.path.join(directorio, f'datos_recortados_{coord}', año, mes)          # Obtengo la ruta final donde se guardará el recortado
+  año: str    = archivo[11:15]                                                         # Extraigo el año del string archivo,
+  mes: str    = str(int(archivo[27:29]))                                               # y el mes (remuevo los ceros delante si hubiera)
+  ruta_i: str = os.path.join(directorio, año, mes, archivo)                            # Obtengo la ruta inicial (ruta origen) del archivo
+  ruta_f: str = os.path.join(directorio, f'datos_recortados_{coord}', año, mes)        # Obtengo la ruta final donde se guardará el recortado
   os.makedirs(ruta_f, exist_ok=True)                                                   # Creo la carpeta de destino (si es que no existe aún)
   recortado = os.path.join(ruta_f, archivo.replace('.sts', '_recortado.sts'))          # Establezco la ruta_completa + nombre_nuevo_archivo
   if os.path.exists(recortado):                                                        # Si el archivo recortado ya existe,
@@ -74,9 +74,9 @@ def recortar_paquete_MAG(
 # recortar_hemisferios_MAG: función para recortar, en principio, los datos del hemisferio norte de las mediciones MAG.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def recortar_hemisferios_MAG(
-    directorio: str,                                                                        # Carpeta donde se encuentra el archivo a recortar.
-    archivo: str,                                                                           # Nombre del archivo a recortar en formato string.
-    hemisferio: str = 'norte'                                                               # Hemisferio que se desea recortar.
+    directorio: str,                                                                          # Carpeta donde se encuentra el archivo a recortar.
+    archivo: str,                                                                             # Nombre del archivo a recortar en formato string.
+    hemisferio: str = 'norte'                                                                 # Hemisferio que se desea recortar.
 ) -> None:
   """
   La función recortar_hemisferios_MAG recibe en formato string el nombre de un archivo de la carpeta datos_recortados_merge y lo recorta aún
@@ -85,34 +85,34 @@ def recortar_hemisferios_MAG(
   directorio denominado "hemisferio_N" y "hemisferio_ND" (hemisferio norte y hemisferio norte diurno), respectivamente, y en las subcarpetas
   del año y mes asociadas al nombre del archivo original. Si el archivo ya fue recortado, no lo recorta.
   """
-  año: str    = archivo[11:15]                                                              # Extraigo del string archivo el año
-  mes: str    = str(int(archivo[30:32]))                                                    # y el mes (remuevo los ceros delante del mes)
-  ruta_origen = os.path.join(directorio, 'datos_recortados_merge', año, mes, archivo)       # Obtengo la ruta de origen del archivo
-  if hemisferio == 'norte':                                                                 # Si solo quiero el hemisferio norte:
-    ruta_final    = os.path.join(directorio, 'hemisferio_N', año, mes)                      # Obtengo la ruta del archivo recortado.
-    os.makedirs(ruta_final, exist_ok=True)                                                  # Creo la carpeta de destino (si aún no existe).
-    archivo_final = os.path.join(ruta_final, archivo.replace('.sts', '_hemisferio_N.sts'))  # Establezco ruta completa + nombre del archivo.
-  elif hemisferio == 'norte_diurno':                                                        # Si quiero el hemisferio norte y lado diurno:
-    ruta_final    = os.path.join(directorio, 'hemisferio_ND', año, mes)                     # Ídem.
-    os.makedirs(ruta_final, exist_ok=True)                                                  # Creo la carpeta de destino (si aún no existe).
-    archivo_final = os.path.join(ruta_final, archivo.replace('.sts', '_hemisferio_ND.sts')) # Establezco ruta completa + nombre del archivo.
-  if os.path.exists(archivo_final):                                                         # Si el archivo ya existe, entonces ya fue leido
+  año: str         = archivo[11:15]                                                           # Extraigo del string archivo el año
+  mes: str         = str(int(archivo[30:32]))                                                 # y el mes (remuevo los ceros delante del mes)
+  ruta_origen: str = os.path.join(directorio, 'datos_recortados_merge', año, mes, archivo)    # Obtengo la ruta de origen del archivo
+  if hemisferio == 'norte':                                                                   # Si solo quiero el hemisferio norte:
+    ruta_final: str    = os.path.join(directorio, 'hemisferio_N', año, mes)                   # Obtengo la ruta del archivo recortado.
+    os.makedirs(ruta_final, exist_ok=True)                                                    # Creo la carpeta de destino (si aún no existe).
+    archivo_final: str = os.path.join(ruta_final,archivo.replace('.sts','_hemisferio_N.sts')) # Establezco ruta completa + nombre del archivo.
+  elif hemisferio == 'norte_diurno':                                                          # Si quiero el hemisferio norte y lado diurno:
+    ruta_final: str    = os.path.join(directorio, 'hemisferio_ND', año, mes)                  # Ídem.
+    os.makedirs(ruta_final, exist_ok=True)                                                    # Creo la carpeta de destino (si aún no existe).
+    archivo_final: str = os.path.join(ruta_final,archivo.replace('.sts','_hemisferio_ND.sts'))# Establezco ruta completa + nombre del archivo.
+  if os.path.exists(archivo_final):                                                           # Si el archivo ya existe, entonces ya fue leido
     print(f'El archivo "{os.path.basename(archivo)}" ya ha sido leido.')
     return
-  try:                                                                                      # Si no,
-    data = pd.read_csv(ruta_origen, sep=' ', header=None, engine='python')                  # Extraigo los datos de ruta_origen, con sep TAB
-    z_pc = data.iloc[:,6]                                                                   # Defino la columna z del archivo 'data'
-    if hemisferio == 'norte':                                                               # Si solo quiero el hemisferio norte ->
-      datos_hemisferio = data[z_pc > 0]                                                     # En datos_hemisferio extraigo toda fila con z>0
-    elif hemisferio == 'norte_diurno':                                                      # Si quiero el hemisferio norte y lado diurno ->
-      x_ss = data.iloc[:,7]                                                                 # Defino la columnas x del archivo 'data'
-      datos_hemisferio = data[(x_ss > 0) & (z_pc > 0)]                                      # y extraigo toda fila que cumpla x>0 y z>0
-    datos_hemisferio.to_csv(archivo_final, sep=' ', index=False, header=False)              # Convierto ruta final a CSV y separación TAB
-    #print(f'El archivo "{os.path.basename(archivo)}" se ha leído correctamente.')          # Omito esto para recortar todo el paquete.
-  except FileNotFoundError:                                                                 # Si el archivo origen no está,
-    print(f'El archivo "{os.path.basename(archivo)}" no se ha encontrado.')                 # aviso que no se ha encontrado.
-  except Exception as e:                                                                    # Si hay algún otro tipo de error,
-    print('El archivo', os.path.basename(archivo), '->', e)                                 # lo aviso.
+  try:                                                                                        # Si no,
+    data = pd.read_csv(ruta_origen, sep=' ', header=None, engine='python')                    # Extraigo los datos de ruta_origen, con sep TAB
+    z_pc = data.iloc[:,6]                                                                     # Defino la columna z del archivo 'data'
+    if hemisferio == 'norte':                                                                 # Si solo quiero el hemisferio norte ->
+      datos_hemisferio = data[z_pc > 0]                                                       # En datos_hemisferio extraigo toda fila con z>0
+    elif hemisferio == 'norte_diurno':                                                        # Si quiero el hemisferio norte y lado diurno ->
+      x_ss = data.iloc[:,7]                                                                   # Defino la columnas x del archivo 'data'
+      datos_hemisferio = data[(x_ss > 0) & (z_pc > 0)]                                        # y extraigo toda fila que cumpla x>0 y z>0
+    datos_hemisferio.to_csv(archivo_final, sep=' ', index=False, header=False)                # Convierto ruta final a CSV y separación TAB
+    #print(f'El archivo "{os.path.basename(archivo)}" se ha leído correctamente.')            # Omito esto para recortar todo el paquete.
+  except FileNotFoundError:                                                                   # Si el archivo origen no está,
+    print(f'El archivo "{os.path.basename(archivo)}" no se ha encontrado.')                   # aviso que no se ha encontrado.
+  except Exception as e:                                                                      # Si hay algún otro tipo de error,
+    print('El archivo', os.path.basename(archivo), '->', e)                                   # lo aviso.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # recortar_hemisferios_paquete_MAG: función para recortar todos los archivos de un año entero
@@ -150,7 +150,7 @@ def recortar_datos_fruchtman_MAG(
   La función recortar_datos_fruchtman_MAG lee el catálogo Fruchtman, filtra por año, conserva solo la columna temporal, convierte a día
   decimal y guarda un único archivo por año.
   """
-  ruta_i = os.path.join(directorio, archivo)                                    # Obtengo la ruta inicial como directorio + archivo.
+  ruta_i: str = os.path.join(directorio, archivo)                               # Obtengo la ruta inicial como directorio + archivo.
   data   = pd.read_csv(ruta_i, comment=';', header=None, skipinitialspace=True) # Leo y guardo el contenido omitiendo la primera línea.
   años   = data[0].str.slice(0,4).astype(int)                                   # Obtengo los años del archivo .txt.
   data_años = data[años == año]                                                 # Obtengo los datos del año pasado por parámetro.
@@ -161,8 +161,7 @@ def recortar_datos_fruchtman_MAG(
     fecha_UTC_a_dia_decimal,                                                    # convierto los valores de fecha y hora a día decimal usando
     formato='%Y-%m-%d/%H:%M:%S'                                                 # la función de conversiones, pero con el formato fruchtman.
   )
-  nombre_f = f'fruchtman_{año}_recortado.txt'                                   # Creo el nombre del archivo final (de salida).
-  ruta_f   = os.path.join(directorio, nombre_f)                                 # Creo su ruta como directorio + nombre,
+  ruta_f: str = os.path.join(directorio, f'fruchtman_{año}_recortado.txt')      # Creo su ruta como directorio + nombre,
   días_decimales.to_csv(ruta_f, index=False, header=False, float_format='%.6f') # y lo guardo (exporto) como csv.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -179,10 +178,10 @@ def recortar_Vignes_MAG(
   y recibe un diccionario que conteine los parámetros necesarios para la región que se desea recortar. Utiliza como máscara para los datos
   dicha región y devuelve el archivo recortado en el mismo directorio, pero en una carpeta llamada 'recorte_Vignes'.
   """
-  año: str = archivo[11:15]                                                      # Extraigo del string archivo el año
-  mes: str = str(int(archivo[30:32]))                                            # y el mes (remuevo los ceros delante del mes)
-  ruta_i   = os.path.join(directorio, 'hemisferio_N', año, mes, archivo)         # Obtengo la ruta de origen del archivo
-  ruta_f   = os.path.join(directorio, 'recorte_Vignes', año, mes)                # Obtengo la ruta del archivo recortado
+  año: str    = archivo[11:15]                                                   # Extraigo del string archivo el año
+  mes: str    = str(int(archivo[30:32]))                                         # y el mes (remuevo los ceros delante del mes)
+  ruta_i: str = os.path.join(directorio, 'hemisferio_N', año, mes, archivo)      # Obtengo la ruta de origen del archivo
+  ruta_f: str = os.path.join(directorio, 'recorte_Vignes', año, mes)             # Obtengo la ruta del archivo recortado
   os.makedirs(ruta_f, exist_ok=True)                                             # Creo la carpeta de destino (si aún no existe)
   archivo_final = os.path.join(ruta_f, archivo.replace(                          # Establezco la ruta completa + nombre del archivo del
     '_recortado_hemisferio_N.sts', '_final.sts'))                                # archivo final, reemplazando _recortado... por _final.
