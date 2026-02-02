@@ -23,7 +23,7 @@ def calcular_métricas_KNN_con_Fruchtman(
     modelo_KNN: str,                                                                   # Tipo de modelo KNN cuyas métricas deseo calcular.
     post_procesamiento: bool = False,                                                  # Tipo de post-procesado del modelo KNN.
     hemisferio_N: bool = True,                                                         # Hemisferios Fruchtman considerados.
-    tolerancia: int = 60                                                               # Tolerancia entre datos Fruchtman y KNN (en segundos).
+    tolerancia: int = 300                                                              # Tolerancia entre datos Fruchtman y KNN (en segundos).
 ) -> None:
   """
   La función calcular_métricas_KNN_con_Fruchtman recibe en formato string un 'directorio', un 'modelo_KNN' y una lista de strings 'años', que

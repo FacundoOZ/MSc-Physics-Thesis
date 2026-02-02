@@ -39,16 +39,17 @@ knn.save(directorio=ruta, nombre_archivo='KNN_SALVATION3_para2019.pkl')
 KNN.clasificar(
   directorio    = ruta,
   knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION3_para2019.pkl'),
-  predecir_años = ['2019']
+  predecir_años = ['2019'],
+  nombre_modelo = 'salvation_K3'
 )"""
 
 metric.calcular_métricas_KNN_con_Fruchtman(
   directorio         = ruta,
   años               = ['2014','2015','2016','2017','2018','2019'],
-  modelo_KNN         = 'salvation_K1',
+  modelo_KNN         = 'salvation_K3',
   post_procesamiento = False,
   hemisferio_N       = True,
-  tolerancia         = 600
+  tolerancia         = 300
 )
 
 #———————————————————————————————————————————————————————————————————————————————————————

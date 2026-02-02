@@ -260,13 +260,14 @@ def entrenar(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # clasificar: función para clasificar etiquetas BS y NBS a partir de un modelo KNN previamente entrenado.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: list[str]) -> None:
+def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: list[str], nombre_modelo: str) -> None:
   """
   La función clasificar recibe un directorio que contiene las carpetas de 'KNN' y subcarpeta 'entrenamiento' donde se encuentra un modelo de
   KNN previamente entrenado para poder cargarlo en la variable 'knn' de tipo Clasificador_KNN_Binario (una clase KNN con sus parámetros
-  correspondientes), y recibe una lista de strings que representa los años cuyas mediciones (ventanas) se desean predecir. Devuelve dos
-  archivos: 'probabilidades_{año}.txt' y 'tiempos_BS_{año}.txt' para cada año ingresado; que contienen las probabilidades de NBS y BS con la
-  predicción encontrada, y los tiempos en formato día decimal de los BS predichos, respectivamente.
+  correspondientes), recibe una lista de strings 'predecir_años' que representa los años cuyas mediciones (ventanas) se desean predecir y un
+  string 'nombre_modelo' que representa la carpeta que se creará en el destino donde se guardarán los archivos.
+  Devuelve dos archivos: 'probabilidades_{año}.txt' y 'tiempos_BS_{año}.txt' para cada año ingresado; que contienen las probabilidades de NBS
+  y BS con la predicción encontrada, y los tiempos en formato día decimal de los BS predichos, respectivamente.
   Archivo 'probabilidades_{año}.txt':
     NBS    BS    Predicción
     ..     ..    ...
@@ -294,8 +295,10 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
       dias_dec = []                                                             # la lista es vacía.
     probabilidades: pd.DataFrame = pd.DataFrame({'NBS':prob[:,0],'BS':prob[:,1],# Genero un dataframe con las probabilidades BS, NBS,
                                                  'Predicción': pred})           # y con la predicción correspondiente.
-    ruta_prob: str = os.path.join(ruta_pred, f'probabilidades_{año}.txt')       # Obtengo la ruta + nombre_completo de los archivos de salida
-    ruta_BS: str   = os.path.join(ruta_pred, f'tiempos_BS_{año}.txt')           # para las probabilidades, y los tiempos BS a detectar.
+    ruta_final: str = os.path.join(directorio,'KNN','predicción', nombre_modelo)# Obtengo la ruta final con el nombre del modelo,
+    os.makedirs(ruta_final, exist_ok=True)                                      # y creo la carpeta (si aún no existe).
+    ruta_prob: str = os.path.join(ruta_final, f'probabilidades_{año}.txt')      # Obtengo la ruta + nombre_completo de los archivos de salida
+    ruta_BS: str   = os.path.join(ruta_final, f'tiempos_BS_{año}.txt')          # para las probabilidades, y los tiempos BS a detectar.
     probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes.
     np.savetxt(ruta_BS, dias_dec, fmt='%.10f')                                  # Guardo un txt sin título de los bow shocks.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
