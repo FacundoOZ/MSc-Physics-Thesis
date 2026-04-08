@@ -79,7 +79,7 @@ def ejecutar_validación_cruzada(
       FP = np.sum(~np.any(diff_inv <= tolerancia, axis=0))                                # FP es la suma de los encontrados en la tolerancia.
     TPR: float = round(TP/len(t_BS), 3) if len(t_BS) > 0 else np.nan                      # Calculo TPR=TP_totales/cant_t_BS_Fru (3 dígitos).
     Pre: float = round(TP/(TP + FP), 3) if (TP + FP) > 0 else np.nan                      # Calculo la precición del modelo con los FP.
-    F1: float = round(2*Pre*TPR/(Pre + TPR), 3) if Pre > 0 and TPR > 0 else np.nan        # Calculo la métrica F1
+    F1: float  = round(2*Pre*TPR/(Pre + TPR), 3) if Pre > 0 and TPR > 0 else np.nan       # Calculo la métrica F1
     lista.append({                                                                        # En la variable lista (lista de diccionarios),
       'Año': año,                                                                         # agrego el año de la validación cruzada,
       'K': K,                                                                             # y todos los parámetros del KNN que se utilizaron.

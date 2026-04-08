@@ -12,15 +12,15 @@ from matplotlib.colors import LinearSegmentedColormap
 
 # Parámetros estándar de gráficos:
 p.rcParams.update({
-  'axes.labelsize': 15,                                                                     # Tamaño de etiquetas de los ejes,
-  'xtick.labelsize': 10,                                                                    # Coordenadas eje x,
-  'ytick.labelsize': 10,                                                                    # Coordenadas eje y,
-  'legend.fontsize': 9,                                                                     # Leyenda
-  'axes.prop_cycle': p.cycler('color', ['blue','red','green','orange','yellow','purple']),  # Colores
-  'axes.grid': True,                                                                        # Cuadrícula
-  'figure.figsize': (12,3),                                                                 # Tamaño de figura
-  'xtick.minor.visible': True,                                                              # Sub-ejes en x
-  'ytick.minor.visible': True,                                                              # e y
+  'axes.labelsize': 15,                                                                           # Tamaño de etiquetas de los ejes,
+  'xtick.labelsize': 10,                                                                          # Coordenadas eje x,
+  'ytick.labelsize': 10,                                                                          # Coordenadas eje y,
+  'legend.fontsize': 9,                                                                           # Leyenda
+  'axes.prop_cycle': p.cycler('color', ['blue','red','green','orange','yellow','purple','brown']),# Colores
+  'axes.grid': True,                                                                              # Cuadrícula
+  'figure.figsize': (12,3),                                                                       # Tamaño de figura
+  'xtick.minor.visible': True,                                                                    # Sub-ejes en x
+  'ytick.minor.visible': True,                                                                    # e y
 })
 
 shade_m = LinearSegmentedColormap.from_list('shade_m', [(0,0,0), (1.0,0.5,0.0)]) # Color negro (0,0,0) a naranja (1,.5,0) para Marte.
@@ -34,7 +34,7 @@ def guardar_figura() -> None:
   """
   respuesta = input('Presione ENTER para guardar .PDF (escriba para omitir): ')  # Con input, pregunto al usuario si desea guardar el plot.
   if respuesta == '':                                                            # Si presiona ENTER,
-    p.savefig('plot_MAG.pdf', format='pdf', bbox_inches='tight')                 # se guarda en formato .PDF (mejor calidad)
+    p.savefig('plot_MAG.pdf', dpi=600, format='pdf', bbox_inches='tight')        # se guarda en formato .PDF (mejor calidad con dpi=600)
     print(f'Se ha guardado correctamente.')                                      # y devuelve un mensaje.
   else:                                                                          # Si escribe algo y presiona ENTER,
     print('Figura no guardada.')                                                 # no se guarda.
@@ -42,16 +42,18 @@ def guardar_figura() -> None:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # plot_xy:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = False, tamaño_puntos: int = 2) -> None:
+def plot_xy(x: np.ndarray, y: np.ndarray, etiqueta: str = None, scatter: bool = False, tamaño_puntos: int = 2, ax=None) -> None:
   """
   La función plot_xy realiza el gráfico 2D de X contra Y de dos np.ndarrays pasados por parámetro. Coloca las etiquetas (en formato string)
   correspondientes, y si el parámetro booleano scatter es True, realiza un plot de scatter (por puntos) y permite ajustar el tamaño de
   esos puntos. Si scatter=False, realiza un plot común por interpolación. No devuelve nada. 
   """
-  if scatter:                                        # Si scatter=True,
-    p.scatter(x, y, s=tamaño_puntos, label=etiqueta) # => realizo gráfico por puntos sin interpolación, con tamaño de puntos y label.
-  else:                                              # Si no,
-    p.plot(x, y, label=etiqueta)                     # realizo un plot común por interpolación y coloco el label.
+  if ax is None:                                                      # Si no hay ningún eje seleccionado,
+    ax = p.gca()                                                      # los creo.
+  if scatter:                                                         # Si scatter=True, entonces grafico por puntos sin interpolación,
+    ax.scatter(x,y, s=tamaño_puntos, label=etiqueta, rasterized=True) # con los ejes pasados por parámetro, el tamaño de puntos y su etiqueta.
+  else:                                                               # Si no, con dichos ejes
+    ax.plot(x,y, label=etiqueta)                                      # realizo un plot común por interpolación y coloco la etiqueta.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # disco_2D:

@@ -43,17 +43,17 @@ KNN.clasificar(
   nombre_modelo = 'salvation_K3'
 )"""
 
-metric.calcular_métricas_KNN_con_Fruchtman(
+"""metric.calcular_métricas_KNN_con_Fruchtman(
   directorio         = ruta,
   años               = ['2014','2015','2016','2017','2018','2019'],
-  modelo_KNN         = 'salvation_K3',
+  modelo_KNN         = 'salvation_K1',
   post_procesamiento = False,
   hemisferio_N       = True,
   tolerancia         = 300
-)
+)"""
 
 #———————————————————————————————————————————————————————————————————————————————————————
-# TESTING & CROSS-VALIDATION
+# TESTING & CROSS-VALIDATION (NO USAR)
 #———————————————————————————————————————————————————————————————————————————————————————
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
@@ -74,32 +74,35 @@ metric.calcular_métricas_KNN_con_Fruchtman(
 """fit.graficador_ajustes(
   directorio       = ruta,
 # Elementos que tendrá el plot:
-  objetos          = ['Marte','Vignes','KNN'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
+  objetos          = ['Marte','región','KNN','Vignes'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
 # Mediciones de BS detectados por Fruchtman:
   #años_Fruchtman   = ['2014','2015','2016','2017','2018','2019'], # ['2014',...,'2019']
   #ajuste_Fruchtman = True,
+  #hemisferio_N     = True, # Si es igual a False, grafica todos los bow shocks detectados por Fruchtman. Si no, grafica solo los del norte.
 # Trayectoria Cilíndrica de MAVEN:
-  #trayectoria      = False,
+  #trayectoria      = True,
   #recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
   #tiempo_inicial   = '01/01/2015-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
-  #tiempo_final     = '30/01/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
-  #promedio         = 5,                     # en segundos
+  #tiempo_final     = '31/12/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #promedio         = 1,                     # en segundos
 # Mediciones de BS detectadas por el KNN
   modelo             = 'salvation_K1',
   post_procesamiento = True,
   años_KNN           = ['2015'], # ['2014',...,'2025']
-  ajuste_KNN         = False
+  ajuste_KNN         = True,
+# Guardar figura en formato .PDF:
+  guardar = True
 )"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 """MAG.graficador(
-  directorio     = ruta + 'datos_recortados_merge',# ó 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
+  directorio     = ruta + 'datos_recortados_merge',# 'datos_recortados_merge' | 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '01/10/2015-00:00:00',
-  tiempo_final   = '31/12/2015-23:59:00',
-  promedio = 30, # Suavizado de los datos (reducción de ruido/fluctuaciones).
+  tiempo_inicial = '1/5/2015-00:00:00',
+  tiempo_final   = '1/6/2015-23:59:00',
+  promedio       = 1, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
 # Magnitudes a graficar:
@@ -107,6 +110,7 @@ metric.calcular_métricas_KNN_con_Fruchtman(
   #B_x  = True,
   #B_y  = True,
   #B_z  = True,
+  #normalización=True,
   #x_pc = True, # Coordenadas Planeto-Céntricas (PC) (centradas en Marte).
   #y_pc = True,
   #z_pc = True,
@@ -118,12 +122,14 @@ metric.calcular_métricas_KNN_con_Fruchtman(
 # Curvas paramétricas 2D y 3D:
   #trayectoria   = True,
 # Interpolación:
-  scatter       = True,
-  tamaño_puntos = 5,
+  #scatter       = True,
+  #tamaño_puntos = 1,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
-  bow_shocks = ['KNN'],
-  modelo_KNN='salvation_K1',
-  post_procesamiento=True
+  bow_shocks         = ['KNN','Fruchtman'], # ó ['KNN','Fruchtman']
+  modelo_KNN         = 'salvation_K1',
+  post_procesamiento = True,
+# Guardar figura en formato .PDF:
+  guardar = True
 )"""
 
 """ani.trayectoria_3D_MAVEN_MAG(
@@ -154,26 +160,26 @@ metric.calcular_métricas_KNN_con_Fruchtman(
 # UNIÓN
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #merge.unir_archivo_MAG(directorio=ruta, archivo_pc='mvn_mag_l2_2022219pc1s_20220807_v01_r01_recortado.sts')
-#merge.unir_paquete_MAG(directorio=ruta, año='2024')
+#merge.unir_paquete_MAG(directorio=ruta, año='2017')
 #merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # RECORTE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#edit.recortar_archivo_MAG(directorio=ruta, archivo='mvn_mag_l2_2024229ss1s_20240816_v01_r01.sts', coord='ss')
+#edit.recortar_archivo_MAG(directorio=ruta, archivo='mvn_mag_l2_2014359ss_20141225_v01_r01.sts', coord='ss')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
-#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_pc', año='2024', coord='ss') # Recibe el año en que deseo cortar los datos
-#edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2016', hemisferio='norte') # o bien: hemisferio='norte_diurno'
+#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_ss', año='2017', coord='ss') # Recibe el año en que deseo cortar los datos
+#edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2017', hemisferio='norte') # o bien: hemisferio='norte_diurno'
 #edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
 """edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts',
                          región=edit.preparar_región_Vignes())"""
-#edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2025')
+#edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2017')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # DESCARGA
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#data.descargar_archivo_MAG(directorio=ruta, dia='16', mes='8', año='2024', coord='ss')
-#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos', fecha_inicio='1/11/2023', fecha_final='31/12/2023', coord='ss')
+#data.descargar_archivo_MAG(directorio=ruta, dia='25', mes='12', año='2014', coord='ss')
+#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos_pc', fecha_inicio='1/1/2017', fecha_final='31/12/2017', coord='pc')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:

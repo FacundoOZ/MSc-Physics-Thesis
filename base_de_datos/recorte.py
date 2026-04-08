@@ -6,10 +6,12 @@
 #============================================================================================================================================
 
 import os
+import time
 import numpy  as np
 import pandas as pd
 from tqdm              import tqdm
 from typing            import Any
+from datetime          import timedelta
 from scipy.interpolate import interp1d
 
 # Módulos Propios:
@@ -63,19 +65,23 @@ def recortar_paquete_MAG(
   datos_recortados_merge/año/mes.
   """
   lista: list[str] = []                                                    # Creo una lista vacía donde irán los nombres de archivo (str)
+  t_inicio     = time.time()
   for ruta_actual, _, archivos in os.walk(os.path.join(directorio, año)):  # Recorro todos los archivos .sts dentro de MAG
     for archivo in archivos:                                               # Para cada archivo de todos los archivos que hay,
       if archivo.endswith('.sts'):                                         # si termina en formato '.sts',
         lista.append(os.path.join(ruta_actual, archivo))                   # lo agrego a la lista de archivos.
   for elem in tqdm(lista, desc=f'Recortando año {año}', unit='archivo'):   # La barra de progreso dependerá de los archivos de 'lista'
     recortar_archivo_MAG(directorio, os.path.basename(elem), coord)        # Extraigo solo el nombre del archivo, para pasarle a la funcion.
+  t_final = time.time()
+  t_total = t_final - t_inicio
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # recortar_hemisferios_MAG: función para recortar, en principio, los datos del hemisferio norte de las mediciones MAG.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def recortar_hemisferios_MAG(
-    directorio: str,                                                                          # Carpeta donde se encuentra el archivo a recortar.
-    archivo: str,                                                                             # Nombre del archivo a recortar en formato string.
+    directorio: str,                                                                          # Carpeta donde está el archivo a recortar.
+    archivo: str,                                                                             # Nombre del archivo a recortar en formato str.
     hemisferio: str = 'norte'                                                                 # Hemisferio que se desea recortar.
 ) -> None:
   """
@@ -127,6 +133,7 @@ def recortar_hemisferios_paquete_MAG(
   recortados se guardan en la carpeta hemisferio_N/año/mes correspondiente, ó el hemisferio que corresponda.
   """
   nombres: list[str] = []                                                                       # Creo lista donde irán los nombres (str)
+  t_inicio     = time.time()
   for ruta_actual,_,archivos in os.walk(os.path.join(directorio,'datos_recortados_merge',año)): # Recorro datos_recortados_merge
     for archivo in archivos:                                                                    # Para cada archivo de todos los que hay,
       if archivo.endswith('.sts'):                                                              # si termina en formato '.sts',
@@ -137,6 +144,9 @@ def recortar_hemisferios_paquete_MAG(
       recortar_hemisferios_MAG(directorio, os.path.basename(j), hemisferio='norte')             # le paso hemisferio='norte' a la función.
     elif hemisferio == 'norte_diurno':                                                          # Si no,
       recortar_hemisferios_MAG(directorio, os.path.basename(j), hemisferio='norte_diurno')      # le paso hemisferio='norte_diurno'
+  t_final = time.time()
+  t_total = t_final - t_inicio
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # recortar_datos_fruchtman_MAG: función para recortar el catálogo de bow shocks de fruchtman y quedarme solo con los días decimales (col[0])
@@ -252,12 +262,16 @@ def recortar_Vignes_paquete_MAG(
   carpeta llamada 'recorte_Vignes' y en las subcarpetas correspondientes al año/mes.
   """
   lista: list[str] = []                                                               # Creo una lista con los archivos a recortar.
+  t_inicio     = time.time()
   for ruta_actual,_,archivos in os.walk(os.path.join(directorio,'hemisferio_N',año)): # Recorro todos los archivos del directorio de ese año.
     for archivo in archivos:                                                          # Para cada archivo,
       if archivo.endswith('.sts'):                                                    # si termina en formato '.sts'
         lista.append(os.path.join(ruta_actual, archivo))                              # entonces lo agrego a la lista.
   for elem in tqdm(lista, desc=f'Recortando año {año}', unit='archivo'):              # Barra de progreso respecto a la longitud de 'lista'.
     recortar_Vignes_MAG(directorio, os.path.basename(elem), preparar_región_Vignes()) # Recorto cada archivo mediante la región de Vignes.
+  t_final = time.time()
+  t_total = t_final - t_inicio
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

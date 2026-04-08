@@ -78,6 +78,7 @@ def descargar_paquete_MAG(
   fecha_inicio = datetime.strptime(fecha_inicio, '%d/%m/%Y')                 # Fecha de inicio (omito el primer mes, que fue de prueba)
   fecha_final  = datetime.strptime(fecha_final,  '%d/%m/%Y')                 # Fecha de final
   cant_dias    = (fecha_final - fecha_inicio).days + 1
+  t_inicio     = time.time()                                                 # Con 'time', calculo el tiempo en que el algoritmo inició.
   contador: dict[str,int] = {
     'Descargado': 0, 'Preexistente': 0, 'No encontrado': 0, 'Error': 0       # Creo un diccionario para el recuento de archivos
   }
@@ -91,6 +92,9 @@ def descargar_paquete_MAG(
       j += timedelta(days=1)                                                 # El iterador suma 1 día al loop
       #time.sleep(random.uniform(1, 2))                                      # Intervalo de tiempo de espera para no sobrecargar el server.
   print('Resultado final:', contador)                                        # Resultado de la descarga
+  t_final = time.time()                                                      # Con 'time', calculo el tiempo en que el algoritmo finalizó.
+  t_total = t_final - t_inicio                                               # Calculo el tiempo total empleado como diferencia entre tiempos.
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))     # Devuelvo un mensaje con el tiempo empleado en formato HH:MM:SS.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -23,7 +23,7 @@ def hipérbola_Vignes(
     ε: float  = 1.03,          # ± 0.01              # Excentricidad (por Vignes)
     L: float  = 2.04,          # ± 0.02 [R_m]        # Semi-latus rectum (por Vignes)
     α: float  = np.deg2rad(4), # 4°=0.0698132 rad    # Ángulo de aberración en SS (X' opuesto a flujo medio de viento solar) (por Vignes).
-    cant_puntos: int = 450     # Vignes lo llama N_b # Representa la suavidad (definición) de la hipérbola (por Vignes).
+    cant_puntos: int = 1000    # Vignes lo llama N_b # Representa la suavidad (definición) de la hipérbola (por Vignes).
     #R_SD = 1.64 # ± 0.08 [R_m]# Éstos dos se pueden obtener (distancia sub-solar: desde el planeta al punto de la cónica en el eje X'_ss).
     #R_TD = 2.62 # ± 0.09 [R_m]# distancia sub-solar: desde el planeta al punto de la cónica en el eje Y'_ss.
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -49,13 +49,14 @@ def función_hipérbola_Vignes(
     x_datos: np.ndarray,                                          # Mediciones de la componente X en coordenadas SS (Xss) de un bow shock.
     X0: float,                                                    # Único parámetro offset libre que se desea ajustar (desplazamiento en Xss).
     *,
-    cant_puntos: int = 450                                        # Cantidad de puntos con los que se desea ajustar (precisión del modelo)
+    cant_puntos: int = 1000                                       # Cantidad de puntos con los que se desea ajustar (precisión del modelo)
 ) -> np.ndarray:
     """
     La función función_hipérbola_Vignes recibe un np.ndarray de datos que representa mediciones de las componentes X en el sistema de
     referencia SS (Xss) donde ocurrió un bow shock, y recibe un parámetro float X0. Utilizando todos los parámetros standard dados por
-    Vignes (2000), excepto X0, traza la hipérbola única para el intervalo dado por las mediciones x_datos cuyo offset es X0, y la devuelve
-    en formato y=f(x) solo para y>0 (devuelve y). El parámetro 'cant_puntos' permite ajustar la definición de la hipérbola creada.
+    Vignes (2000), excepto X0, traza la hipérbola única con aberración de 4° (como Vignes) para el intervalo dado por las mediciones x_datos
+    cuyo offset es X0, y la devuelve en formato y=f(x) solo para y>0 (devuelve y). El parámetro 'cant_puntos' permite ajustar la definición de
+    la hipérbola creada.
     """
     _,_,x_a,y_a = hipérbola_Vignes(X0=X0,cant_puntos=cant_puntos) # Construyo la cónica de Vignes con el X0 y la cantidad de puntos propuestos.
     y_modelo: np.ndarray = np.empty_like(x_datos)                 # Creo un ndarray de longitud x_datos sin nada, el cual voy a llenar.

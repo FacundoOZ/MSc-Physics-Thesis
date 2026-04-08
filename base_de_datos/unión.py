@@ -6,9 +6,11 @@
 #============================================================================================================================================
 
 import os
+import time
 import numpy  as np
 import pandas as pd
-from tqdm import tqdm
+from tqdm     import tqdm
+from datetime import timedelta
 
 # Módulos Propios:
 from base_de_datos.conversiones import dias_decimales_a_datetime, fecha_UTC_a_DOY
@@ -81,12 +83,16 @@ def unir_paquete_MAG(
   una subcarpeta dentro de 'datos_recortados_merge' cuyo nombre es 'año'.
   """
   lista: list[str] = []                                                                          # Creo lista vacía -> irán nombres de archivo
+  t_inicio     = time.time()
   for ruta_actual, _, archivos in os.walk(os.path.join(directorio, 'datos_recortados_pc', año)): # Recorro todos los .sts de la carpeta.
     for archivo in archivos:                                                                     # Para cada archivo en ella,
       if archivo.endswith('.sts') and 'pc1s' in archivo:                                         # si termina en .sts y tiene 'pc1s' en nombre
         lista.append(os.path.join(ruta_actual, archivo))                                         # -> lo agrego a la lista
   for elem in tqdm(lista, desc=f'Uniendo año {año}', unit='archivo'):                            # -> tqdm usará la longitud de la lista
     unir_archivo_MAG(directorio, os.path.basename(elem))                                         # -> obtengo el nombre y uno los archivos
+  t_final = time.time()
+  t_total = t_final - t_inicio
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # unir_datos_fruchtman_MAG: 

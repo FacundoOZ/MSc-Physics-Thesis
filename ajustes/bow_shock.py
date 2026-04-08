@@ -16,7 +16,7 @@ from scipy.optimize    import curve_fit
 # Módulos Propios:
 from base_de_datos.conversiones import R_m, módulo
 from base_de_datos.lectura      import leer_archivo_Fruchtman, leer_archivos_MAG, leer_bow_shocks_KNN
-from plots.estilo_plots         import disco_2D
+from plots.estilo_plots         import disco_2D, guardar_figura
 from base_de_datos.recorte      import preparar_región_Vignes
 from ajustes.Vignes             import (hipérbola_Vignes, función_hipérbola_Vignes, hipérbola_mínima, hipérbola_máxima,
                                         máximo_2015, mínimo_2019)
@@ -29,6 +29,7 @@ def graficador_ajustes(
     objetos: list[str] = ['Marte','Vignes','Fruchtman','mín','máx','región','KNN'],        # Objetos que se desean graficar.
     años_Fruchtman: list[str] = ['2014','2015','2016','2017','2018','2019'],               # Años de Fruchtman cuyos datos deseo graficar.
     ajuste_Fruchtman: bool = False,                                                        # Booleano para realizar ajuste Vignes a Fruchtman.
+    hemisferio_N: bool = False,                                                            # Booleano para elegir mediciones recortadas o no.
     trayectoria: bool = False,                                                             # Booleano para graficar trayectoria común de MAVEN.
     recorte: str = 'recorte_Vignes',                                                       # Tipo de recorte a usar para la trayectoria MAVEN.
     tiempo_inicial: str='01/01/2015-00:00:00', tiempo_final: str='30/3/2015-23:59:00',     # Tiempo inicial y final de datos de trayectoria.
@@ -36,7 +37,8 @@ def graficador_ajustes(
     modelo: str = 'salvation_K1',                                                          # Modelo del KNN cuyos bow shocks quiero graficar.
     post_procesamiento: bool = False,                                                      # Booleano para modelos post-procesados.
     años_KNN: list[str] = ['2014'],                                                        # Bow shocks predichos por KNN del año asignado.
-    ajuste_KNN: bool = False                                                               # Booleano para realizar ajuste Vignes a KNN.
+    ajuste_KNN: bool = False,                                                              # Booleano para realizar ajuste Vignes a KNN.
+    guardar: bool = False
 ) -> None:
   """
   La función graficador_ajustes es una función para realizar un plot 2D, en formato sqrt(Yss**2 + Zss**2)/R_m contra Xss/R_m. Recibe en
@@ -45,7 +47,8 @@ def graficador_ajustes(
   de 'Fruchtman' de bow shocks detectados, con sus respectivos 'mín' (mínimo BS) y 'máx' (máximo BS), la 'región' total encerrada tras el
   recorte_Vignes realizado, y los bow shocks detectados por el 'KNN'.
   El parámetro 'años_Fruchtman' determina los bow shocks de qué años se graficarán, y si 'ajuste_Fruchtman'=True, sus ajuste no lineales
-  por cónicas del tipo Vignes.
+  por cónicas del tipo Vignes. Si hemiferio_N=True graficará solo a aquellos bow shocks que se produjeron en el hemisferio norte, y si es
+  False, todos ellos.
   Si el booleano 'trayectoria'=True, se graficarán las trayectorias realizadas por MAVEN en este plot cilíndrico con el 'recorte' que se
   haya seleccionado, en el intervalo ('tiempo_inicial', 'tiempo_final'), y con el 'promedio' elegido.
   El string 'modelo' representa el tipo de modelo KNN cuyos bow shocks desean graficarse, y el booleano 'post_procesamiento' si desean
@@ -57,20 +60,20 @@ def graficador_ajustes(
   if 'Vignes' in objetos:                                                                  # Si 'Vignes' figura en la lista de objetos,
     x, y, x_a, y_a = hipérbola_Vignes()                                                    # obtengo componentes cartesianas de la hipérbola 
     #p.plot(x,y, label=r'Vignes (1997) ss', color='black')                                 # de Vignes, y grafico el ajuste realizado por él,
-    p.plot(x_a,y_a, label=r'Vignes (1997) ss ($\alpha = 4$°)', color='black')              # y el ajuste con coordenadas aberradas (x',y').
+    p.plot(x_a,y_a,linestyle='--',label=r'Ajuste BS Vignes (1997) aberrado ($\alpha = 4$°)',color='black')# y el ajuste con coordenadas aberradas (x',y').
   if 'Fruchtman' in objetos:                                                               # Si 'Fruchtman' figura en la lista de objetos,
     for año in años_Fruchtman:                                                             # Para cada año de los años seleccionados,
-      data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año, hemisferio_N=False) # leo el archivo Fruchtman del año correspondiente,
+      data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año, hemisferio_N)       # leo el archivo Fruchtman del año correspondiente,
       Xss, Yss, Zss = [data_Fru[j] for j in [7,8,9]]                                       # obtengo las componentes (X,Y,Z) en sistema SS,
-      p.scatter(Xss/R_m, módulo(Yss,Zss, norm=R_m), s=2, label=f'Fruchtman ({año}) ss')    # y scattereo los datos cilíndricos normalizados.
+      p.scatter(Xss/R_m, módulo(Yss,Zss, norm=R_m), s=1, label=f'Fruchtman ({año}) ss')    # y scattereo los datos cilíndricos normalizados.
       if ajuste_Fruchtman:                                                                 # Si el booleano ajuste_Fruchtman=True,
         ajustar_por_función_Vignes(Xss,Yss,Zss, año)                                       # realizo ajuste no lineal por hipérbola Vignes.
     if 'mín' in objetos:                                                                   # Si 'min' está en la lista de objetos,
       p.scatter(mínimo_2019()[0], mínimo_2019()[1],                                        # marco el mínimo en el plot con una cruz grande
-                marker='x', s=200, color='purple', label='mínimo 2019')                    # (uso el mismo color que los datos del mínimo).
+                marker='x', s=100, color='purple', label='mínimo 2019')                    # (uso el mismo color que los datos del mínimo).
     if 'máx' in objetos:                                                                   # Si 'máx' está en la lista de objetos,
       p.scatter(máximo_2015()[0], máximo_2015()[1],                                        # lo marco también con una cruz grande
-                marker='x', s=200, color='red', label='máximo 2015')                       # (uso el mismo color que los del máximo).
+                marker='x', s=100, color='red', label='máximo 2015')                       # (uso el mismo color que los del máximo).
   if 'región' in objetos:                                                                  # Si 'región' está en la lista de objetos, cargo
     x_a_min, y_a_min = hipérbola_mínima(); x_a_max, y_a_max = hipérbola_máxima()           # componentes cartesianas de Hipérbola izq/der.
     p.plot(x_a_min,y_a_min, label=r'Curva mín: ($X_0=0.14, \alpha=20$°)', color='purple')  # Grafico la hiperbola izquierda (mínima)
@@ -81,20 +84,23 @@ def graficador_ajustes(
     data_MAG: pd.DataFrame = leer_archivos_MAG(os.path.join(directorio, recorte),          # obtengo los datos MAG con el recorte deseado,
                                                tiempo_inicial, tiempo_final, promedio)     # del intervalo (t0,tf) con el promedio indicado.
     Xss, Yss, Zss = [data_MAG[j] for j in [7,8,9]]                                         # Extraigo solo las componentes (X,Y,Z) en SS,
-    p.plot(Xss/R_m, módulo(Yss,Zss, norm=R_m))                                             # y grafico en formato cilíndrico normalizado.
+    p.scatter(Xss/R_m, módulo(Yss,Zss,norm=R_m),                                           # y grafico en formato cilíndrico normalizado
+              s=1, label='Trayectoria de MAVEN', rasterized=True)                          # usando puntos chicos (s=1) y alta definición.
   if 'KNN' in objetos:                                                                     # Si 'KNN' está en la lista de objetos,
     for año in años_KNN:                                                                   # para cada año cuyos bow shocks deseo graficar,
       data_BS: pd.DataFrame = leer_bow_shocks_KNN(directorio,modelo,post_procesamiento,año)# leo los bow shocks detectados por KNN,
       Xss, Yss, Zss = [data_BS[j] for j in [7,8,9]]                                        # extraigo solo las componentes (X,Y,Z) en SS,
-      p.scatter(Xss/R_m, módulo(Yss,Zss, norm=R_m), s=1)                                   # y grafico en formato cilíndrico normalizado.
+      p.scatter(Xss/R_m, módulo(Yss,Zss, norm=R_m), s=1, label=f'BS $k$-NN ({año})')       # y grafico en formato cilíndrico normalizado.
       if ajuste_KNN:                                                                       # Si el booleano ajuste_Fruchtman=True,
         ajustar_por_función_Vignes(Xss,Yss,Zss, año)                                       # realizo ajuste no lineal por hipérbola Vignes.
-  p.title('Ajustes para los datos de Fruchtman (MAVEN)')                                   # Título del gráfico.
-  p.xlabel(r"$x'_{\text{ss}}$ [$R_M$]")                                                    # Coloco labels tipo SS en el eje x.
-  p.ylabel(r"$\sqrt{y'_{\text{ss}}^2+z'_{\text{ss}}^2}$ [$R_M$]")                          # y coloco labels tipo SS en el eje y.
+  p.title('Bow shocks detectados por el $k$-NN', fontsize=8)                               # Título del gráfico.
+  p.xlabel(r"$x'_{\text{ss}}$ [$R_M$]", fontsize=9)                                        # Coloco labels tipo SS en el eje x.
+  p.xticks(fontsize=7); p.yticks(fontsize=7)                                               # Modifico el tamaño de los puntos en x e y.
+  p.ylabel(r"$\sqrt{y'_{\text{ss}}^2+z'_{\text{ss}}^2}$ [$R_M$]", fontsize=9)              # y coloco labels tipo SS en el eje y.
   p.grid(True, which='minor', linestyle=':', linewidth=0.5)                                # Pongo doble grilla, fina y con formato ':'
-  p.legend()                                                                               # Escribo los labels.
-  #guardar_figura()                                                                        # Guardo la figura.
+  p.legend(fontsize=5)                                                                     # Escribo los labels.
+  if guardar:                                                                              # Si el 'guardar' es True, guardar_figura()
+    guardar_figura()                                                                       # pide un mensaje y guarda tras apretar enter.
   p.show()                                                                                 # Enseño el plot.
 
 #———————————————————————————————————————————————————————————————————————————————————————
@@ -105,18 +111,19 @@ def ajustar_por_función_Vignes(Xss: np.ndarray, Yss: np.ndarray, Zss: np.ndarra
   La función ajustar_por_función_Vignes recibe 3 arrays 'Xss', 'Yss' y 'Zss' que corresponden a los vectores que contienen las coordenadas
   exactas de bow shocks, ya sean los detectados por Fruchtman o los detectados por mi KNN en el espacio circundante a Marte, y el string
   'año' representa el año a cuyos bow shocks corresponden. Dados todos esos BS's, realiza un ajuste no lineal por una hipérbola del tipo
-  Vignes llamando a función_hipérbola_Vignes y lo grafica en el plot cilíndrico sqrt(Yss**2 + Zss**2) contra Xss, normalizado por R_m.
+  Vignes con coordenadas aberradas llamando a función_hipérbola_Vignes (que usa aberración de 4° como Vignes) y lo grafica en el plot
+  cilíndrico sqrt(Yss**2 + Zss**2) contra Xss, normalizado por R_m.
   """
   popt, pcov = curve_fit(                                                        # popt: parámetros ajustados. pcov: matriz de covarianza.
-    lambda x,X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=450),            # Función ajuste: tipo hipérbola-Vignes (solo ajusto X0).
+    lambda x,X0: función_hipérbola_Vignes(x, X0=X0, cant_puntos=1000),           # Función ajuste: tipo hipérbola-Vignes (solo ajusto X0).
     Xss/R_m,                                                                     # Componente Xss normalizada por R_m.
     módulo(Yss,Zss,norm=R_m),                                                    # Componente Y=sqrt(Yss**2 + Zss**2) normalizada por R_m.
     p0=[0.64]                                                                    # Param inicial: X0=0.64 (X0 hallado por Vignes en 1997).
   )                                                                              # Guardo el ajuste en las variables popt, pcov.
   perr = np.sqrt(np.diag(pcov))                                                  # Obtengo errores como las raíces de la diagonal de pcov.
-  x: np.ndarray = np.linspace(np.min(Xss/R_m), np.max(Xss/R_m), 500)             # Creo grilla en el eje x para dibujar la curva ajustada.
-  y: np.ndarray = función_hipérbola_Vignes(x, X0=popt[0], cant_puntos=450)       # Obtengo los valores en Y para los puntos de la grilla.
-  p.plot(x, y, linewidth=2, label=f'Ajuste Vignes {año}: X0={popt[0]:.3f} $R_M$')# Grafico curva ajustada interpolada (reporto X0 hallado).
+  x: np.ndarray = np.linspace(np.min(Xss/R_m), np.max(Xss/R_m), 1000)            # Creo grilla en el eje x para dibujar la curva ajustada.
+  y: np.ndarray = función_hipérbola_Vignes(x, X0=popt[0], cant_puntos=1000)      # Obtengo los valores en Y para los puntos de la grilla.
+  p.plot(x, y, linewidth=1, label=f'Ajuste Vignes {año}: X0={popt[0]:.3f} $R_M$')# Grafico curva ajustada interpolada (reporto X0 hallado).
   print(f'Parámetros de ajuste: {popt}')                                         # Mediante prints, devuelvo parámetros óptimos ajustados 
   print(f'Desviación estándar: {perr}')                                          # y los errores obtenidos (desviación estándar).
 
