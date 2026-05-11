@@ -4,7 +4,7 @@
 
 This repository contains the code and data-processing pipeline developed for my MSc Physics thesis.
 
-The project focuses on the automated detection of planetary bow shock crossings using magnetic field measurements from NASA MAVEN spacecraft data and supervised machine learning techniques.
+The project focuses on the automated detection of planetary bow shock crossings (Mars) using magnetic field measurements from NASA MAVEN spacecraft data and supervised machine learning techniques.
 
 
 
@@ -14,7 +14,7 @@ The pipeline includes:
 
 * spacecraft data acquisition and preprocessing,
 * statistical feature extraction
-* supervised classification with K-Nearest Neighbors (KNN),
+* supervised classification with K-Nearest Neighbors (KNN) and postprocessing,
 * empirical bow shock modeling,
 * and scientific visualization tools.
 
@@ -37,7 +37,7 @@ Detecting bow shock crossings in spacecraft observations is important for studyi
 
 
 
-This work uses magnetic field observations from the MAVEN mission to automatically identify candidate bow shock crossings.
+In particular, the MAVEN spacecraft was designed to study the loss of the Martian upper atmosphere and its interaction with the solar wind, providing important insights into how Mars lost its global magnetic field over billions of years. This work uses magnetic field observations from the MAVEN mission to automatically identify candidate bow shock crossings.
 
 ## Requirements
 
@@ -67,11 +67,15 @@ pipeline, physical modeling, machine learning, and visualization stages.
 │   ├── conversiones.py       # Shared time conversion utilities
 │   ├── descarga.py           # MAVEN MAG data download functions from LASP Institute, Colorado
 │   ├── lectura.py            # File reading utilities
+│   ├── promedio.py           # Average post-processing functions
 │   ├── recorte.py            # Filtering functions
+
 │   └── unión.py              # Data merging utilities
 ├── machine\_learning/
 │   ├── clasificador\_KNN.py   # Binary kNN Classifier for bow shock detection
 │   ├── estadistica.py        # Statistical feature extraction
+│   ├── métricas.py           # Machine learning evaluation metrics
+
 │   └── validación\_cruzada.py # Cross-validation utilities for kNN
 ├── plots/
 │   ├── animación\_3D.py       # 3D MAVEN trajectory animations
@@ -89,18 +93,17 @@ The workflow consists of the following stages:
 
 
 
-1. Magnetic field data are downloaded and filtered around candidate events.
+1. Magnetic field data are downloaded and filtered according to spacecraft location, Martian crustal magnetic field regions, and empirical bow shock geometry.
 2. Sliding windows are applied to spacecraft measurements.
-3. Statistical and temporal features are extracted, including variance, percentiles, extrema and local magnetic fluctuations.
-4. A supervised KNN classifier is trained using manually labeled bow shock crossings.
-5. The trained model predicts candidate crossings on previously unseen spacecraft intervals.
+3. Statistical and temporal features are extracted, including variance, percentiles, extrema, and local magnetic field fluctuations.
+4. A supervised KNN classifier is trained using manually labeled bow shock crossings spanning six years of observations (2014–2019).
+5. The trained model predicts candidate crossings on previously unseen spacecraft intervals from 2014 to 2025.
 6. Predictions are compared against empirical bow shock models and spacecraft trajectories.
+7. No significant correlation is observed between the average bow shock position and Mars’ orbital position, seasonal variations, or the solar activity cycle.
 
 ## Installation
 
-Show the **shortest path from zero to result**.
-
-markdown
+**Requirements**
 
 * Python 3.10+
 * NumPy
@@ -150,7 +153,7 @@ Example outputs include:
 
 ## Limitations
 
-* The classifier depends on manually labeled training events.
+* The classifier depends on manually labeled training events, which are not complete.
 * Performance decreases during low signal-to-noise intervals.
 * Only magnetic field data are currently used.
 * The model does not yet incorporate plasma moments or deep learning approaches.
