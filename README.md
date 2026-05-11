@@ -117,7 +117,6 @@ Install dependences with:
 
 ```
 pip install numpy pandas matplotlib scikit-learn requests cdflib
-
 ```
 
 ## Usage
