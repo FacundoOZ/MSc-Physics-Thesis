@@ -168,13 +168,17 @@ Potential future extensions include:
 
 If you use this repository, please cite:
 
+
+
 Facundo Otero Zappa (2026).
+
 Identificación del bow shock marciano mediante un clasificador $k$-NN binario supervisado.
 Master's Thesis, Universidad de Buenos Aires.
 
 ## Author
 
 Facundo Otero Zappa
+
 MSc Physics Graduate | MSc Computer Science Student
 
 Machine Learning • Scientific Computing • Space Physics
