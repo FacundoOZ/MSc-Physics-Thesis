@@ -1,6 +1,4 @@
 
-# COMENTAR predecir_ventana
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
 #============================================================================================================================================
@@ -165,17 +163,14 @@ class Clasificador_KNN_Binario:
         prob[:,1] = Probabilidad de la clase BS.
         prob[:,0] = Probabilidad de la clase NBS.
     """
-    # VERSIÓN NUEVA OPTIMIZADA
-    ventanas = [data_MAG[i:i+self.ventana_puntos] for i in range(0, len(data_MAG), self.ventana_puntos) if i + self.ventana_puntos <= len(data_MAG)]
-    # Step 2: compute vectors and convert to float32
-    X_vectors = np.array([self.vector_característico(v).astype(np.float32) for v in ventanas], dtype=np.float32)
-    # Step 3: scale all vectors at once
-    X_scaled = self.scaler.transform(X_vectors)
-    # Step 4: predict all at once
-    pred = self.knn.predict(X_scaled)
-    j_ventana = np.array([i + self.ventana_puntos//2 for i in range(0, len(data_MAG), self.ventana_puntos) if i + self.ventana_puntos <= len(data_MAG)])
+    # VERSIÓN OPTIMIZADA
+    ventanas = [data_MAG[i:i+self.ventana_puntos] for i in range(0,len(data_MAG),self.ventana_puntos) if i+self.ventana_puntos<=len(data_MAG)]
+    X_vectors= np.array([self.vector_característico(v).astype(np.float32) for v in ventanas], dtype=np.float32) # Calculo features en float32.
+    X_scaled = self.scaler.transform(X_vectors)                                                                 # Transformo los features de una.
+    pred     = self.knn.predict(X_scaled)                                                                       # Predigo las etiquetas a la vez.
+    j_ventana= np.array([i+self.ventana_puntos//2 for i in range(0,len(data_MAG),self.ventana_puntos) if i+self.ventana_puntos<=len(data_MAG)])
     return pred, j_ventana
-    # VERSIÓN ANTERIOR
+    # VERSIÓN ESTÁNDAR
     """if not self.entrenado:                                                 # Si todavía no se entrenó al KNN,
       raise RuntimeError('El clasificador KNN no ha sido entrenado.')      # devuelvo un mensaje.
     etiqueta:     list[int]         = []                                   # Inicializo una lista para guardar las etiquetas (1: BS ó 0: NBS),

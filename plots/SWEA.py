@@ -31,7 +31,8 @@ def graficador_distribución_angular(
     guardar: bool = False                            #
 ) -> None:
   """
-  La función graficador_distribución_angular permite graficar la distribución angular (survey o archive) del paso de electrones en unidades de diferencial de flujo de energía.
+  La función graficador_distribución_angular permite graficar la distribución angular (survey o archive) del paso de electrones en unidades
+  de diferencial de flujo de energía.
 
   Procedimiento:
     1. Ir al Link: https://pds-ppi.igpp.ucla.edu/collection/urn:nasa:pds:maven.swea.calibrated:data.svy_pad (Survey) (15 Hz) (mediciones cada 4s)

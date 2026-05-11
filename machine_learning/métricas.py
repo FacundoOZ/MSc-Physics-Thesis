@@ -1,6 +1,4 @@
 
-# Comentar
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para calcular el rendimiento y la precisión de un modelo KNN respecto a datos Fruchtman supervisados.
 #============================================================================================================================================
@@ -120,6 +118,7 @@ def métrica_F1(TP: int, FP: int, FN: int) -> float:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # graficador_parámetros_KNN: 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# El barrido de parámetros se realizó en intervalos coherentes. Estos fueron los siguientes:
 promedios: list[int]    = [1,2,3,4,5,6,7,8,9,10]
 ventana: list[int]      = [20,40,60,80,100,120]
 ventanas_NBS: list[str] = ['[-4]','[-3]','[-2]','[-1]','[1]','[2]','[3]','[4]','[-2,2]','[-4,-3,3,4]','[-3,-2,-1,2]','[-3,-2,2,3]','[-4,-3,-2,2]']
@@ -127,120 +126,143 @@ K: list[int]            = [1,2,3,4,5,6,7,8,9,10,11,12]
 tolerancia: list[int]   = [20,40,60,80,100,120,140,160,180,200,240,300,360,420,480,540,600]
 
 def graficador_parámetros_KNN(
-    directorio: str,                                                                      #
-    parámetro: str,                                                                       #
-    post_procesamiento: bool = True,                                                      #
-    métricas: list[str] = ['TPR','PPV','F1'],                                             #
-    errores: bool = True,                                                                 #
-    guardar: bool = False                                                                 #
+  directorio: str,                                                                              # Directorio donde se encuentran los archivos.
+  parámetro: str,                                                                               # Metaparámetro que deseo graficar.
+  post_procesamiento: bool = True,                                                              # Booleano para graficar mediciones procesadas.
+  métricas: list[str] = ['TPR','PPV','F1'],                                                     # Métricas que se desean graficar.
+  errores: bool = True,                                                                         # Booleano para graficar con/sin barras de error.
+  guardar: bool = False                                                                         # Booleano para guardar la figura en formato .pdf.
 ) -> None:
   """
-  Docstring
+  La función graficador_parámetros_KNN permite graficar todas las optimizaciones de los metaparámetros 'promedio', 'ventana' y 'ventanas_NBS'
+  simultáneamente, 'K' y 'tolerancia'. Para ello, recibe los strings 'directorio', donde se encuentran todos los archivos y accede a las
+  subcarpetas correspondientes, y 'parámetro', que determina el metaparámetro cuyas métricas se desea graficar. El parámetro booleano
+  'post_procesamiento' determina si los archivos de métricas que se leerán serán los post-procesados o no, y la lista de strings 'métricas'
+  determina qué métricas globales se graficarán: 'TPR', 'PPV' y/o 'F1'. Si los booleanos 'errores' o 'guardar' son verdaderos grafica con o
+  sin barras de error, respectivamente, y permite guardar la figura en formato .pdf de alta calidad. La función no devuelve nada.
   """
-  p.figure()
-  if parámetro=='promedio':                                                               # CASO 1: PARÁMETRO='promedio'
-    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
-    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
-    for j in promedios:                                                                   # del 1 al 10 inclusives
-      modelo: str = f'Eclipse_promedio{j}'                                                #
-      data_p: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)    #
-      for m in métricas:                                                                  #
-        media, std = calcular_métrica_global(data_p, métrica=m)                           #
-        res[m].append(media)                                                              #
-        res_std[m].append(std)                                                            #
-    for m in métricas:                                                                    #
-      if errores:                                                                         #
-        p.errorbar(promedios, res[m], yerr=res_std[m],                                    #
-                   marker='o', capsize=4, label=f'{m} global')                            #
-      else:                                                                               #
-        p.plot(promedios, res[m], marker='o', label=f'{m} global')                        #
-    p.xlabel('Promedio [s]')                                                              #
-  elif parámetro=='ventanas_NBS':                                                         # CASO 2: PARÁMETRO='ventanas_NBS'
-    for j in ventana:                                                                     #
-      res:     dict[str, list[float]] = {m: [] for m in métricas}                         #
-      res_std: dict[str, list[float]] = {m: [] for m in métricas}                         #
-      pos_ventanas_NBS = []                                                               #
-      for k, pos in enumerate(ventanas_NBS):                                              #
-        modelo: str = f'Eclipse_ventana{j}_NBS{k}'                                        #
-        try:                                                                              #
-          data_v: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)#
-        except FileNotFoundError:                                                         #
-          continue                                                                        #
-        pos_ventanas_NBS.append(pos)                                                      #
-        for m in métricas:                                                                #
-          media, std = calcular_métrica_global(data_v, métrica=m)                         #
-          res[m].append(media)                                                            #
-          res_std[m].append(std)                                                          #
-      for m in métricas:                                                                  #
-        if errores:                                                                       #
-          p.errorbar(pos_ventanas_NBS, res[m], yerr=res_std[m],                           #
-                     marker='o', capsize=4, label=f'{m} global ventana={j} s')            #
-        else:                                                                             #
-          p.plot(pos_ventanas_NBS, res[m], marker='o', label=f'{m} global ventana={j} s') #
-    p.xlabel('Posición de ventanas_NBS')                                                  #
-  elif parámetro=='K':                                                                    # CASO 3: PARÁMETRO='K'
-    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
-    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
-    for k in K:                                                                           #
-      modelo: str = f'Eclipse_k{k}'                                                       #
-      data_k: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)    #
-      for m in métricas:                                                                  #
-        media, std = calcular_métrica_global(data_k, métrica=m)                           #
-        res[m].append(media)                                                              #
-        res_std[m].append(std)                                                            #
-    for m in métricas:                                                                    #
-      if errores:                                                                         #
-        p.errorbar(K, res[m], yerr=res_std[m], marker='o', capsize=4, label=f'{m} global')#
-      else:                                                                               #
-        p.plot(K, res[m], marker='o', label=f'{m} global')                                #
-    p.xlabel(r'$k$ (número de vecinos)')                                                  #
-  elif parámetro=='tolerancia':                                                           #
-    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
-    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
-    for j in tolerancia:                                                                  #
-      modelo: str = 'Eclipse_k12'                                                         #
-      data_t: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento, j) #
-      for m in métricas:                                                                  #
-        media, std = calcular_métrica_global(data_t, métrica=m)                           #
-        res[m].append(media)                                                              #
-        res_std[m].append(std)                                                            #
-    for m in métricas:                                                                    #
-      if errores:                                                                         #
-        p.errorbar(tolerancia, res[m], yerr=res_std[m],                                   #
-                   marker='o', capsize=4, label=f'{m} global')                            #
-      else:                                                                               #
-        p.plot(tolerancia, res[m], marker='o', label=f'{m} global')                       #
-    p.xlabel('Tolerancia [s]')                                                            #
-  p.ylabel('Métricas globales')                                                           #
-  p.title('Promedio de métricas de CV (2014-2019) respecto del metaparámetro')            #
-  p.grid(which='major', alpha=.2,  linestyle='-')                                         #
-  p.grid(which='minor', alpha=.15, linestyle=':')                                         #
-  p.legend()                                                                              #
-  if guardar:                                                                             #
-    guardar_figura()                                                                      #
-  p.show()                                                                                #
+  p.figure()                                                                                    # Creo la figura.
+  if parámetro == 'promedio':                                                                   # Si quiero graficar el metaparámetro promedio,
+    res, res_std, x = obtener_resultados(                                                       # obtengo todos los resultados de la lista del
+      promedios, métricas,                                                                      # barrido ('promedios') de la 'métricas' corresp.
+      lambda j: leer_métricas_KNN(directorio, f'Eclipse_promedio{j}', post_procesamiento))      # y leo las métricas globales.
+    graficar_métricas(x, res, res_std, métricas, errores)                                       # Grafico las métricas con o sin errores,
+    configurar_gráfico('Promedio [s]')                                                          # y coloco el promedio en segundos como etiqueta en x.
+  elif parámetro == 'ventanas_NBS':                                                             # Si no, si el parámetro es ventanas_NBS,
+    for j in ventana:                                                                           # debo hacer el plot múltiple barriendo cada ventana.
+      res, res_std, x = obtener_resultados(                                                     # Para cada ventana, obtengo los resultados,
+        list(range(len(ventanas_NBS))), métricas,                                               # de las métricas deseadas,
+        lambda k: leer_métricas_KNN(directorio,f'Eclipse_ventana{j}_NBS{k}',post_procesamiento))# con o sin post-procesado, etc..
+      posiciones = [ventanas_NBS[k] for k in x]                                                 # Obtengo las posiciones del eje x para plotear.
+      graficar_métricas(posiciones, res, res_std, métricas, errores, f'ventana={j} s')          # Grafico todos los resultados (uso label_extra),
+    configurar_gráfico('Posición de ventanas_NBS')                                              # y coloco como eje x la posición de ventanas_NBS.
+  elif parámetro == 'K':                                                                        # Si no, si el parámetro es K,
+    res, res_std, x = obtener_resultados(                                                       # hago lo mismo que con promedio,
+      K, métricas,                                                                              # colocando el barrido de K para el eje x.
+      lambda k: leer_métricas_KNN(directorio, f'Eclipse_k{k}', post_procesamiento))             # Leo las métricas,
+    graficar_métricas(x, res, res_std, métricas, errores)                                       # las grafico,
+    configurar_gráfico(r'$k$ (número de vecinos)')                                              # y coloco la etiqueta en x.
+  elif parámetro == 'tolerancia':                                                               # Si no, por último, si el parámetro es 'tolerancia',
+    res, res_std, x = obtener_resultados(                                                       # obtengo los resultados,
+      tolerancia, métricas,                                                                     # obtengo los valores en x y las métricas,
+      lambda t: leer_métricas_KNN(directorio, 'Eclipse_k12', post_procesamiento, t))            # con o sin post-procesado, ...
+    graficar_métricas(x, res, res_std, métricas, errores)                                       # Grafico,
+    configurar_gráfico('Tolerancia [s]')                                                        # y coloco etiqueta en eje x.
+  if guardar:                                                                                   # Si guardar=True,
+    guardar_figura()                                                                            # guardo la figura en formato .pdf.
+  p.show()                                                                                      # Muestro el plot.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 # Función Auxiliar
 #———————————————————————————————————————————————————————————————————————————————————————
 def calcular_métrica_global(
-    archivo_métricas: pd.DataFrame,                           #
-    métrica: str                                              #
+    archivo_métricas: pd.DataFrame,                           # Dataframe que contiene todo el archivo de métricas.
+    métrica: str                                              # Métrica cuyo valor medio y error deseo calcular.
 ) -> tuple[float, float]:
   """
-  Docstring
+  La función calcular_métrica_global recibe un dataframe 'archivo_métricas' que contiene toda la información del archivo de métricas asociado
+  a un metaparámetro que se calculó mediante cross-validation. El parámetro string 'métrica' determina qué métrica deseo leer de dicho archivo.
+  La función devuelve una tupla cuyo primer elemento es la media de todas las métricas 'métrica' de los años 2014 al 2019, y cuyo segundo
+  elemento es la desviación estándar de dicha media.
   """
-  if métrica=='TPR':                                          #
-    res: list[float] = archivo_métricas['Recall']             #[1:]
-  elif métrica=='PPV':                                        #
-    res: list[float] = archivo_métricas['Precision']          #[1:]
-  elif métrica=='F1':                                         #
-    res: list[float] = archivo_métricas['F1']                 #[1:]
-  else:                                                       #
-    raise ValueError(f'No se encuentra la métrica: {métrica}')#
-  media = np.mean(res)                                        #
-  std = np.std(res, ddof=1)                                   #
-  return (media, std)                                         #
+  if métrica=='TPR':                                          # Si quiero la métrica 'TPR' global,
+    res: list[float] = archivo_métricas['Recall']             # obtengo sus valores (que están en columna 'Recall') en la lista de floats res.
+  elif métrica=='PPV':                                        # Si no, si quiero la métrica 'PPV' global,
+    res: list[float] = archivo_métricas['Precision']          # hago lo mismo pero para la columna 'Precision'
+  elif métrica=='F1':                                         # Si no, si quiero la métrica 'F1' global,
+    res: list[float] = archivo_métricas['F1']                 # repito para la columna de nombre 'F1'.
+  else:                                                       # Si no era ninguna de las anteriores,
+    raise ValueError(f'No se encuentra la métrica: {métrica}')# => no se encuentra la métrica que se ingresó.
+  media: float = np.mean(res)                                 # Calculo la media con numpy,
+  std:   float = np.std(res, ddof=1)                          # y la desviación estándar, ambas en formato float.
+  return (media, std)                                         # Devuelvo la tupla con la métrica global media y su error.
+
+#———————————————————————————————————————————————————————————————————————————————————————
+def obtener_resultados(
+    x_values: list,                                              # Valores del metaparámetro del eje x.
+    métricas: list[str],                                         # Métricas 'TPR' 'PPV' o 'F1' cuyos valores medios/errores deseo obtener.
+    loader                                                       # Función a llamar para la lectura de métricas KNN.
+) -> tuple[dict[str, list[float]], dict[str, list[float]], list]:
+  """
+  La función obtener_resultados calcula la media y la desviación estándar de todos los archivos asociados a un metaparámetro. Para ello, recorre
+  todos los valores de la lista 'x_values' que contiene el barrido de un metaparámetro, y recibe una lista de strings 'métricas' que determina
+  de cuáles métricas desean calcularse los valores medios y los errores. La función cargará todos los dataframes cuando la función 'loader' los
+  llame, y calculará las métricas globales deseadas del archivo mediante la función auxiliar calcular_métrica_global. Devuelve una tripla cuyos
+  valores son diccionarios con claves métricas, y cuyos valores son los promedios calculados y sus errores, y el último elemento de la tripla
+  es la lista de valores del metaparámetro que pudieron calcularse.
+  """
+  res:     dict[str, list[float]] = {m: [] for m in métricas}    # Inicializo listas vacías para cada valor de métrica m deseado,
+  res_std: dict[str, list[float]] = {m: [] for m in métricas}    # y su respectivo diccionario con sus errores (desviaciones estándar de res)
+  x_validos: list = []                                           # Inicializo una lista vacía de valores del metaparámetro válidos.
+  for x in x_values:                                             # Para cada valor de los de la lista del metaparámetro,
+    try:                                                         # Intento extraer la info del archivo.
+      data: pd.DataFrame = loader(x)                             # Para ello llamo a la función loader (que será leer_métricas_KNN).
+    except FileNotFoundError:                                    # Si no se encuentra el archivo,
+      continue                                                   # paso a la siguiente iteración del for.
+    x_validos.append(x)                                          # Si no pasé a la siguiente iteración => pude leerlo => lo agrego a mi lista.
+    for m in métricas:                                           # Para cada valor 'TPR', 'PPV' o 'F1' de métricas,
+      media, std = calcular_métrica_global(data, métrica=m)      # calculo la media y la std del archivo,
+      res[m].append(media)                                       # agrego el resultado de la media a res,
+      res_std[m].append(std)                                     # y del error a la lista de res_std de desviaciones.
+  return res, res_std, x_validos                                 # Devuelvo una tripla con todos los elementos luego cuando terminó el for.
+
+#———————————————————————————————————————————————————————————————————————————————————————
+def graficar_métricas(
+  x: list,                                                                      # Lista de valores del eje x (por ejemplo valores promedio).
+  res: dict[str, list[float]],                                                  # Diccionario de métricas TPR/PPV/F1 de valores respecto a x.
+  res_std: dict[str, list[float]],                                              # Diccionario de las desviaciones estándar de dichos valores.
+  métricas: list[str],                                                          # Métricas que se desean graficar: 'TPR', 'PPV' o 'F1'
+  errores: bool,                                                                # Booleano que representa si se graficará con o sin errores.
+  label_extra: str=''                                                           # Label extra para el plot múltiple de ventanas_NBS por ventana.
+) -> None:
+  """
+  La función graficar_métricas recibe una lista 'x' que representa los valores del eje x. Recibe los diccionarios 'res' y 'res_std' cuyas
+  claves son strings que representan las métricas TPR, PPV o F1, y sus valores son listas de floats que representan los valores de dichas
+  métricas para cada valor de eje x. El parámetro 'métricas' es una lista de strings que determina las métricas que se graficarán, y el
+  booleano 'errores' determina si los datos se graficarán con barras de error o no. El parámetro 'label_extra' permite distinguir el uso
+  de distintas ventanas en segundos para el gráfico múltiple de ventanas_NBS. La función no devuelve nada.
+  """
+  for m in métricas:                                                            # Para cada métrica que se desea graficar,
+    label: str = f'{m} global {label_extra}'.strip()                            # construyo el string de su etiqueta con o sin extras.
+    if errores:                                                                 # Si quiero graficar las barras de error,
+      p.errorbar(x, res[m], yerr=res_std[m], marker='o', capsize=4, label=label)# grafico cada valor de la clave m de res contra x, colocando
+    else:                                                                       # con sus errores, techito y pisito y sus etiquetas. Si no,
+      p.plot(x, res[m], marker='o', label=label)                                # grafico cada valor de clave m de res contra x interpolado.
+
+#———————————————————————————————————————————————————————————————————————————————————————
+def configurar_gráfico(
+    xlabel: str                                                               # Etiqueta del eje x
+) -> None:
+  """
+  Configura los elementos estéticos del gráfico y coloca la etiqueta en x mediante el string 'xlabel' correspondiente. No devuelve nada.
+  """
+  p.xlabel(xlabel)                                                            # Coloco el eje x ingresado.
+  p.ylabel('Métricas globales')                                               # Coloco el mismo eje y para todos los casos,
+  p.title('Promedio de métricas de CV (2014-2019) respecto del metaparámetro')# y el mismo título,
+  p.grid(which='major', alpha=.2,  linestyle='-')                             # con ejes principales transparentes y con estilo '-',
+  p.grid(which='minor', alpha=.15, linestyle=':')                             # y con ejes secundarios aún menos visibles con estilo ':'.
+  p.legend()                                                                  # Muestro los labels.
+#———————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

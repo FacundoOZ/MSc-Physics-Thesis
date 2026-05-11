@@ -1,6 +1,4 @@
 
-# Comentar
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para leer los datos de MAVEN MAG y los archivos de Fruchtman unidos por unión.py
 #============================================================================================================================================
@@ -138,17 +136,25 @@ def leer_bow_shocks_KNN(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # leer_métricas_KNN: lee el archivo métricas_promedio de un modelo KNN con tolerancia por defecto de 120 segundos.
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-def leer_métricas_KNN(directorio: str, modelo: str, post_procesamiento: bool, tolerancia: int = 120) -> pd.DataFrame:
+def leer_métricas_KNN(
+    directorio: str,                                                                               # Directorio donde están los archivos.
+    modelo: str,                                                                                   # Modelo KNN cuyas métricas deseo leer.
+    post_procesamiento: bool,                                                                      # Booleano de métricas post-procesadas.
+    tolerancia: int = 120                                                                          # Tolerancia en segundos de las métricas.
+) -> pd.DataFrame:
   """
-  Docstring
+  La función leer_métricas_KNN recibe en formato string un 'directorio' y un 'modelo' de entrenamiento k-NN, y recibe el parámetro booleano
+  'post_procesamiento' y el entero 'tolerancia' en segundos del modelo. Lee todas las métricas del archivo 'métricas_promedio_tolerancia.txt'
+  asociado ya sea con o sin post-procesamiento cuando corresponda, que se encuentra dentro de las subcarpetas 'KNN', 'predicción' y 'modelo'
+  dentro del directorio. Devuelve un dataframe con los resultados.
   """
-  ruta_base: str = os.path.join(directorio, 'KNN', 'predicción')
-  if post_procesamiento:
-    ruta_m: str = os.path.join(ruta_base, modelo, 'post_procesamiento', f'métricas_promedio_{tolerancia}.txt')
-  else:
-    ruta_m: str = os.path.join(ruta_base, modelo, f'métricas_promedio_{tolerancia}.txt')
+  ruta_base: str = os.path.join(directorio, 'KNN', 'predicción')                                   # Obtengo la ruta base
+  if post_procesamiento:                                                                           # Si post_procesamiento=True,
+    ruta_m: str = os.path.join(ruta_base, modelo, 'post_procesamiento', f'métricas_promedio_{tolerancia}.txt')# obtengo las métricas con PP
+  else:                                                                                            # con la tolerancia indicada. Si no,
+    ruta_m: str = os.path.join(ruta_base, modelo, f'métricas_promedio_{tolerancia}.txt')           # obtengo las métricas convencionales.
   res: pd.DataFrame = pd.read_csv(ruta_m, sep=r'\s+')                                              # Leo las columnas separadas por espacios.
-  return res
+  return res                                                                                       # Devuelvo un dataframe con las métricas.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

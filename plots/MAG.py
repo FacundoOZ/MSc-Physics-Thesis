@@ -238,10 +238,10 @@ def graficar_bow_shocks(
     archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                 # reconstruyo el nombre del archivo con el año indicado,
     ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
     día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
-  elif origen=='propios':                                                        # 
-    archivo_prop: str = f'catálogo_Fruchtman-propios_2014.sts'                   # 
-    ruta_prop: str    = os.path.join(ruta,'propios', archivo_prop)               # 
-    día_decimal: np.ndarray = np.loadtxt(ruta_prop, usecols=0)                   # 
+  elif origen=='propios':                                                        # Si no, si el origen son los BS's catalogados del 2014,
+    archivo_prop: str = f'catálogo_Fruchtman-propios_2014.sts'                   # defino el nombre del archivo,
+    ruta_prop: str    = os.path.join(ruta,'propios', archivo_prop)               # y obtengo su ruta completa.
+    día_decimal: np.ndarray = np.loadtxt(ruta_prop, usecols=0)                   # Cargo los datos del archivo en día_decimal.
   elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
     ruta_base: str     = os.path.join(ruta,'KNN','predicción', modelo_KNN)       # construyo la ruta base donde se encuentran los archivos.
     if post_procesamiento:                                                       # Si quiero tomar post-procesamiento,
@@ -252,18 +252,18 @@ def graficar_bow_shocks(
     día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
   t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
   t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.
-  if len(t_máscara) == 0:
-    print('El $k$-NN no ha detectado bow shocks en el intervalo seleccionado.')
-    return
+  if len(t_máscara) == 0:                                                        # Si no se detectó ningún bow shock,
+    print('El $k$-NN no ha detectado bow shocks en el intervalo seleccionado.')  # devuelvo un mensaje para no buscar errores que no existen,
+    return                                                                       # y termino la función.
   ax = p.gca()                                                                   # Get Current Axes (obtener ejes actuales) en la var ax.
-  if origen=='Fruchtman':
-    ax.axvline(t_máscara[0], alpha=1, color=color, linewidth=4, label=etiqueta)               # Grafico por separado el primer BS para agregarle etiqueta.
-    for t_BS in t_máscara[1:]:                                                     # Para el resto de tiempos (día_decimal) de BS de la lista,
-      ax.axvline(t_BS, alpha=1, color=color, linewidth=4)                                     # grafico líneas verticales transparentes (alpha) sin label.
-  else:
+  if origen=='Fruchtman':                                                        # Si quiero los bow shocks de Fruchtman,
+    ax.axvline(t_máscara[0], alpha=1, color=color, linewidth=4, label=etiqueta)  # Grafico por separado el primer BS para agregarle etiqueta.
+    for t_BS in t_máscara[1:]:                                                   # Para el resto de tiempos (día_decimal) de BS de la lista,
+      ax.axvline(t_BS, alpha=1, color=color, linewidth=4)                        # grafico líneas verticales transparentes ANCHAS sin label.
+  else:                                                                          # Si no,
     ax.axvline(t_máscara[0], alpha=1, color=color, label=etiqueta)               # Grafico por separado el primer BS para agregarle etiqueta.
-    for t_BS in t_máscara[1:]:                                                     # Para el resto de tiempos (día_decimal) de BS de la lista,
-      ax.axvline(t_BS, alpha=1, color=color)                                     # grafico líneas verticales transparentes (alpha) sin label.
+    for t_BS in t_máscara[1:]:                                                   # Para el resto de tiempos (día_decimal) de BS de la lista,
+      ax.axvline(t_BS, alpha=1, color=color)                                     # grafico líneas verticales transparentes sin label.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def formatear_ejes_y_titulo(

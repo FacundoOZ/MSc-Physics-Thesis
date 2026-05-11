@@ -1,6 +1,4 @@
 
-# TERMINADO
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo que contiene los parámetros y ajustes utilizados por Vignes (2000) para el año 1997.
 #============================================================================================================================================
@@ -34,22 +32,22 @@ def hipérbola_Vignes(
   R(θ), e introduciendo el offset x_0, calcula y devuelve las componentes cartesianas de la curva polar, los np.ndarray x e y. Además, devuelve 
   su versión aberrada, que consiste en una matriz de rotación con respecto al ángulo α seteado por Vignes en 4°, con los np.ndarrays x_a e y_a.
   """
-  θ: np.ndarray = np.linspace(θ0, θf, cant_puntos) # Malla de puntos para trazar la curva.
-  R: np.ndarray = L/(1 + ε*cos(θ))                 # Función R(θ) = L/(1+εcos(θ)): ecuación de la cónica en coordenadas polares (r,θ)
-  x: np.ndarray = R*cos(θ) + x_0                   # Componente x de la ecuación de la cónica en coordenadas cartesianas (SS) con offset x_0
-  y: np.ndarray = R*sin(θ)                         # Componente y de la ecuación de la cónica en coordenadas cartesianas (SS)
-  x_a: np.ndarray = x*cos(α) - y*sin(α)            # Componentes aberradas => aplico la matriz de rotación 2x2 a las coordenadas (x,y) del
-  y_a: np.ndarray = x*sin(α) + y*cos(α)            # sistema de coordenadas SS (x,y) => obtengo (x',y').
-  return x, y, x_a, y_a                            # Devuelvo los np.ndarray (componentes cartesianas) de la cónica (x,y), y (x',y').
+  θ:   np.ndarray = np.linspace(θ0, θf, cant_puntos)# Malla de puntos para trazar la curva.
+  R:   np.ndarray = L/(1 + ε*cos(θ))                # Función R(θ) = L/(1+εcos(θ)): ecuación de la cónica en coordenadas polares (r,θ)
+  x:   np.ndarray = R*cos(θ) + x_0                  # Componente x de la ecuación de la cónica en coordenadas cartesianas (SS) con offset x_0
+  y:   np.ndarray = R*sin(θ)                        # Componente y de la ecuación de la cónica en coordenadas cartesianas (SS)
+  x_a: np.ndarray = x*cos(α) - y*sin(α)             # Componentes aberradas => aplico la matriz de rotación 2x2 a las coordenadas (x,y) del
+  y_a: np.ndarray = x*sin(α) + y*cos(α)             # sistema de coordenadas SS (x,y) => obtengo (x',y').
+  return x, y, x_a, y_a                             # Devuelvo los np.ndarray (componentes cartesianas) de la cónica (x,y), y (x',y').
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # función_hipérbola_Vignes: dadas las mediciones x_datos pasadas por parámetro construye la cónica Vignes correspondiente que pasa por x_0
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def función_hipérbola_Vignes(
-    x_datos: np.ndarray,                                          # Mediciones de la componente X en coordenadas SS (Xss) de un bow shock.
-    x_0: float,                                                   # Único parámetro offset libre que se desea ajustar (desplazamiento en Xss).
+    x_datos: np.ndarray,                                           # Mediciones de la componente X en coordenadas SS (Xss) de un bow shock.
+    x_0: float,                                                    # Único parámetro offset libre que se desea ajustar (desplazamiento en Xss).
     *,
-    cant_puntos: int = 1000                                       # Cantidad de puntos con los que se desea ajustar (precisión del modelo)
+    cant_puntos: int = 1000                                        # Cantidad de puntos con los que se desea ajustar (precisión del modelo)
 ) -> np.ndarray:
     """
     La función función_hipérbola_Vignes recibe un np.ndarray de datos que representa mediciones de las componentes X en el sistema de
@@ -113,14 +111,14 @@ def máximo_2015() -> tuple[float, float]:
   cil = módulo(2458.306000, -7176.923000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
   return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 
-#def mínimo_2015() -> tuple[float, float]:
-#  """
-#  Mínimo bow shock del 2015 (23/07/2015-04:41:22):
-#  204.195399 0.570000 -2.980000 -0.580000 4935.614000 -1546.648000 2916.324000 -328.066000 -3450.585000 4821.119000
-#  """
-#  Xss = -328.066000/R_m                             # Obtengo la coordenada Xss normalizada por el radio marciano.
-#  cil = módulo(-3450.585000, 4821.119000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
-#  return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
+def mínimo_2015() -> tuple[float, float]:
+  """
+  Mínimo bow shock del 2015 (23/07/2015-04:41:22):
+  204.195399 0.570000 -2.980000 -0.580000 4935.614000 -1546.648000 2916.324000 -328.066000 -3450.585000 4821.119000
+  """
+  Xss = -328.066000/R_m                             # Obtengo la coordenada Xss normalizada por el radio marciano.
+  cil = módulo(-3450.585000, 4821.119000, norm=R_m) # Obtengo la proyección de las componentes yz, en el plano vertical y también normalizo.
+  return (Xss, cil)                                 # Devuelvo una tupla que contiene el punto en el plano (X,sqrt(Y**2 + Z**2)).
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

@@ -1,9 +1,8 @@
 
-# Terminado (se recomienda utilizar con discreción y únicamente si se cuenta con más de 8 GB de memoria RAM).
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de Validación Cruzada (Cross-Validation) usando métrica TPR (true positives rate).
 #============================================================================================================================================
+#* Se recomienda utilizar con discreción y únicamente si se cuenta con más de 8 GB de memoria RAM.
 
 import os
 import numpy  as np

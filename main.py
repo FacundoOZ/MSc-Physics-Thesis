@@ -1,6 +1,4 @@
 
-# COMENTAR
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo principal para correr los programas
 #============================================================================================================================================
@@ -45,54 +43,6 @@ for año in años:
   )
   avg.promediar_archivo_temporal_KNN(directorio=ruta, modelo='Eclipse_FINAL', año=año, promedio=600)"""
 
-# ENTRENAMIENTO => un tiempo total de 00:02:58 
-# PREDICCIÓN 11 AÑOS => un tiempo total de 
-"""
-2014 => 00:00:07
-2015 => 00:02:19
-2016 => 00:01:28
-2017 => 00:01:14
-2018 => 00:01:47
-2019 => 00:02:01
-2020 => 00:01:30
-2021 => 00:01:54
-2022 => 00:01:28
-2023 => 00:02:08
-2024 => 00:00:49
-2025 => 00:01:42
-
-327 s + 780 s = 1107 s
-
-TOTAL = 18 m 27 s
-"""
-
-
-
-"""import matplotlib.pyplot as p
-
-x0 = [0.55547660,0.60006849,0.46524696,0.52887940,0.48749612,0.19490869,0.46060805,0.56612123,0.39803001,0.60197869,0.56655043]
-x0_error = [0.14569734,0.25445534,0.30989747,0.19435214,0.21452367,0.23086488,0.15603615,0.23940949,0.21028380,0.22596452,0.20107036]
-años = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025']
-BS = [1420,1535,905,1449,1710,838,1348,1130,1514,566,1522]
-
-p.figure()
-p.plot(años,x0)
-p.legend()
-p.show()"""
-
-"""import matplotlib.pyplot as p
-
-TPR_global = [.619,.387,.363]
-PPV_global = [.038,.044,.108]
-F1_global  = [.066,.078,.163]
-
-modelo = ['Eclipse', 'Eclipse + post-procesamiento', 'Eclipse + post-procesamiento + optimización']
-p.figure()
-p.plot(modelo, TPR_global, label='TPR global')
-p.plot(modelo, PPV_global, label='PPV global')
-p.plot(modelo, F1_global,  label='F1 global')
-p.legend()
-p.show()"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # VALIDACIÓN CRUZADA "A MANO"
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -134,7 +84,7 @@ metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fr
   post_procesamiento = True,
   métricas           = ['F1'],
   errores            = False,
-  guardar            = True
+  guardar            = False
 )"""
 
 #———————————————————————————————————————————————————————————————————————————————————————
@@ -166,9 +116,9 @@ metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fr
   hemisferio_N     = True, # Si es igual a False, grafica todos los bow shocks detectados por Fruchtman. Si no, grafica solo los del norte.
 # Trayectoria Cilíndrica de MAVEN:
   #trayectoria      = True,
-  #recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
-  #tiempo_inicial   = '1/1/2017-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
-  #tiempo_final     = '31/3/2017-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #recorte          = 'recorte_Vignes',      # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
+  #tiempo_inicial   = '01/01/2017-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #tiempo_final     = '31/03/2017-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
   #promedio         = 1,                     # en segundos
 # Mediciones de BS detectadas por el KNN
   #modelo             = 'Eclipse_FINAL',
