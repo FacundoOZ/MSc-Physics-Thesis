@@ -1,6 +1,4 @@
 
-# Comentar y modularizar plot gemelo en GRAFICADOR
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por MAG: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/MAG
 #============================================================================================================================================
@@ -29,7 +27,7 @@ def graficador(
     tiempo_inicial: str, tiempo_final: str,                                         # t_inicial y t_final en formato str 'DD/MM/YYYY-HH:MM:SS'
     promedio: int = 1,                                                              # Promedio de lectura de archivos MAG.
     B: bool    = False, B_x: bool = False, B_y: bool = False, B_z: bool = False,    # Campo magnético B=sqrt(Bx**2+By**2+Bz**2) y componentes
-    normalización: bool = False,                                                    # 
+    normalización: bool = False,                                                    # Booleano para realizar plot gemelo de |B| y |R|
     x_pc: bool = False, y_pc: bool = False, z_pc: bool = False,                     # Posición en coordenadas PC
     x_ss: bool = False, y_ss: bool = False, z_ss: bool = False,                     # Posición en coordenadas SS
     R: bool    = False,                                                             # R = sqrt(Xpc**2+Ypc**2+Zpc**2) (contra t)
@@ -57,7 +55,7 @@ def graficador(
     - La posición de la sonda x, y, y/ó z con respecto al intervalo de tiempo de interés seleccionado.
     - (Si trayectoria y algunas componentes de posición ó campo son = True): Las curvas de trayectoria de la sonda en 2D (y con respecto a x;
     z con respecto a x; ó z con respecto a y) ó en 3D (x,y,z) en el intervalo de tiempo de interés seleccionado.
-    - Si normalización=True, realiza un plot gemelo con tiempo UTC en eje x, y con un eje y izquierdo para B o sus componentes, y un eje y
+    - Si 'normalización'=True, realiza un plot gemelo con tiempo UTC en eje x, y con un eje y izquierdo para B o sus componentes, y un eje y
     derecho para la distancia al planeta o las componentes de la posición.
   Los parámetros 'tamaño_ejes', 'scatter' (booleano) y 'tamaño_puntos' permiten ajustar el tamaño de los ejes (cúbicamente) del plot 3D,
   graficar sin interpolación (los puntos) tanto las posiciones como los campos, y ajustar el tamaño de dichos puntos de scatter (cuando 
@@ -81,36 +79,36 @@ def graficador(
       graficar_trayectoria(Xss,Yss,Zss, x_ss,y_ss,z_ss, cil,                        # grafico la trayectoria x,y,z que corresponda 2D ó 3D,
                            tamaño_ejes, scatter, tamaño_puntos, coord)              # colocando los parámetros correspondientes.
   else:                                                                             # Si no,
-    hay_B_j: bool = B or B_x or B_y or B_z                                          # 
-    hay_X_j: bool = R or x_pc or y_pc or z_pc or x_ss or y_ss or z_ss               # 
-    if normalización and hay_B_j and hay_X_j:                                       # NORMALIZACIÓN ES EL PLOT DOBLE NUEVOOOOOOOOOOO
-      ax1 = p.gca(); ax2 = ax1.twinx()                                              #
-      ax2.set_prop_cycle(cycler(color=['green','gold','magenta','lime','darkviolet','coral','black']))
-      if B:                                                                         # --- B (EJE IZQUIERDO)
-        plot_xy(t,módulo(Bx,By,Bz), r'$|\mathbf{B}|$', scatter,tamaño_puntos,ax=ax1)#
-      for Bj,datos,label in zip([B_x,B_y,B_z],[Bx,By,Bz],['$B_x$','$B_y$','$B_z$']):#
-        if Bj:                                                                      #
-          plot_xy(t, datos, label, scatter, tamaño_puntos, ax=ax1)                  #
-      ax1.set_ylabel('Campo Magnético [nT]')                                        #
-      r_módulo = módulo(Xpc,Ypc,Zpc)                                                # --- Posición (EJE DERECHO)
-      for Xj, datos, label in zip(                                                  #
-        [R, x_pc,y_pc,z_pc, x_ss,y_ss,z_ss], [r_módulo, Xpc,Ypc,Zpc, Xss,Yss,Zss],  #
-        [r'$|\mathbf{r}|$',r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',#
-                           r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$']):
-        if Xj:                                                                      #
-          plot_xy(t, datos/R_m, label, scatter, tamaño_puntos, ax=ax2)              #
-      ax2.set_ylabel('Posición de MAVEN [$R_M$]', color='green')                    #
-      lines1, labels1 = ax1.get_legend_handles_labels();                            # --- Combined legend
-      lines2, labels2 = ax2.get_legend_handles_labels()                             #
-      ax1.legend(lines1 + lines2, labels1 + labels2)                                #
-      ax1.grid(which='major', alpha=.2, linestyle='-')                              # Uso ejes estándar de MAG
+    hay_B_j: bool = B or B_x or B_y or B_z                                          # Defino las variables booleanas de componentes de B,
+    hay_X_j: bool = R or x_pc or y_pc or z_pc or x_ss or y_ss or z_ss               # y componentes de X.
+    if normalización and hay_B_j and hay_X_j:                                       # Si normalización = hay_B_j = hay_X_j = True,
+      ax1 = p.gca(); ax2 = ax1.twinx()                                              # => realizo un plot gemelo con doble eje y.
+      ax2.set_prop_cycle(cycler(color=['green','gold','magenta','lime','darkviolet','coral','black']))# Creo nuevo ciclo de colores para y2,
+      if B:                                                                         # Si está |B|
+        plot_xy(t,módulo(Bx,By,Bz), r'$|\mathbf{B}|$', scatter,tamaño_puntos,ax=ax1)# lo voy a graficar contra t con eje y izquierdo.
+      for Bj,datos,label in zip([B_x,B_y,B_z],[Bx,By,Bz],['$B_x$','$B_y$','$B_z$']):# Para cada otra variable de campo magnético,
+        if Bj:                                                                      # si es true,
+          plot_xy(t, datos, label, scatter, tamaño_puntos, ax=ax1)                  # también voy a utilizar el izquierdo,
+      ax1.set_ylabel('Campo Magnético [nT]')                                        # y lo defino.
+      r_módulo = módulo(Xpc,Ypc,Zpc)                                                # Para las posiciones, defino |R|,
+      for Xj, datos, label in zip(                                                  # y para cada una de las componentes de posición posibles,
+        [R, x_pc,y_pc,z_pc, x_ss,y_ss,z_ss], [r_módulo, Xpc,Ypc,Zpc, Xss,Yss,Zss],  # de todas las componentes PC o SS,
+        [r'$|\mathbf{r}|$',r'$x_{\text{pc}}$',r'$y_{\text{pc}}$',r'$z_{\text{pc}}$',# con sus respectivos labels |R|, PC,
+                           r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$']):# o SS,
+        if Xj:                                                                      # si la componente es true
+          plot_xy(t, datos/R_m, label, scatter, tamaño_puntos, ax=ax2)              # la grafico normalizada por R_M, utilizando eje derecho.
+      ax2.set_ylabel('Posición de MAVEN [$R_M$]', color='green')                    # Defino la etiqueta del eje derecho.
+      lines1, labels1 = ax1.get_legend_handles_labels()                             # Obtengo las líneas y etiquetas del eje izquierdo,
+      lines2, labels2 = ax2.get_legend_handles_labels()                             # y del eje derecho.
+      ax1.legend(lines1 + lines2, labels1 + labels2)                                # Las etiquetas serán la suma de ambas.
+      ax1.grid(which='major', alpha=.2, linestyle='-')                              # Uso ejes estándar de MAG,
       ax1.grid(which='minor', alpha=.15, linestyle=':')                             # pero solo para el izquierdo.
       ax2.grid(False, which='major')                                                # No uso ejes en la derecha,
       ax2.grid(False, which='minor')                                                # ni mayores ni menores.
-      ax2.tick_params(axis='y', colors='green')                                     #
-      ax2.spines['right'].set_color('green')                                        #
-      formatear_ejes_y_titulo(tiempo_inicial, tiempo_final, ax=ax1)                 #
-    else:                                                                           #
+      ax2.tick_params(axis='y', colors='green')                                     # Utilizo valores numéricos,
+      ax2.spines['right'].set_color('green')                                        # y líneas de color verde, para el eje y del lado derecho.
+      formatear_ejes_y_titulo(tiempo_inicial, tiempo_final, ax=ax1)                 # Formateo el eje x de tiempo UTC correspondiente usando
+    else:                                                                           # solo el eje y izquierdo. Si no hay normalización => normal.
       if B:                                                                         # Si B = True,
         plot_xy(t,módulo(Bx,By,Bz),r'$\left|\mathbf{B}\right|$',scatter,tamaño_puntos)# Grafico el módulo de B usando el graficador 2D: plot_xy.
         p.ylabel('Campo Magnético [nT]')                                            # y nombro al eje y para el campo B (en nanoTesla => [nT])
@@ -128,16 +126,17 @@ def graficador(
           graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='Fruchtman',     # los busco y grafico en el intervalo (t_inicial,t_final).
                               color='red',  etiqueta='BS Fruchtman')                # con color rojo y etiquetados.
         if 'KNN' in bow_shocks:                                                     # Si no, si 'KNN' pertenece a 'bow_shocks', uso los del KNN,
-          graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='KNN',           # los busco y grafico en el intervalo (t_inicial,t_final),
-                              color='green',etiqueta='BS $k$-NN (Eclipse con post-procesamiento)',modelo_KNN=modelo_KNN,# con color verde, etiquetados, y con el modelo elegido,
+          graficar_bow_shocks(tiempo_inicial,tiempo_final,origen='KNN',color='green',# los busco y grafico en el intervalo (t_inicial,t_final),
+                              etiqueta='BS $k$-NN (Eclipse con post-procesamiento)',# en verde (en este caso usé post-procesado).
+                              modelo_KNN=modelo_KNN,                                # los etiqueto, y uso modelo elegido,
                               post_procesamiento=post_procesamiento)                # y utilizando post-procesamiento, si lo hubiera.
-        if 'propios' in bow_shocks:                                                 # 
-          graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='propios',       # 
-                              color='orange', etiqueta='BS propios')                  # 
+        if 'propios' in bow_shocks:                                                 # Si quiero graficar los BS's detectados manualmente del 2014,
+          graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='propios',       # los voy a buscar al origen correspondiente,
+                              color='orange', etiqueta='BS propios')                # y los ploteo en naranja con su etiqueta correspondiente.
       formatear_ejes_y_titulo(tiempo_inicial, tiempo_final)                         # Adapto el eje temporal x con el formato que corresponda,
   if not normalización:                                                             # Si no hago un plot gemelo (que ya tiene grilla),
-    p.grid(which='major', alpha=.2,  linestyle='-')                                 #
-    p.grid(which='minor', alpha=.15, linestyle=':')                                 #
+    p.grid(which='major', alpha=.2,  linestyle='-')                                 # Uso parámetros estándar de ejes principales,
+    p.grid(which='minor', alpha=.15, linestyle=':')                                 # y secundarios suaves para todos los gráficos.
     p.legend()                                                                      # y escribo los labels.
   if guardar:                                                                       # Si el booleano 'guardar' es True, guardar_figura()
     guardar_figura()                                                                # pide un mensaje y la guarda tras apretar enter.

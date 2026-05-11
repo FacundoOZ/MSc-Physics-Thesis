@@ -1,6 +1,4 @@
 
-# EDITAR
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por SWIA: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWIA
 #============================================================================================================================================
@@ -25,20 +23,6 @@ def graficador_distribución_angular(
     mínimo: float = 1e5,
     promedio: bool = False
 ) -> None:
-  """
-  Docstring para graficador_distribución_angular
-  
-  :param archivo: Descripción
-  :type archivo: str
-  :param tiempo_inicial: Descripción
-  :type tiempo_inicial: str
-  :param tiempo_final: Descripción
-  :type tiempo_final: str
-  :param mínimo: Descripción
-  :type mínimo: float
-  :param promedio: Descripción
-  :type promedio: bool
-  """
   cdf            = cdflib.CDF(archivo) # Abrir el archivo
   energía        = cdf.varget('energy')                       # Cargo bins de energía de tamaño: (E,)
   dt             = cdfepoch.to_datetime(cdf.varget('epoch'))  # Tiempos de tamaño: (T,)
@@ -47,7 +31,7 @@ def graficador_distribución_angular(
   dt_seg         = ((dt - np.array(dt, dtype='datetime64[D]')).astype('timedelta64[s]').astype(int))
   condicion      = (dt_seg >= t0_seg) & (dt_seg <= tf_seg)    # Condición de filtrado de datos
   t_filtro       = dt[condicion]
-  flujo_filtro   = np.mean(flujo[condicion], axis=1)          # Promedio por distribución de ángulo de eje inclinación (eje=1) (la dimensión = (T, E))
+  flujo_filtro   = np.mean(flujo[condicion], axis=1)          # Promedio por distribución de ángulo de inclinación (eje=1) (dimensión=(T,E))
   mapa_flujo     = flujo_filtro.T                             # Transpongo (dimensión = (E, T))
   t_array        = mdates.date2num(t_filtro)
   if promedio:

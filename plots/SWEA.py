@@ -1,6 +1,4 @@
 
-# COMENTAR
-
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para graficar magnitudes físicas medidas por SWEA: https://pds-ppi.igpp.ucla.edu/mission/MAVEN/maven/SWEA
 #============================================================================================================================================
@@ -23,12 +21,12 @@ from base_de_datos.conversiones import tiempo_UTC_en_segundos
 # graficador_distribución_angular: grafica la distribución angular del paso de electrones del instrumento SWEA (Solar Wind Electron Analizer)
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 def graficador_distribución_angular(
-    directorio: str,                                 # Carpeta base donde se encuentra SWEA/
-    archivo: str,                                    # Nombre del archivo CDF
-    tiempo_inicial: str, tiempo_final: str,          # Intervalo temporal en formato UTC
-    mínimo: float = 1e5,                             # Valor mínimo para escala logarítmica
-    promedio: bool = False,                          # Aplicar suavizado espacial
-    guardar: bool = False                            #
+    directorio: str,                                                                               # Carpeta base donde se encuentra SWEA/.
+    archivo: str,                                                                                  # Nombre del archivo CDF.
+    tiempo_inicial: str, tiempo_final: str,                                                        # Intervalo temporal en formato UTC.
+    mínimo: float = 1e5,                                                                           # Valor mínimo para escala logarítmica.
+    promedio: bool = False,                                                                        # Aplicar suavizado espacial.
+    guardar: bool = False                                                                          # Booleano para guardar la imagen en .pdf.
 ) -> None:
   """
   La función graficador_distribución_angular permite graficar la distribución angular (survey o archive) del paso de electrones en unidades
@@ -90,9 +88,6 @@ def graficador_distribución_angular(
 # Funciones Auxiliares
 #———————————————————————————————————————————————————————————————————————————————————————
 def promediar(mapa) -> None:
-  """
-  Documentación
-  """
   def valido(estado):                                                 #
     return (not np.isnan(estado)) or (np.round(estado) != 0.0)        #
   def invalido(estado):                                               #
