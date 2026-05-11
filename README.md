@@ -61,23 +61,23 @@ pipeline, physical modeling, machine learning, and visualization stages.
 
 ```
 ├── ajustes/
-│   ├── bow\\\_shock.py          # Cylindrical bow shock (non-linear) fitting and visualization
+│   ├── bow\_shock.py          # Cylindrical bow shock (non-linear) fitting and visualization
 │   └── Vignes.py              # Vignes-like hyperbolic bow shock models
-├── base\\\_de\\\_datos/
+├── base\_de\_datos/
 │   ├── conversiones.py        # Shared time conversion utilities
 │   ├── descarga.py            # MAVEN MAG data download functions from LASP Institute, Colorado
 │   ├── lectura.py             # File reading utilities
 │   ├── promedio.py            # Average post-processing functions
 │   ├── recorte.py             # Filtering functions
 │   └── unión.py               # Data merging utilities
-├── machine\\\_learning/
-│   ├── clasificador\\\_KNN.py   # Binary kNN Classifier for bow shock detection
+├── machine\_learning/
+│   ├── clasificador\_KNN.py   # Binary kNN Classifier for bow shock detection
 │   ├── estadistica.py         # Statistical feature extraction
 │   ├── métricas.py            # Machine learning evaluation metrics
-│   └── validación\\\_cruzada.py # Cross-validation utilities for kNN
+│   └── validación\_cruzada.py # Cross-validation utilities for kNN
 ├── plots/
-│   ├── animación\\\_3D.py       # 3D MAVEN trajectory animations
-│   ├── estilo\\\_plots.py       # Shared plotting style configuration
+│   ├── animación\_3D.py       # 3D MAVEN trajectory animations
+│   ├── estilo\_plots.py       # Shared plotting style configuration
 │   ├── MAG.py                 # MAG instrument visualization
 │   ├── SWEA.py                # SWEA instrument visualization
 │   └── SWIA.py                # SWIA instrument visualization
