@@ -1,5 +1,5 @@
 
-# Terminado
+# Comentar
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para leer los datos de MAVEN MAG y los archivos de Fruchtman unidos por unión.py
@@ -134,6 +134,21 @@ def leer_bow_shocks_KNN(
       j: int = hallar_índice_más_cercano(tiempos_MAG, t)                                           # busco el j más cercano en MAG (O(log n)),
       filas.append(data_MAG.iloc[j].to_numpy())                                                    # y appendeo toda la fila MAG de ese j.
     return pd.DataFrame(filas)                                                                     # Devuelvo un dataframe de longitud t_BS.
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# leer_métricas_KNN: lee el archivo métricas_promedio de un modelo KNN con tolerancia por defecto de 120 segundos.
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def leer_métricas_KNN(directorio: str, modelo: str, post_procesamiento: bool, tolerancia: int = 120) -> pd.DataFrame:
+  """
+  Docstring
+  """
+  ruta_base: str = os.path.join(directorio, 'KNN', 'predicción')
+  if post_procesamiento:
+    ruta_m: str = os.path.join(ruta_base, modelo, 'post_procesamiento', f'métricas_promedio_{tolerancia}.txt')
+  else:
+    ruta_m: str = os.path.join(ruta_base, modelo, f'métricas_promedio_{tolerancia}.txt')
+  res: pd.DataFrame = pd.read_csv(ruta_m, sep=r'\s+')                                              # Leo las columnas separadas por espacios.
+  return res
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

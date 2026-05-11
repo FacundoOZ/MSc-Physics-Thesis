@@ -1,17 +1,58 @@
-# Editar
+# MSc Thesis Project — Automated Bow Shock Detection Using Machine Learning
 
-# MSc-Physics-Thesis
+## Overview
 
-This repository contains the code and data processing pipeline developed for my Master's thesis.
-The project focuses on detecting planetary bow shock crossings using magnetic field data
-and a supervised K-Nearest Neighbors classifier.
+This repository contains the code and data-processing pipeline developed for my MSc Physics thesis.
+
+The project focuses on the automated detection of planetary bow shock crossings using magnetic field measurements from NASA MAVEN spacecraft data and supervised machine learning techniques.
+
+
+
+The pipeline includes:
+
+
+
+* spacecraft data acquisition and preprocessing,
+* statistical feature extraction
+* supervised classification with K-Nearest Neighbors (KNN),
+* empirical bow shock modeling,
+* and scientific visualization tools.
+
+
+
+This project combines scientific computing, time-series analysis, and machine learning for space physics applications.
 
 ## Scientific Background
 
-Bow shocks form upstream of planetary magnetospheres due to the interaction
-between the solar wind and the planetary obstacle.
-Identifying bow shock crossings in spacecraft data is essential for
-studying solar wind–magnetosphere coupling.
+Planetary bow shocks form upstream of magnetospheres due to the interaction between the solar wind and the planetary obstacle.
+
+
+
+Detecting bow shock crossings in spacecraft observations is important for studying:
+
+* solar wind–magnetosphere coupling,
+* plasma dynamics,
+* shock physics,
+* and the interaction between planetary atmospheres and the solar wind.
+
+
+
+This work uses magnetic field observations from the MAVEN mission to automatically identify candidate bow shock crossings.
+
+## Requirements
+
+* Python 3
+* NumPy
+* Pandas
+* Matplotlib
+* Scikit-learn
+* cdflib
+* Scientific Computing
+* Machine Learning
+* Time-series analysis
+* NASA MAVEN mission data
+
+
 
 ## Repository Structure
 
@@ -20,91 +61,121 @@ pipeline, physical modeling, machine learning, and visualization stages.
 
 ```
 ├── ajustes/
-│   ├── bow_shock.py           # Cylindrical bow shock plotting & non-linear fits
-│   └── Vignes.py              # Vignes-like hyperbolas functions
-├── base_de_datos/
-│   ├── conversiones.py        # Time conversions functions shared by project
-│   ├── descarga.py            # Download MAG functions from LASP Colorado
-│   ├── lectura.py             # Reading file functions
-│   ├── recorte.py             # Cutting file functions
-│   └── unión.py               # Merging file functions
-├── machine_learning/
-│   ├── clasificador_KNN.py    # Binary KNN Classifier for BS detection
-│   ├── estadistica.py         # Feature extraction functions
-│   └── validación_cruzada.py  # Cross validation algorithm for KNN
+│   ├── bow\_shock.py          # Cylindrical bow shock (non-linear) fitting and visualization
+│   └── Vignes.py             # Vignes-like hyperbolic bow shock models
+├── base\_de\_datos/
+│   ├── conversiones.py       # Shared time conversion utilities
+│   ├── descarga.py           # MAVEN MAG data download functions from LASP Institute, Colorado
+│   ├── lectura.py            # File reading utilities
+│   ├── recorte.py            # Filtering functions
+│   └── unión.py              # Data merging utilities
+├── machine\_learning/
+│   ├── clasificador\_KNN.py   # Binary kNN Classifier for bow shock detection
+│   ├── estadistica.py        # Statistical feature extraction
+│   └── validación\_cruzada.py # Cross-validation utilities for kNN
 ├── plots/
-│   ├── animación_3D.py        # 3D trajectory animation from MAVEN MAG
-│   ├── estilo_plots.py        # Style conventions shared by project
-│   ├── MAG.py                 # Full 2D, 3D and temporal series plotting for MAG instrument
-│   ├── SWEA.py                # Plotting functions for SWEA instrument
-│   └── SWIA.py                # Plotting functions for SWIA instrument
-├── main.py                    # Main file to run every command
+│   ├── animación\_3D.py       # 3D MAVEN trajectory animations
+│   ├── estilo\_plots.py       # Shared plotting style configuration
+│   ├── MAG.py                # MAG instrument visualization
+│   ├── SWEA.py               # SWEA instrument visualization
+│   └── SWIA.py               # SWIA instrument visualization
+├── main.py                   # Main execution script
 └── README.md
 ```
 
 ## Methodology
 
-1. MAG data are read and time-filtered around candidate events.
-2. Statistical features (standard deviation, percentiles, extrema) are extracted
-   from sliding windows.
-3. A KNN classifier is trained using manually labeled bow shock crossings.
-4. The trained model predicts crossings on unseen intervals.
+The workflow consists of the following stages:
 
-## Requirements
 
-- Python ≥ 3.10
-- os
-- numpy
-- pandas
-- matplotlib, mpl_toolkits
-- datetime, timedelta
-- requests
-- cdflib
-- scikit-learn
 
-Install dependencies with:
+1. Magnetic field data are downloaded and filtered around candidate events.
+2. Sliding windows are applied to spacecraft measurements.
+3. Statistical and temporal features are extracted, including variance, percentiles, extrema and local magnetic fluctuations.
+4. A supervised KNN classifier is trained using manually labeled bow shock crossings.
+5. The trained model predicts candidate crossings on previously unseen spacecraft intervals.
+6. Predictions are compared against empirical bow shock models and spacecraft trajectories.
 
-bash
-
----
-
-## 6. How to run (minimal working example)
+## Installation
 
 Show the **shortest path from zero to result**.
 
 markdown
+
+* Python 3.10+
+* NumPy
+* Pandas
+* Matplotlib
+* Scikit-learn
+* Requests
+* cdflib
+
+
+
+Install dependences with:
+
+```
+pip install numpy pandas matplotlib scikit-learn requests cdflib
+
+```
+
 ## Usage
 
-To train the classifier:
+Run the complete pipeline with:
 
-bash
-python src/clasificador_KNN.py
+```
+python main.py
+```
 
+and change the variable "ruta" to your folder location.
 
-If something is slow, fragile, or manual—**say it**.
-
----
-
-## 7. Results (visual, not verbose)
-
-One figure or short description is enough.
-
-markdown
 ## Results
 
-The classifier achieves a true positive rate of XX% on the test set.
-Detected crossings are consistent with the empirical model of Vignes et al. (2000).
+The classifier successfully identifies manually labeled bow shock crossings using only magnetic field measurements.
+
+
+
+The detected events are physically consistent with empirical bow shock models such as the Vignes et al. model and reproduce expected spacecraft crossing signatures.
+
+
+
+Example outputs include:
+
+
+
+* bow shock crossing detections,
+* magnetic field time-series visualizations,
+* 3D spacecraft trajectory animations,
+* and empirical bow shock fitting plots.
 
 ## Limitations
 
-- The model depends on manually labeled events.
-- Performance degrades for low signal-to-noise intervals.
-- Only magnetic field data are used (no plasma moments).
+* The classifier depends on manually labeled training events.
+* Performance decreases during low signal-to-noise intervals.
+* Only magnetic field data are currently used.
+* The model does not yet incorporate plasma moments or deep learning approaches.
+
+## Future Improvements
+
+Potential future extensions include:
+
+* incorporating plasma instrument measurements,
+* testing additional machine learning models,
+* automated depuration of incorrectly identified bow shock events,
+* and real-time event detection pipelines.
 
 ## Citation
 
-If you use this code, please cite:
+If you use this repository, please cite:
 
 Facundo Otero Zappa (2026).
-*Machine Learning Detection of Bow Shock Crossings*.
+Identificación del bow shock marciano mediante un clasificador $k$-NN binario supervisado.
 Master's Thesis, Universidad de Buenos Aires.
+
+## Author
+
+Facundo Otero Zappa
+MSc Physics Graduate | MSc Computer Science Student
+
+Machine Learning • Scientific Computing • Space Physics
+

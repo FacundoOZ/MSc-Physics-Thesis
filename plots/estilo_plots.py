@@ -18,6 +18,7 @@ p.rcParams.update({
   'legend.fontsize': 9,                                                                           # Leyenda
   'axes.prop_cycle': p.cycler('color', ['blue','red','green','orange','yellow','purple','brown']),# Colores
   'axes.grid': True,                                                                              # Cuadrícula
+  #'grid.alpha': 0.95,                                                                             # Transparencia de la grilla
   'figure.figsize': (12,3),                                                                       # Tamaño de figura
   'xtick.minor.visible': True,                                                                    # Sub-ejes en x
   'ytick.minor.visible': True,                                                                    # e y
@@ -34,7 +35,7 @@ def guardar_figura() -> None:
   """
   respuesta = input('Presione ENTER para guardar .PDF (escriba para omitir): ')  # Con input, pregunto al usuario si desea guardar el plot.
   if respuesta == '':                                                            # Si presiona ENTER,
-    p.savefig('plot_MAG.pdf', dpi=600, format='pdf', bbox_inches='tight')        # se guarda en formato .PDF (mejor calidad con dpi=600)
+    p.savefig('plot_MAG.pdf', dpi=300, format='pdf', bbox_inches='tight')        # se guarda en formato .PDF (mejor calidad con dpi=300)
     print(f'Se ha guardado correctamente.')                                      # y devuelve un mensaje.
   else:                                                                          # Si escribe algo y presiona ENTER,
     print('Figura no guardada.')                                                 # no se guarda.

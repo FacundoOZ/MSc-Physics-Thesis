@@ -1,59 +1,144 @@
 
-# Terminado
+# COMENTAR
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo principal para correr los programas
 #============================================================================================================================================
-
-import base_de_datos.conversiones as convert    # Conversiones entre magnitudes
-import plots.estilo_plots
-
-import base_de_datos.descarga as data  # Descarga los datos
-import base_de_datos.recorte  as edit  # Recorta los datos
-import base_de_datos.unión    as merge # Une los datos
-import base_de_datos.promedio as avg   # Promedia datos
-import plots.MAG          as MAG  # Funciones para graficar 2D y 3D
-import plots.SWEA         as SWEA # Funciones para graficar 2D y 3D
-import plots.SWIA         as SWIA # Funciones para graficar 2D y 3D
-import plots.animación_3D as ani  # Animación 3D de la trayectoria de MAVEN
-import ajustes.bow_shock as fit
-import machine_learning.clasificador_KNN   as KNN # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
-import machine_learning.métricas           as metric
-import machine_learning.validación_cruzada as CV  # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
+import base_de_datos.conversiones          as convert # Conversiones entre magnitudes
+import base_de_datos.descarga              as data    # Descarga los datos
+import base_de_datos.recorte               as edit    # Recorta los datos
+import base_de_datos.unión                 as merge   # Une los datos
+import base_de_datos.promedio              as avg     # Promedia datos
+import machine_learning.clasificador_KNN   as KNN     # Algoritmo KNN binario supervisado (K-Nearest Neighbors)
+import machine_learning.métricas           as metric  #
+import machine_learning.validación_cruzada as CV      # Evaluación del modelo KNN con validación cruzada y métricas Recall, Precision y F1.
+import ajustes.bow_shock                   as fit     #
+import plots.MAG                           as MAG     # Funciones para graficar 2D y 3D
+import plots.SWEA                          as SWEA    # Funciones para graficar 2D y 3D
+import plots.SWIA                          as SWIA    # Funciones para graficar 2D y 3D
+import plots.animación_3D                  as ani     # Animación 3D de la trayectoria de MAVEN
+import plots.estilo_plots                             # Estilo de gráficos
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""knn = KNN.entrenar(
+"""knn = KNN.entrenar(# IMPORTANTE => entreno con TODOS (los 3766 BS Fruchtman del hemisferio NORTE Y SUR)
   directorio         = ruta,
-  años_entrenamiento = ['2014','2015','2016','2017','2018'],
-  K                  = 3,
+  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'],
+  hemisferio_N       = False,
+  K                  = 12,
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
-  promedio           = 5,
-  ventana            = 60,
-  ventanas_NBS       = [2],
+  promedio           = 5,  # en segundos
+  ventana            = 60, # en segundos
+  ventanas_NBS       = [-3,-2,2,3],# entero para la posición de ventanas a utilizar como supervisión no-BS (las ventanas BS son [0]).
 )
-knn.save(directorio=ruta, nombre_archivo='KNN_SALVATION3_para2019.pkl')
+knn.save(directorio=ruta, nombre_archivo=f'Eclipse_FINAL.pkl')"""
 
-KNN.clasificar(
-  directorio    = ruta,
-  knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='KNN_SALVATION3_para2019.pkl'),
-  predecir_años = ['2019'],
-  nombre_modelo = 'salvation_K3'
+"""años: list[str] = ['2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025']
+for año in años:
+  KNN.clasificar(
+    directorio    = ruta,
+    knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo=f'Eclipse_FINAL.pkl'),
+    predecir_años = [año],
+    nombre_modelo = 'Eclipse_FINAL' # Carpeta donde se guardarán los archivos nuevos
+  )
+  avg.promediar_archivo_temporal_KNN(directorio=ruta, modelo='Eclipse_FINAL', año=año, promedio=600)"""
+
+# ENTRENAMIENTO => un tiempo total de 00:02:58 
+# PREDICCIÓN 11 AÑOS => un tiempo total de 
+"""
+2014 => 00:00:07
+2015 => 00:02:19
+2016 => 00:01:28
+2017 => 00:01:14
+2018 => 00:01:47
+2019 => 00:02:01
+2020 => 00:01:30
+2021 => 00:01:54
+2022 => 00:01:28
+2023 => 00:02:08
+2024 => 00:00:49
+2025 => 00:01:42
+
+327 s + 780 s = 1107 s
+
+TOTAL = 18 m 27 s
+"""
+
+
+
+"""import matplotlib.pyplot as p
+
+x0 = [0.55547660,0.60006849,0.46524696,0.52887940,0.48749612,0.19490869,0.46060805,0.56612123,0.39803001,0.60197869,0.56655043]
+x0_error = [0.14569734,0.25445534,0.30989747,0.19435214,0.21452367,0.23086488,0.15603615,0.23940949,0.21028380,0.22596452,0.20107036]
+años = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025']
+BS = [1420,1535,905,1449,1710,838,1348,1130,1514,566,1522]
+
+p.figure()
+p.plot(años,x0)
+p.legend()
+p.show()"""
+
+"""import matplotlib.pyplot as p
+
+TPR_global = [.619,.387,.363]
+PPV_global = [.038,.044,.108]
+F1_global  = [.066,.078,.163]
+
+modelo = ['Eclipse', 'Eclipse + post-procesamiento', 'Eclipse + post-procesamiento + optimización']
+p.figure()
+p.plot(modelo, TPR_global, label='TPR global')
+p.plot(modelo, PPV_global, label='PPV global')
+p.plot(modelo, F1_global,  label='F1 global')
+p.legend()
+p.show()"""
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# VALIDACIÓN CRUZADA "A MANO"
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+"""años: list[str] = ['2014','2015','2016','2017','2018','2019']
+for año in años:
+  knn = KNN.entrenar(# IMPORTANTE => entreno con TODOS (los 3766 BS Fruchtman del hemisferio NORTE Y SUR)
+    directorio         = ruta,
+    años_entrenamiento = [x for x in años if x!=año],
+    hemisferio_N       = False,
+    K                  = 12,
+    variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
+    promedio           = 5,  # en segundos
+    ventana            = 60, # en segundos
+    ventanas_NBS       = [-3,-2,2,3],# entero para la posición de ventanas a utilizar como supervisión no-BS (las ventanas BS son [0]).
+  )
+  knn.save(directorio=ruta, nombre_archivo=f'Eclipse_k12{año}.pkl')
+  KNN.clasificar(
+    directorio    = ruta,
+    knn           = KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo=f'Eclipse_k12{año}.pkl'),
+    predecir_años = [año],
+    nombre_modelo = 'Eclipse_k12' # Carpeta donde se guardarán los archivos nuevos
+  )
+  avg.promediar_archivo_temporal_KNN(directorio=ruta, modelo='Eclipse_k12', año=año, promedio=600)
+metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fruchtman recortados por HEMISFERIO NORTE (mil y pico).
+  directorio         = ruta,
+  años               = años,
+  modelo_KNN         = 'Eclipse_k12',
+  post_procesamiento = True,
+  hemisferio_N       = True,
+  tolerancia         = 120
 )"""
 
-"""metric.calcular_métricas_KNN_con_Fruchtman(
+#—————————————————————
+# Gráficos de Métricas
+#—————————————————————
+"""metric.graficador_parámetros_KNN(
   directorio         = ruta,
-  años               = ['2014','2015','2016','2017','2018','2019'],
-  modelo_KNN         = 'salvation_K1',
-  post_procesamiento = False,
-  hemisferio_N       = True,
-  tolerancia         = 300
+  parámetro          = 'ventanas_NBS', # 'promedio' | 'ventanas_NBS' | 'K' | 'tolerancia'
+  post_procesamiento = True,
+  métricas           = ['F1'],
+  errores            = False,
+  guardar            = True
 )"""
 
 #———————————————————————————————————————————————————————————————————————————————————————
-# TESTING & CROSS-VALIDATION (NO USAR)
+# TESTING & CROSS-VALIDATION (PELIGROSO MUCHA RAM)
 #———————————————————————————————————————————————————————————————————————————————————————
 #KNN.diagnosticar_knn(knn=KNN.Clasificador_KNN_Binario.load(directorio=ruta, nombre_archivo='knn_1.pkl'), directorio=ruta, año_test='2020')
 
@@ -74,22 +159,24 @@ KNN.clasificar(
 """fit.graficador_ajustes(
   directorio       = ruta,
 # Elementos que tendrá el plot:
-  objetos          = ['Marte','región','KNN','Vignes'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN']
+  objetos          = ['Marte','Vignes','Fruchtman'],  # ['Marte','Vignes','Fruchtman','mín','máx','región','KNN','propios']
 # Mediciones de BS detectados por Fruchtman:
-  #años_Fruchtman   = ['2014','2015','2016','2017','2018','2019'], # ['2014',...,'2019']
-  #ajuste_Fruchtman = True,
-  #hemisferio_N     = True, # Si es igual a False, grafica todos los bow shocks detectados por Fruchtman. Si no, grafica solo los del norte.
+  años_Fruchtman   = ['2014'], # ['2014',...,'2019']
+  ajuste_Fruchtman = True,
+  hemisferio_N     = True, # Si es igual a False, grafica todos los bow shocks detectados por Fruchtman. Si no, grafica solo los del norte.
 # Trayectoria Cilíndrica de MAVEN:
   #trayectoria      = True,
   #recorte          = 'recorte_Vignes', # 'datos_recortados_merge' | 'hemisferio_N' | 'recorte_Vignes'
-  #tiempo_inicial   = '01/01/2015-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
-  #tiempo_final     = '31/12/2015-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #tiempo_inicial   = '1/1/2017-00:00:00', # 'DD/MM/YYYY-HH:MM:SS'
+  #tiempo_final     = '31/3/2017-23:59:00', # 'DD/MM/YYYY-HH:MM:SS'
   #promedio         = 1,                     # en segundos
 # Mediciones de BS detectadas por el KNN
-  modelo             = 'salvation_K1',
-  post_procesamiento = True,
-  años_KNN           = ['2015'], # ['2014',...,'2025']
-  ajuste_KNN         = True,
+  #modelo             = 'Eclipse_FINAL',
+  #post_procesamiento = True,
+  #años_KNN           = ['2016'], # ['2014',...,'2025']
+  #ajuste_KNN         = True,
+# Mediciones de BS catalogadas por mi + Fruchtman:
+  #ajuste_prop = True
 # Guardar figura en formato .PDF:
   guardar = True
 )"""
@@ -97,11 +184,14 @@ KNN.clasificar(
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # GRAFICOS Y ANIMACIONES
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#for hora in ['00:57:00','02:01:30','06:50:00','10:06:40','11:26:15','14:41:40','15:50:30']:
+#  print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='16/11/2014-' + hora)) # Devuelve la fecha UTC en día decimal en formato float
+
 """MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# 'datos_recortados_merge' | 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '1/5/2015-00:00:00',
-  tiempo_final   = '1/6/2015-23:59:00',
+  tiempo_inicial = '25/12/2014-09:40:00',
+  tiempo_final   = '25/12/2014-10:05:00',
   promedio       = 1, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -110,7 +200,7 @@ KNN.clasificar(
   #B_x  = True,
   #B_y  = True,
   #B_z  = True,
-  #normalización=True,
+  #normalización = True,
   #x_pc = True, # Coordenadas Planeto-Céntricas (PC) (centradas en Marte).
   #y_pc = True,
   #z_pc = True,
@@ -125,9 +215,9 @@ KNN.clasificar(
   #scatter       = True,
   #tamaño_puntos = 1,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
-  bow_shocks         = ['KNN','Fruchtman'], # ó ['KNN','Fruchtman']
-  modelo_KNN         = 'salvation_K1',
-  post_procesamiento = True,
+  #bow_shocks         = ['KNN'], # ó ['KNN','Fruchtman','propios']
+  #modelo_KNN         = 'Eclipse_promedio5',
+  #post_procesamiento = True,
 # Guardar figura en formato .PDF:
   guardar = True
 )"""
@@ -142,50 +232,46 @@ KNN.clasificar(
 )"""
 
 """SWEA.graficador_distribución_angular(
-  directorio     = ruta,
+  directorio     = 'C:/Users/facuo/Documents/Tesis/',
   archivo        = 'mvn_swe_l2_svypad_20141225_v05_r01.cdf',
   tiempo_inicial = '09:40:00',
   tiempo_final   = '10:05:00',
-  promedio       = True
+  promedio       = False,
+  guardar        = True
 )"""
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-# PROMEDIO
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""for año in ['2014','2015','2016','2017','2018','2019']:
-  avg.promediar_archivo_temporal_KNN(directorio=ruta, modelo='salvation_K2', año=año, promedio=600)
-"""
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # UNIÓN
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #merge.unir_archivo_MAG(directorio=ruta, archivo_pc='mvn_mag_l2_2022219pc1s_20220807_v01_r01_recortado.sts')
-#merge.unir_paquete_MAG(directorio=ruta, año='2017')
-#merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2019')
+#merge.unir_paquete_MAG(directorio=ruta, año='2025')
+#merge.unir_datos_fruchtman_MAG(directorio=ruta, año='2014')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # RECORTE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #edit.recortar_archivo_MAG(directorio=ruta, archivo='mvn_mag_l2_2014359ss_20141225_v01_r01.sts', coord='ss')
 #edit.recortar_hemisferios_MAG(directorio=ruta, archivo='mvn_mag_l2_2014284merge1s_20141011_v01_r01_recortado.sts', hemisferio='norte')
-#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_ss', año='2017', coord='ss') # Recibe el año en que deseo cortar los datos
-#edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2017', hemisferio='norte') # o bien: hemisferio='norte_diurno'
-#edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman_ss.txt', año=2014)
+#edit.recortar_paquete_MAG(directorio=ruta+'base_de_datos_pc', año='2025', coord='pc') # Recibe el año en que deseo cortar los datos
+#edit.recortar_hemisferios_paquete_MAG(directorio=ruta, año='2025', hemisferio='norte') # o bien: hemisferio='norte_diurno'
+#edit.recortar_datos_fruchtman_MAG(directorio=ruta+'fruchtman', archivo='Catálogo_Fruchtman.txt', año=2019)
 """edit.recortar_Vignes_MAG(directorio=ruta, archivo='mvn_mag_l2_2015274merge1s_20151001_v01_r01_recortado_hemisferio_N.sts',
                          región=edit.preparar_región_Vignes())"""
-#edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2017')
+#edit.recortar_Vignes_paquete_MAG(directorio=ruta, año='2025')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # DESCARGA
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #data.descargar_archivo_MAG(directorio=ruta, dia='25', mes='12', año='2014', coord='ss')
-#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos_pc', fecha_inicio='1/1/2017', fecha_final='31/12/2017', coord='pc')
+#data.descargar_paquete_MAG(directorio=ruta+'base_de_datos_pc', fecha_inicio='1/8/2025', fecha_final='30/11/2025', coord='pc')
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # CONVERSIÓN: día decimal <==> fecha UTC:
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #print(convert.dia_decimal_a_fecha_UTC(dia_decimal=1.29468, año=2018)) # Devuelve el día decimal en formato string 'AÑO-MES-DÍA HH:MM:SS'
-#print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='3/2/2015-07:04:28')) # Devuelve la fecha UTC en día decimal en formato float
+
+#for fecha in ['05:28:00','07:20:00','09:55:30','11:50:00','15:00:00','19:12:30','23:48:55']:
+#  print(convert.fecha_UTC_a_dia_decimal(fecha_UTC='29/12/2014-' + fecha)) # Devuelve la fecha UTC en día decimal en formato float
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————

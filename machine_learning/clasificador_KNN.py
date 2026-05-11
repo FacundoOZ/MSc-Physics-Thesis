@@ -1,16 +1,17 @@
 
-# Terminado
+# COMENTAR predecir_ventana
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para correr un algoritmo de k-vecinos cercanos (KNN)
 #============================================================================================================================================
-
 import os
+import time
 import pickle
 import numpy  as np
 import pandas as pd
 
 from typing                import Union
+from datetime              import timedelta
 from sklearn.neighbors     import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 
@@ -27,7 +28,8 @@ class Clasificador_KNN_Binario:
   # Constructor: Inicializa las variables características del KNN.
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   def __init__(self, K: int, variables: Union[list[str],None]=None, promedio: int=1, ventana: int=60, ventanas_NBS: list[int]=[2]) -> None:
-    """Inicializador de atributos de la clase Clasificador_KNN_Binario para la detección de Bow Shocks.
+    """
+    Inicializador de atributos de la clase Clasificador_KNN_Binario para la detección de Bow Shocks.
     -El parámetro 'K' es un entero que determina la cantidad de ventanas vecinas que se utilizarán para entrenar al KNN (recomendado (1 a 30)).
     -El parámetro 'variables' es una lista de strings que permite elegir qué magnitudes físicas medidas por el instrumento MAG de la sonda
     MAVEN se desean utilizar para el entrenamiento del algoritmo KNN. Si su valor es None, utiliza en forma predeterminada las variables
@@ -61,6 +63,7 @@ class Clasificador_KNN_Binario:
       n_neighbors = self.K,                                                                # Número de vecinos.
       weights     = 'distance',                                                            # Pesos (distancia).
       metric      = 'euclidean',                                                           # Métrica a utilizar (euclídea predeterminada).
+      algorithm   = 'brute',                                                               # Más rápido para vector característico de ∼(85,)
       n_jobs      = -1                                                                     # Permite utilizar todo el CPU disponible.
     )
 
@@ -68,13 +71,15 @@ class Clasificador_KNN_Binario:
   # Vector Característico: Calcula la estadística de una ventana con las variables ingresadas al KNN (por ej.: ['B','Xss','Yss','Zss'])
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   def vector_característico(self, data_MAG: pd.DataFrame) -> np.ndarray:
-    """La función vector característico recibe un dataframe 'data_MAG' de longitud menor o igual a 'ventana' del KNN, que es del tipo de
+    """
+    La función vector característico recibe un dataframe 'data_MAG' de longitud menor o igual a 'ventana' del KNN, que es del tipo de
     archivo MAG recortado por recorte de Vignes, cuyas columnas son de la forma:
     día_decimal Bx By Bz Xpc Ypc Zpc Xss Yss Zss
     ....        .. .. .. ... ... ... ... ... ...
     y extrae el vector característico por ventana para alimentar al KNN, con las variables pasadas por parámetro al Clasificador_KNN_Binario.
     Devuelve una lista de valores float convertida a array (np.ndarray[list[float]]) donde cada valor representa las magnitudes estadísticas
-    (del archivo estadística.py) correspondientes a las 'variables' pasadas por parámetro al KNN."""
+    (del archivo estadística.py) correspondientes a las 'variables' pasadas por parámetro al KNN. Su dimensión es como máximo [85,] (1D).
+    """
     vector: list[float] = []                                                     # Inicializo el vector característico vacío como list[float]
     Bx,By,Bz,Xpc,Ypc,Zpc,Xss,Yss,Zss = [data_MAG[j].to_numpy() for j in range(1,10)]# Extraigo las magnitudes físicas del archivo tipo MAG. 
     pos: dict[str,np.ndarray] = {'Xpc':Xpc, 'Ypc':Ypc, 'Zpc':Zpc,                # Creo un dicc con las posiciones de la sonda en sistema PC
@@ -84,14 +89,14 @@ class Clasificador_KNN_Binario:
       if var=='B':                                                               # Si la variable es B (módulo de campo magnético),
         vector.extend(estadística_B(módulo(Bx,By,Bz)))                           # uso su estadística especial que contempla gradientes.
       elif var=='R':                                                             # Si no, si es la posición de la sonda (módulo de r),
-        vector.extend(estadística_R(módulo(Xss,Yss,Zss, norm=R_m)))              # uso su estadística y NORMALIZO! => dim de B es similar a R.
+        vector.extend(estadística_R(módulo(Xpc,Ypc,Zpc, norm=R_m)))              # uso su estadística y NORMALIZO! => dim de B es similar a R.
       elif var in mag:                                                           # Si no, si uso las componentes del campo,
         vector.extend(estadística_componentes_B(mag[var]))                       # eso una estadística especial para ellas.
       elif var in pos:                                                           # Si no, si pertenecen a pos,
         vector.extend(estadística_componentes_R((pos[var]/R_m)))                 # uso estadística especial para las posiciones => NORMALIZO!
       else:                                                                      # Si no,
         raise ValueError(f'Variable desconocida: {var}')                         # la variables es inválida => devuelvo un mensaje.
-    return np.array(vector)                                                      # Devuelvo el vector convertido a np.ndarray.
+    return np.round(np.array(vector), 4).astype(np.float32)                      # Devuelvo el vector convertido a array (4 dígitos=>+rápido).
 
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   # Muestras de Entrenamiento BS y NBS: Calcula y devuelve los vectores característicos de las ventanas BS (Fruchtman) y NBS (de MAG).
@@ -131,14 +136,16 @@ class Clasificador_KNN_Binario:
           continue                                                                  # omito esta ventana.
         v_NBS: np.ndarray = self.vector_característico(data_MAG.iloc[t0_NBS:tf_NBS])# Si no, calculo el vector de la ventana NBS,
         X.append(v_NBS); y.append(0)                                                # lo agrego a la lista de vectores con etiqueta=0 (NBS).
-    return np.array(X), np.array(y)                                                 # Convierto las listas a np.array para el KNN.
+    return np.array(X, dtype=np.float32), np.array(y)                               # Convierto las listas a np.array para el KNN.
 
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   # Clasificar Muestras: Entrena al clasificador KNN con las mediciones obtenidas de muestras_entrenamiento.
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   def clasificar_muestras(self, X: np.ndarray, y: np.ndarray) -> None:
-    """La función clasificar_muestras recibe los dos parámetros dados por la tupla de np.ndarrays output de la función muestras_entrenamiento,
-    y entrena al clasificador KNN, y devuelve un mensaje con la cantidad de muestras totales que se utilizaron de BS y de NBS y el total."""
+    """
+    La función clasificar_muestras recibe los dos parámetros dados por la tupla de np.ndarrays output de la función muestras_entrenamiento,
+    y entrena al clasificador KNN, y devuelve un mensaje con la cantidad de muestras totales que se utilizaron de BS y de NBS y el total.
+    """
     self.scaler.fit(X)
     X_fit = self.scaler.transform(X)
     self.knn.fit(X_fit, y)
@@ -148,7 +155,7 @@ class Clasificador_KNN_Binario:
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   # Predecir Parámetros de Ventana: Predice las etiquetas (BS=1, NBS=0), probabilidades (%) y índices de ventana (j) de nuevos datos MAG.
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-  def predecir_ventana(self, data_MAG: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+  def predecir_ventana(self, data_MAG: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:#, np.ndarray]:
     """
     La función predecir_ventana recibe un dataframe 'data_MAG' con datos del tipo MAG (día_decimal Bx By Bz Xpc Ypc Zpc Xss Yss Zss) del
     recorte de Vignes, y calcula las predicciones de etiquetas (BS=1 ó NBS=0), las probabilidades de los BS y NBS, y los índices j de las
@@ -158,10 +165,21 @@ class Clasificador_KNN_Binario:
         prob[:,1] = Probabilidad de la clase BS.
         prob[:,0] = Probabilidad de la clase NBS.
     """
-    if not self.entrenado:                                                 # Si todavía no se entrenó al KNN,
+    # VERSIÓN NUEVA OPTIMIZADA
+    ventanas = [data_MAG[i:i+self.ventana_puntos] for i in range(0, len(data_MAG), self.ventana_puntos) if i + self.ventana_puntos <= len(data_MAG)]
+    # Step 2: compute vectors and convert to float32
+    X_vectors = np.array([self.vector_característico(v).astype(np.float32) for v in ventanas], dtype=np.float32)
+    # Step 3: scale all vectors at once
+    X_scaled = self.scaler.transform(X_vectors)
+    # Step 4: predict all at once
+    pred = self.knn.predict(X_scaled)
+    j_ventana = np.array([i + self.ventana_puntos//2 for i in range(0, len(data_MAG), self.ventana_puntos) if i + self.ventana_puntos <= len(data_MAG)])
+    return pred, j_ventana
+    # VERSIÓN ANTERIOR
+    """if not self.entrenado:                                                 # Si todavía no se entrenó al KNN,
       raise RuntimeError('El clasificador KNN no ha sido entrenado.')      # devuelvo un mensaje.
     etiqueta:     list[int]         = []                                   # Inicializo una lista para guardar las etiquetas (1: BS ó 0: NBS),
-    probabilidad: list[list[float]] = []                                   # una para guardar probabilidades de bow shocks y no bow shocks,
+    #probabilidad: list[list[float]] = []                                  # una para guardar probabilidades de bow shocks y no bow shocks,
     j_ventana:    list[int]         = []                                   # y una para guardar los índice de los centros de las ventanas.
     for i in range(0, len(data_MAG), self.ventana_puntos):                 # Para i de 0 al final del archivo MAG:
       j_0: int = i                                                         # obtengo el índice del inicio de la ventana actual,
@@ -171,13 +189,13 @@ class Clasificador_KNN_Binario:
       ventana: pd.DataFrame = data_MAG[j_0 : j_f]                          # Obtengo solamente los datos MAG de esa ventana,
       v: np.ndarray = self.vector_característico(ventana)                  # y calculo su vector característico y lo guardo en la variable v.
       if v is not None:                                                    # Si el vector característico no es None,
-        v_escalado: np.ndarray = self.scaler.transform(v.reshape(1,-1))    # lo re-escalo (funciona mejor pues el KNN trabaja con distancias).
+        v_escalado: np.ndarray = self.scaler.transform(v.reshape(1,-1).astype(np.float32))# lo re-escalo (funciona mejor, KNN usa distancias).
         pred: int              = self.knn.predict(v_escalado)[0]           # Obtengo las predicciones de etiqueta bow shock ó no bow shock.
         prob: np.ndarray       = self.knn.predict_proba(v_escalado)[0]     # Obtengo las probabilidades,
         etiqueta.append(pred)                                              # y agrego ambos a la lista de etiquetas,
-        probabilidad.append(prob)                                          # y a la lista de probabilidades.
+        #probabilidad.append(prob)                                         # y a la lista de probabilidades.
         j_ventana.append(j_0 + (self.ventana_puntos//2))                   # Obtengo el índice de la ventana como el medio de j_0 y j_f.
-    return np.array(etiqueta), np.array(probabilidad), np.array(j_ventana) # Devuelvo listas de etiquetas, probabilidades y j en np.arrays.
+    return np.array(etiqueta), np.array(j_ventana), #np.array(probabilidad)# Devuelvo listas de etiquetas, probabilidades y j en np.arrays."""
 
   #——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
   # Guardado y Exportado del Modelo Clasificador:
@@ -211,6 +229,7 @@ class Clasificador_KNN_Binario:
 def entrenar(
     directorio: str,                                                            # Carpeta donde se encuentran las mediciones Fruchtman y MAG.
     años_entrenamiento: list[str],                                              # Años que se desean entrenar.
+    hemisferio_N: bool,                                                         # Hemisferios a considerar de Fruchtman (todo ó solo z_pc>0)
     K: int,                                                                     # Cantidad de vecinos más cercanos a utilizar por el KNN.
     variables: list[str] = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],          # Variables a utilizar para el vector característico del KNN.
     promedio: int = 5,                                                          # Promedio para suavizar las muestras de MAVEN MAG.
@@ -220,13 +239,15 @@ def entrenar(
 ) -> Clasificador_KNN_Binario:
   """
   La función entrenar recibe un directorio que contiene las mediciones de MAVEN MAG y los archivos de Fruchtman con los bow shock detectados,
-  una lista de strings años_entrenamiento que representa los años que se desea entrenar al knn, el metaparámetro K del knn (número de vecinos),
-  las variables que se desean utilizar como vector característico, el promedio de las muestras MAG para eliminar el ruido de los datos y
-  reducir el tiempo de compilación, el ancho de ventana (en segundos) para modelar el BS, las ventanas NBS que se desean considerar, y la
-  variable MAG_cache, que permite extraer rápidamente todos los archivos MAG leídos, si ya fueron leídos previamente (en otras funciones).
+  una lista de strings años_entrenamiento que representa los años que se desea entrenar al knn del hemisferio correspondiente, el
+  metaparámetro K del knn (número de vecinos), las variables que se desean utilizar como vector característico, el promedio de las muestras
+  MAG para eliminar el ruido de los datos y reducir el tiempo de compilación, el ancho de ventana (en segundos) para modelar el BS, las
+  ventanas NBS que se desean considerar, y la variable MAG_cache, que permite extraer rápidamente todos los archivos MAG leídos, si ya fueron
+  leídos previamente (en otras funciones).
   Devuelve el KNN, es decir, la clase Clasificador_KNN_Binario con el algoritmo KNN entrenado habiendo utilizado todas las variables que se
   han pasado por parámetro.
   """
+  t_inicio = time.time()                                                        # Con 'time', calculo el tiempo en que el algoritmo inició.
   if años_entrenamiento == ['2014']:                                            # Si el año de entrenamiento es solo el 2014,
     raise ValueError('El año 2014 no tiene suficientes muestras para entrenar.')# => devuelvo un mensaje (son menos de 20 datos).
   knn: Clasificador_KNN_Binario = Clasificador_KNN_Binario(                     # En la variable 'knn' creo la clase Clasificador_KNN_Binario,
@@ -245,7 +266,7 @@ def entrenar(
       ruta_MAG: str          = os.path.join(directorio,'recorte_Vignes')        # Obtengo la carpeta donde están todos los archivos MAG.
       t0, tf                 = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'   # Obtengo el intervalo de tiempo de todo el año de MAG, y
       data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, promedio)    # leo todos los archivos MAG del año con el promedio indicado.
-    data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio, año)            # Leo el archivo Fruchtman del año correspondiente.
+    data_Fru: pd.DataFrame = leer_archivo_Fruchtman(directorio,año,hemisferio_N)# Leo el archivo Fruchtman del año/hemisferio correspondiente.
     dias_Fru: pd.Series    = data_Fru.iloc[:,0].astype(float)                   # Extraigo días decimales de Fruchtman y convierto a float.
     t_BS = pd.Timestamp(f'{año}-01-01') + pd.to_timedelta(dias_Fru-1, unit='D') # Convierto los tiempos BS a objetos datetime adecuadamente.
     X_año, y_año = knn.muestras_entrenamiento(data_MAG, t_BS.to_numpy())        # Obtengo muestras de entrenamiento del año con data_MAG y BS.
@@ -255,6 +276,9 @@ def entrenar(
     y.append(y_año)                                                             # y el segundo np.ndarray (etiquetas) a la lista y.
   knn.clasificar_muestras(np.vstack(X), np.concatenate(y))                      # Clasifico las muestras (X,y) apiladas de todos los años. 
   print('El Clasificador_KNN_Binario se ha entrenado correctamente.')           # Devuelvo un mensaje de que el entrenamiento fue exitoso.
+  t_final = time.time()                                                         # Con 'time', calculo el tiempo en que el algoritmo finalizó.
+  t_total = t_final - t_inicio                                                  # Calculo tiempo total empleado como diferencia entre tiempos.
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))        # Devuelvo un mensaje con el tiempo empleado en formato 
   return knn                                                                    # Devuelvo el knn entrenado para utilizarlo para predecir.
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -275,6 +299,7 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     día_decimal
     ...
   """
+  t_inicio = time.time()                                                        # Con 'time', calculo el tiempo en que el algoritmo inició.
   ruta_MAG: str  = os.path.join(directorio,'recorte_Vignes')                    # Obtengo la carpeta donde están los archivos MAG recortados.
   ruta_pred: str = os.path.join(directorio, 'KNN', 'predicción')                # Obtengo la ruta donde guardaré los archivos de predicción.
   os.makedirs(ruta_pred, exist_ok=True)                                         # Si no existe, la creo.
@@ -282,7 +307,7 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
     t0, tf = f'1/1/{año}-00:00:00', f'31/12/{año}-23:59:59'                     # obtengo el intervalo de tiempo de todo el año de MAG,
     data_MAG: pd.DataFrame = leer_archivos_MAG(ruta_MAG, t0, tf, knn.promedio)  # leo archivos en ese intervalo con el promedio usado en KNN,
     print(f'\nClasificando mediciones del año {año} ...\n')                     # y devuelvo un mensaje de que se está ejecutando el KNN.
-    pred, prob, j_ventana = knn.predecir_ventana(data_MAG)                      # Obtengo etiqueta (predicción), probabilidad, j por ventana. 
+    pred, j_ventana = knn.predecir_ventana(data_MAG) # ó pred, prob, j_ventana  # Obtengo etiqueta (predicción), probabilidad, j por ventana. 
     print('Clasificación completada.')                                          # Aviso que el KNN terminó la predicción.
     j_BS: np.ndarray = j_ventana[pred == 1]                                     # Recupero los índices j centrales de las ventanas BS,
     t_BS: pd.DatetimeIndex = pd.to_datetime(data_MAG.iloc[:,0].to_numpy()[j_BS])# y obtengo cuándo ocurrieron en formato datetime.
@@ -293,14 +318,17 @@ def clasificar(directorio: str, knn: Clasificador_KNN_Binario, predecir_años: l
         (t_BS - pd.Timestamp(f'{año}-01-01')).total_seconds()) + 1              # convirtiendo segundos a formato día.
     else:                                                                       # Si no,
       dias_dec = []                                                             # la lista es vacía.
-    probabilidades: pd.DataFrame = pd.DataFrame({'NBS':prob[:,0],'BS':prob[:,1],# Genero un dataframe con las probabilidades BS, NBS,
-                                                 'Predicción': pred})           # y con la predicción correspondiente.
+    #probabilidades: pd.DataFrame = pd.DataFrame({'NBS':prob[:,0],'BS':prob[:,1],# Genero un dataframe con las probabilidades BS, NBS,
+                                                 #'Predicción': pred})          # y con la predicción correspondiente.
     ruta_final: str = os.path.join(directorio,'KNN','predicción', nombre_modelo)# Obtengo la ruta final con el nombre del modelo,
     os.makedirs(ruta_final, exist_ok=True)                                      # y creo la carpeta (si aún no existe).
-    ruta_prob: str = os.path.join(ruta_final, f'probabilidades_{año}.txt')      # Obtengo la ruta + nombre_completo de los archivos de salida
+    #ruta_prob: str = os.path.join(ruta_final, f'probabilidades_{año}.txt')     # Obtengo la ruta + nombre_completo de los archivos de salida
     ruta_BS: str   = os.path.join(ruta_final, f'tiempos_BS_{año}.txt')          # para las probabilidades, y los tiempos BS a detectar.
-    probabilidades.to_csv(ruta_prob, sep=' ', index=False)                      # Exporto los archivos .txt con los nombres correspondientes.
+    #probabilidades.to_csv(ruta_prob, sep=' ', index=False)                     # Exporto los archivos .txt con los nombres correspondientes.
     np.savetxt(ruta_BS, dias_dec, fmt='%.10f')                                  # Guardo un txt sin título de los bow shocks.
+  t_final = time.time()                                                         # Con 'time', calculo el tiempo en que el algoritmo finalizó.
+  t_total = t_final - t_inicio                                                  # Calculo tiempo total empleado como diferencia entre tiempos.
+  print(f'Tiempo total empleado:', str(timedelta(seconds=int(t_total))))        # Devuelvo un mensaje con el tiempo empleado en formato 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
@@ -335,7 +363,7 @@ def test_KNN(knn: Clasificador_KNN_Binario, directorio: str, año_test: str = '2
     print('   ERROR: No se pudo crear el vector')                             #
     return                                                                    #
   print(f'\n3. Probando predicciones...')                                     # 3. Test prediction on first few windows
-  pred, prob, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])        # First 10000 points for speed
+  pred, j_ventana = knn.predecir_ventana(data_MAG.iloc[0:10000])#pred,prob,j_v# First 10000 points for speed
   if len(pred) > 0:                                                           #
     print(f'   Predicciones realizadas: {len(pred)} ventanas')                #
     print(f'   BS detectados: {sum(pred)} ({sum(pred)/len(pred)*100:.1f}%)')  #

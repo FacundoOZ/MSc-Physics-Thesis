@@ -85,7 +85,7 @@ def graficador(
     hay_X_j: bool = R or x_pc or y_pc or z_pc or x_ss or y_ss or z_ss               # 
     if normalización and hay_B_j and hay_X_j:                                       # NORMALIZACIÓN ES EL PLOT DOBLE NUEVOOOOOOOOOOO
       ax1 = p.gca(); ax2 = ax1.twinx()                                              #
-      ax2.set_prop_cycle(cycler(color=['aqua','gold','magenta','lime','darkviolet','coral','black']))
+      ax2.set_prop_cycle(cycler(color=['green','gold','magenta','lime','darkviolet','coral','black']))
       if B:                                                                         # --- B (EJE IZQUIERDO)
         plot_xy(t,módulo(Bx,By,Bz), r'$|\mathbf{B}|$', scatter,tamaño_puntos,ax=ax1)#
       for Bj,datos,label in zip([B_x,B_y,B_z],[Bx,By,Bz],['$B_x$','$B_y$','$B_z$']):#
@@ -99,14 +99,16 @@ def graficador(
                            r'$x_{\text{ss}}$',r'$y_{\text{ss}}$',r'$z_{\text{ss}}$']):
         if Xj:                                                                      #
           plot_xy(t, datos/R_m, label, scatter, tamaño_puntos, ax=ax2)              #
-      ax2.set_ylabel('Posición de MAVEN [$R_M$]', color='aqua')                     #
+      ax2.set_ylabel('Posición de MAVEN [$R_M$]', color='green')                    #
       lines1, labels1 = ax1.get_legend_handles_labels();                            # --- Combined legend
       lines2, labels2 = ax2.get_legend_handles_labels()                             #
       ax1.legend(lines1 + lines2, labels1 + labels2)                                #
-      ax1.grid(True, which='minor', linestyle=':', linewidth=0.5)                   #
-      ax2.tick_params(axis='y', colors='aqua')                                      #
-      ax2.spines['right'].set_color('aqua')                                         #
-      ax2.yaxis.grid(True, color='aqua', linestyle='--', alpha=0.5)                 #
+      ax1.grid(which='major', alpha=.2, linestyle='-')                              # Uso ejes estándar de MAG
+      ax1.grid(which='minor', alpha=.15, linestyle=':')                             # pero solo para el izquierdo.
+      ax2.grid(False, which='major')                                                # No uso ejes en la derecha,
+      ax2.grid(False, which='minor')                                                # ni mayores ni menores.
+      ax2.tick_params(axis='y', colors='green')                                     #
+      ax2.spines['right'].set_color('green')                                        #
       formatear_ejes_y_titulo(tiempo_inicial, tiempo_final, ax=ax1)                 #
     else:                                                                           #
       if B:                                                                         # Si B = True,
@@ -127,11 +129,15 @@ def graficador(
                               color='red',  etiqueta='BS Fruchtman')                # con color rojo y etiquetados.
         if 'KNN' in bow_shocks:                                                     # Si no, si 'KNN' pertenece a 'bow_shocks', uso los del KNN,
           graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='KNN',           # los busco y grafico en el intervalo (t_inicial,t_final),
-                              color='green',etiqueta='BS $k$-NN',modelo_KNN=modelo_KNN,# con color verde, etiquetados, y con el modelo elegido,
+                              color='green',etiqueta='BS $k$-NN (Eclipse con post-procesamiento)',modelo_KNN=modelo_KNN,# con color verde, etiquetados, y con el modelo elegido,
                               post_procesamiento=post_procesamiento)                # y utilizando post-procesamiento, si lo hubiera.
+        if 'propios' in bow_shocks:                                                 # 
+          graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='propios',       # 
+                              color='orange', etiqueta='BS propios')                  # 
       formatear_ejes_y_titulo(tiempo_inicial, tiempo_final)                         # Adapto el eje temporal x con el formato que corresponda,
   if not normalización:                                                             # Si no hago un plot gemelo (que ya tiene grilla),
-    p.grid(True, which='minor', linestyle=':', linewidth=0.5)                       # Pongo doble grilla, fina y con formato ':',
+    p.grid(which='major', alpha=.2,  linestyle='-')                                 #
+    p.grid(which='minor', alpha=.15, linestyle=':')                                 #
     p.legend()                                                                      # y escribo los labels.
   if guardar:                                                                       # Si el booleano 'guardar' es True, guardar_figura()
     guardar_figura()                                                                # pide un mensaje y la guarda tras apretar enter.
@@ -232,6 +238,10 @@ def graficar_bow_shocks(
     archivo_Fru: str = f'fruchtman_{año}_merge_hemisferio_N.sts'                 # reconstruyo el nombre del archivo con el año indicado,
     ruta_Fru: str    = os.path.join(ruta,'fruchtman','hemisferio_N', archivo_Fru)# obtengo la ruta_completa + nombre_archivo,
     día_decimal: np.ndarray = np.loadtxt(ruta_Fru, usecols=0)                    # y obtengo los días decimales (solo la columna 0).
+  elif origen=='propios':                                                        # 
+    archivo_prop: str = f'catálogo_Fruchtman-propios_2014.sts'                   # 
+    ruta_prop: str    = os.path.join(ruta,'propios', archivo_prop)               # 
+    día_decimal: np.ndarray = np.loadtxt(ruta_prop, usecols=0)                   # 
   elif origen=='KNN':                                                            # Si no, si el origen es mi KNN,
     ruta_base: str     = os.path.join(ruta,'KNN','predicción', modelo_KNN)       # construyo la ruta base donde se encuentran los archivos.
     if post_procesamiento:                                                       # Si quiero tomar post-procesamiento,
@@ -242,10 +252,18 @@ def graficar_bow_shocks(
     día_decimal: np.ndarray = np.loadtxt(ruta_KNN, skiprows=1)                   # y obtengo los días decimales (omito título='día_decimal').
   t: pd.DatetimeIndex = t_ref + pd.to_timedelta(día_decimal-1, unit='D')         # Obtengo los tiempos en formato datetime,
   t_máscara           = t[(t >= t0) & (t <= tf)]                                 # y me quedo solo con aquellos pertenecientes al intervalo.
+  if len(t_máscara) == 0:
+    print('El $k$-NN no ha detectado bow shocks en el intervalo seleccionado.')
+    return
   ax = p.gca()                                                                   # Get Current Axes (obtener ejes actuales) en la var ax.
-  ax.axvline(t_máscara[0], alpha=1, color=color, label=etiqueta)               # Grafico por separado el primer BS para agregarle etiqueta.
-  for t_BS in t_máscara[1:]:                                                     # Para el resto de tiempos (día_decimal) de BS de la lista,
-    ax.axvline(t_BS, alpha=1, color=color)                                     # grafico líneas verticales transparentes (alpha) sin label.
+  if origen=='Fruchtman':
+    ax.axvline(t_máscara[0], alpha=1, color=color, linewidth=4, label=etiqueta)               # Grafico por separado el primer BS para agregarle etiqueta.
+    for t_BS in t_máscara[1:]:                                                     # Para el resto de tiempos (día_decimal) de BS de la lista,
+      ax.axvline(t_BS, alpha=1, color=color, linewidth=4)                                     # grafico líneas verticales transparentes (alpha) sin label.
+  else:
+    ax.axvline(t_máscara[0], alpha=1, color=color, label=etiqueta)               # Grafico por separado el primer BS para agregarle etiqueta.
+    for t_BS in t_máscara[1:]:                                                     # Para el resto de tiempos (día_decimal) de BS de la lista,
+      ax.axvline(t_BS, alpha=1, color=color)                                     # grafico líneas verticales transparentes (alpha) sin label.
 
 #———————————————————————————————————————————————————————————————————————————————————————
 def formatear_ejes_y_titulo(
@@ -266,7 +284,7 @@ def formatear_ejes_y_titulo(
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))                 # y el eje en formato 'HH:MM:SS'.
     ax.set_xlabel('Tiempo UTC (HH:MM:SS)')                                         # Coloco el label.
   else:                                                                            # Si los días son distintos, uso formato 'DD/MM/YYYY', y 
-    ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (1 Hz)")# modifico el título,
+    ax.set_title(f"Mediciones del {t0.strftime('%d/%m/%Y')} al {tf.strftime('%d/%m/%Y')} (resolución 1 Hz)")# modifico el título,
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))                 # y el eje en formato 'DD/MM'.
     ax.set_xlabel('Fecha UTC (DD/MM/YYYY)')                                        # Título del eje x.
 #———————————————————————————————————————————————————————————————————————————————————————

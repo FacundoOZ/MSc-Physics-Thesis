@@ -1,18 +1,21 @@
 
-# Terminado
+# Comentar
 
 #============================================================================================================================================
 # Tesis de Licenciatura | Archivo para calcular el rendimiento y la precisión de un modelo KNN respecto a datos Fruchtman supervisados.
 #============================================================================================================================================
 
 import os
-import numpy  as np
-import pandas as pd
-from tqdm import tqdm
+import numpy             as np
+import pandas            as pd
+import matplotlib.pyplot as p
+from tqdm   import tqdm
 
 # Módulos Propios:
 from base_de_datos.conversiones import dias_decimales_a_datetime
+from base_de_datos.lectura      import leer_métricas_KNN
 from base_de_datos.unión        import hallar_índice_más_cercano
+from plots.estilo_plots         import guardar_figura
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # calcular_métricas_KNN_con_Fruchtman: función para calcular las métricas Recall, Precision y F1 de un modelo KNN contra los BS de Fruchtman.
@@ -69,8 +72,8 @@ def calcular_métricas_KNN_con_Fruchtman(
       'TP': TP,                                                                        # -Los verdaderos positivos del KNN,
       'FP': FP,                                                                        # -Los falsos positivos del KNN,
       'FN': FN,                                                                        # -Los falsos negativos del KNN,
-      'Recall': métrica_recall(TP, FN),                                                # -El resultado de la métrica Recall (TPR),
-      'Precision': métrica_precision(TP, FP),                                          # -El resultado de la métrica Precision,
+      'Recall': métrica_TPR(TP, FN),                                                   # -El resultado de la métrica Recall (TPR),
+      'Precision': métrica_PPV(TP, FP),                                                # -El resultado de la métrica Precision,
       'F1': métrica_F1(TP, FP, FN)                                                     # -El resultado de la métrica F1.
     })                                                                                 # Repito todo el proceso para cada año.
   res: pd.DataFrame = pd.DataFrame(lista)                                              # Convierto la lista a formato dataframe en res,
@@ -85,7 +88,7 @@ def calcular_métricas_KNN_con_Fruchtman(
 #———————————————————————————————————————————————————————————————————————————————————————
 # Funciones Auxiliares
 #———————————————————————————————————————————————————————————————————————————————————————
-def métrica_recall(TP: int, FN: int) -> float:
+def métrica_TPR(TP: int, FN: int) -> float:
   """
   Cálculo de la métrica Recall ó TPR (tasa de verdaderos positivos), que se define como x = TP/(TP + FN).
   """
@@ -94,7 +97,7 @@ def métrica_recall(TP: int, FN: int) -> float:
   return round(TP/(TP + FN), 3) # Si no, calculo la métrica con los verdaderos positivos y los falsos negativos.
 
 #———————————————————————————————————————————————————————————————————————————————————————
-def métrica_precision(TP: int, FP: int) -> float:
+def métrica_PPV(TP: int, FP: int) -> float:
   """
   Cálculo de la métrica Precision, que se define como x = TP/(TP + FP).
   """
@@ -107,12 +110,137 @@ def métrica_F1(TP: int, FP: int, FN: int) -> float:
   """
   Cálculo de la métrica F1, que se define como x = 2*Precision*Recall/(Precision + Recall).
   """
-  recall: float    = métrica_recall(TP, FN)                # Calculo la métrica recall.
-  precision: float = métrica_precision(TP, FP)             # Calculo la métrica precision.
-  if precision + recall == 0:                              # Si el divisor es nulo,
-    return 0.0                                             # no devuelvo nada.
-  return round(2*precision*recall/(precision + recall), 3) # Si no, calculo la métrica F1 con las métricas recall y precision.
+  TPR: float = métrica_TPR(TP, FN)       # Calculo la métrica TPR.
+  PPV: float = métrica_PPV(TP, FP)       # Calculo la métrica PPV.
+  if PPV + TPR == 0:                     # Si el divisor es nulo,
+    return 0.0                           # no devuelvo nada.
+  return round(2*PPV*TPR/(PPV + TPR), 3) # Si no, calculo la métrica F1 con las métricas TPR y PPV.
 #———————————————————————————————————————————————————————————————————————————————————————
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# graficador_parámetros_KNN: 
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+promedios: list[int]    = [1,2,3,4,5,6,7,8,9,10]
+ventana: list[int]      = [20,40,60,80,100,120]
+ventanas_NBS: list[str] = ['[-4]','[-3]','[-2]','[-1]','[1]','[2]','[3]','[4]','[-2,2]','[-4,-3,3,4]','[-3,-2,-1,2]','[-3,-2,2,3]','[-4,-3,-2,2]']
+K: list[int]            = [1,2,3,4,5,6,7,8,9,10,11,12]
+tolerancia: list[int]   = [20,40,60,80,100,120,140,160,180,200,240,300,360,420,480,540,600]
+
+def graficador_parámetros_KNN(
+    directorio: str,                                                                      #
+    parámetro: str,                                                                       #
+    post_procesamiento: bool = True,                                                      #
+    métricas: list[str] = ['TPR','PPV','F1'],                                             #
+    errores: bool = True,                                                                 #
+    guardar: bool = False                                                                 #
+) -> None:
+  """
+  Docstring
+  """
+  p.figure()
+  if parámetro=='promedio':                                                               # CASO 1: PARÁMETRO='promedio'
+    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
+    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
+    for j in promedios:                                                                   # del 1 al 10 inclusives
+      modelo: str = f'Eclipse_promedio{j}'                                                #
+      data_p: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)    #
+      for m in métricas:                                                                  #
+        media, std = calcular_métrica_global(data_p, métrica=m)                           #
+        res[m].append(media)                                                              #
+        res_std[m].append(std)                                                            #
+    for m in métricas:                                                                    #
+      if errores:                                                                         #
+        p.errorbar(promedios, res[m], yerr=res_std[m],                                    #
+                   marker='o', capsize=4, label=f'{m} global')                            #
+      else:                                                                               #
+        p.plot(promedios, res[m], marker='o', label=f'{m} global')                        #
+    p.xlabel('Promedio [s]')                                                              #
+  elif parámetro=='ventanas_NBS':                                                         # CASO 2: PARÁMETRO='ventanas_NBS'
+    for j in ventana:                                                                     #
+      res:     dict[str, list[float]] = {m: [] for m in métricas}                         #
+      res_std: dict[str, list[float]] = {m: [] for m in métricas}                         #
+      pos_ventanas_NBS = []                                                               #
+      for k, pos in enumerate(ventanas_NBS):                                              #
+        modelo: str = f'Eclipse_ventana{j}_NBS{k}'                                        #
+        try:                                                                              #
+          data_v: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)#
+        except FileNotFoundError:                                                         #
+          continue                                                                        #
+        pos_ventanas_NBS.append(pos)                                                      #
+        for m in métricas:                                                                #
+          media, std = calcular_métrica_global(data_v, métrica=m)                         #
+          res[m].append(media)                                                            #
+          res_std[m].append(std)                                                          #
+      for m in métricas:                                                                  #
+        if errores:                                                                       #
+          p.errorbar(pos_ventanas_NBS, res[m], yerr=res_std[m],                           #
+                     marker='o', capsize=4, label=f'{m} global ventana={j} s')            #
+        else:                                                                             #
+          p.plot(pos_ventanas_NBS, res[m], marker='o', label=f'{m} global ventana={j} s') #
+    p.xlabel('Posición de ventanas_NBS')                                                  #
+  elif parámetro=='K':                                                                    # CASO 3: PARÁMETRO='K'
+    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
+    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
+    for k in K:                                                                           #
+      modelo: str = f'Eclipse_k{k}'                                                       #
+      data_k: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento)    #
+      for m in métricas:                                                                  #
+        media, std = calcular_métrica_global(data_k, métrica=m)                           #
+        res[m].append(media)                                                              #
+        res_std[m].append(std)                                                            #
+    for m in métricas:                                                                    #
+      if errores:                                                                         #
+        p.errorbar(K, res[m], yerr=res_std[m], marker='o', capsize=4, label=f'{m} global')#
+      else:                                                                               #
+        p.plot(K, res[m], marker='o', label=f'{m} global')                                #
+    p.xlabel(r'$k$ (número de vecinos)')                                                  #
+  elif parámetro=='tolerancia':                                                           #
+    res:     dict[str, list[float]] = {m: [] for m in métricas}                           #
+    res_std: dict[str, list[float]] = {m: [] for m in métricas}                           #
+    for j in tolerancia:                                                                  #
+      modelo: str = 'Eclipse_k12'                                                         #
+      data_t: pd.DataFrame = leer_métricas_KNN(directorio, modelo, post_procesamiento, j) #
+      for m in métricas:                                                                  #
+        media, std = calcular_métrica_global(data_t, métrica=m)                           #
+        res[m].append(media)                                                              #
+        res_std[m].append(std)                                                            #
+    for m in métricas:                                                                    #
+      if errores:                                                                         #
+        p.errorbar(tolerancia, res[m], yerr=res_std[m],                                   #
+                   marker='o', capsize=4, label=f'{m} global')                            #
+      else:                                                                               #
+        p.plot(tolerancia, res[m], marker='o', label=f'{m} global')                       #
+    p.xlabel('Tolerancia [s]')                                                            #
+  p.ylabel('Métricas globales')                                                           #
+  p.title('Promedio de métricas de CV (2014-2019) respecto del metaparámetro')            #
+  p.grid(which='major', alpha=.2,  linestyle='-')                                         #
+  p.grid(which='minor', alpha=.15, linestyle=':')                                         #
+  p.legend()                                                                              #
+  if guardar:                                                                             #
+    guardar_figura()                                                                      #
+  p.show()                                                                                #
+
+#———————————————————————————————————————————————————————————————————————————————————————
+# Función Auxiliar
+#———————————————————————————————————————————————————————————————————————————————————————
+def calcular_métrica_global(
+    archivo_métricas: pd.DataFrame,                           #
+    métrica: str                                              #
+) -> tuple[float, float]:
+  """
+  Docstring
+  """
+  if métrica=='TPR':                                          #
+    res: list[float] = archivo_métricas['Recall']             #[1:]
+  elif métrica=='PPV':                                        #
+    res: list[float] = archivo_métricas['Precision']          #[1:]
+  elif métrica=='F1':                                         #
+    res: list[float] = archivo_métricas['F1']                 #[1:]
+  else:                                                       #
+    raise ValueError(f'No se encuentra la métrica: {métrica}')#
+  media = np.mean(res)                                        #
+  std = np.std(res, ddof=1)                                   #
+  return (media, std)                                         #
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
