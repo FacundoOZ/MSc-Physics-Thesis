@@ -124,7 +124,7 @@ def graficador(
       if bow_shocks is not None:                                                    # Si deseo graficar bow shocks,
         if 'Fruchtman' in bow_shocks:                                               # Cuando 'bow_shocks' contiene 'Fruchtman',
           graficar_bow_shocks(tiempo_inicial, tiempo_final, origen='Fruchtman',     # los busco y grafico en el intervalo (t_inicial,t_final).
-                              color='red',  etiqueta='BS Fruchtman')                # con color rojo y etiquetados.
+                              color='red', etiqueta='BS Fruchtman')                 # con color rojo y etiquetados.
         if 'KNN' in bow_shocks:                                                     # Si no, si 'KNN' pertenece a 'bow_shocks', uso los del KNN,
           graficar_bow_shocks(tiempo_inicial,tiempo_final,origen='KNN',color='green',# los busco y grafico en el intervalo (t_inicial,t_final),
                               etiqueta='BS $k$-NN (Eclipse con post-procesamiento)',# en verde (en este caso usé post-procesado).

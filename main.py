@@ -18,18 +18,42 @@ import plots.animación_3D                  as ani     # Animación 3D de la tra
 import plots.estilo_plots                             # Estilo de gráficos
 
 ruta: str = 'C:/Users/facuo/Documents/Tesis/MAG/'
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+# Evolución temporal de x_0 en el último ciclo solar (obtenido por k-NN Eclipse Optimizado)
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+"""import matplotlib.pyplot as p
+import numpy as np
+from plots.estilo_plots import guardar_figura
+
+p.figure()
+x     = ['2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025']
+y     = [np.nan,0.55547660,0.60006849,0.46524696,0.52887940,0.48749612,0.19490869,0.46060805,0.56612123,0.39803001,0.60197869,0.56655043]
+y_err = [np.nan,0.14569734,0.25445534,0.30989747,0.19435214,0.21452367,0.23086488,0.15603615,0.23940949,0.21028380,0.22596452,0.20107036]
+
+p.errorbar(x[:6], y[:6], yerr=y_err[:6], fmt='o-', marker='o', capsize=4, color='green', label='Órbita Science')
+p.errorbar(x[5:], y[5:], yerr=y_err[5:], fmt='o-', marker='o', capsize=4, color='blue', label='Órbita Science & Relay')
+p.xticks(x)
+p.title('Parámetro $x_0$ ajustado de los BS $k$-NN (Eclipse Optimizado) respecto del último ciclo solar')
+p.ylabel(r'Parámetro $x_0$')
+p.xlabel('Año')
+p.grid(which='major', alpha=.2,  linestyle='-')                                 # Uso parámetros estándar de ejes principales,
+p.grid(which='minor', alpha=.15, linestyle=':')                                 # y secundarios suaves para todos los gráficos.
+p.legend()
+guardar_figura()
+p.show()"""
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 # APRENDIZAJE
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-"""knn = KNN.entrenar(# IMPORTANTE => entreno con TODOS (los 3766 BS Fruchtman del hemisferio NORTE Y SUR)
+"""knn = KNN.entrenar(
   directorio         = ruta,
-  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'],
-  hemisferio_N       = False,
-  K                  = 12,
+  años_entrenamiento = ['2014','2015','2016','2017','2018','2019'], # BS Fruchtman
+  hemisferio_N       = False,                                       # Uso los 3766 BS
+  K                  = 3,
   variables          = ['B','R','Bx','By','Bz','Xss','Yss','Zss'],
-  promedio           = 5,  # en segundos
-  ventana            = 60, # en segundos
-  ventanas_NBS       = [-3,-2,2,3],# entero para la posición de ventanas a utilizar como supervisión no-BS (las ventanas BS son [0]).
+  promedio           = 15,                                          # en segundos
+  ventana            = 120,                                         # en segundos
+  ventanas_NBS       = [-2,2,4,6],                                  # las ventanas_BS son = [0]
 )
 knn.save(directorio=ruta, nombre_archivo=f'Eclipse_FINAL.pkl')"""
 
@@ -140,8 +164,8 @@ metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fr
 """MAG.graficador(
   directorio     = ruta + 'datos_recortados_merge',# 'datos_recortados_merge' | 'recorte_Vignes' | 'hemisferio_N' | 'hemisferio_ND'
 # Intervalo de tiempo deseado:
-  tiempo_inicial = '25/12/2014-09:40:00',
-  tiempo_final   = '25/12/2014-10:05:00',
+  tiempo_inicial = '26/1/2018-06:00:00',
+  tiempo_final   = '26/1/2018-07:10:00',
   promedio       = 1, # Suavizado de los datos (reducción de ruido/fluctuaciones).
 # Sistema de Referencia: 'ss' ó 'pc'
   coord          = 'ss',
@@ -162,12 +186,12 @@ metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fr
 # Curvas paramétricas 2D y 3D:
   #trayectoria   = True,
 # Interpolación:
-  #scatter       = True,
-  #tamaño_puntos = 1,
+  scatter       = True,
+  tamaño_puntos = 1,
 # Mediciones BS detectadas por Fruchtman y/o por el KNN:
-  #bow_shocks         = ['KNN'], # ó ['KNN','Fruchtman','propios']
-  #modelo_KNN         = 'Eclipse_promedio5',
-  #post_procesamiento = True,
+  bow_shocks         = ['KNN','Fruchtman'], # ó ['KNN','Fruchtman','propios']
+  modelo_KNN         = 'Eclipse_FINAL',
+  post_procesamiento = True,
 # Guardar figura en formato .PDF:
   guardar = True
 )"""
@@ -175,9 +199,9 @@ metric.calcular_métricas_KNN_con_Fruchtman(# estoy evaluando con los 3766 BS Fr
 """ani.trayectoria_3D_MAVEN_MAG(
   directorio     = ruta + 'datos_recortados_merge',
   tiempo_inicial = '30/11/2014-00:00:00',
-  tiempo_final   = '6/12/2014-23:59:00',
+  tiempo_final   = '30/11/2014-23:59:00',
   promedio       = 1,
-  paso           = 200,
+  paso           = 600,
   coord          = 'pc'
 )"""
 
